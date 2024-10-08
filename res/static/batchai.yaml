@@ -1,0 +1,178 @@
+includes: ['Dockerfile','*.xml','*.py', '*.python', '*.cs', '*.cpp', '*.cc', '*.h', '*.hpp', '*.c', '*.ruby', '*.go', '*.html', '*.htm', '*.java', '*.json', '*.kt', '*.lua', '*.rs', '*.scala', '*.ts', '*.php', '*.python', '*.proto', '*.python', '*.swift', '*.md', '*.cob', '*.cpy', '*.pl','*.sh','*.yaml','*.yml']
+excludes: ['.git','.svn']
+cache_dir: ${BATCHAI_CACHE_DIR}
+lang: ${LANG}
+review:
+  branch: ${BATCHAI_REVIEW_BRANCH}
+  model_id: ${BATCHAI_REVIEW_MODEL}
+  severity: ${BATCHAI_REVIEW_SEVERITY}
+  prompt:
+    rules:
+      - "${BATCHAI_REVIEW_RULE_1}"
+      - "${BATCHAI_REVIEW_RULE_2}"
+      - "${BATCHAI_REVIEW_RULE_3}"
+      - "${BATCHAI_REVIEW_RULE_4}"
+      - "${BATCHAI_REVIEW_RULE_5}"
+      - "${BATCHAI_REVIEW_RULE_6}"
+      - "${BATCHAI_REVIEW_RULE_7}"
+      - "${BATCHAI_REVIEW_RULE_8}"
+      - "${BATCHAI_REVIEW_RULE_9}"
+      - "${BATCHAI_REVIEW_RULE_10}"
+      - "${BATCHAI_REVIEW_RULE_11}"
+      - "${BATCHAI_REVIEW_RULE_12}"
+      - "${BATCHAI_REVIEW_RULE_13}"
+      - "${BATCHAI_REVIEW_RULE_14}"
+      - "${BATCHAI_REVIEW_RULE_15}"
+      - "${BATCHAI_REVIEW_RULE_16}"
+      - "${BATCHAI_REVIEW_RULE_17}"
+      - "${BATCHAI_REVIEW_RULE_18}"
+      - "${BATCHAI_REVIEW_RULE_19}"
+      - "${BATCHAI_REVIEW_RULE_20}"
+      - "${MY_REVIEW_RULE_1}"
+      - "${MY_REVIEW_RULE_2}"
+      - "${MY_REVIEW_RULE_3}"
+      - "${MY_REVIEW_RULE_4}"
+      - "${MY_REVIEW_RULE_5}"
+      - "${MY_REVIEW_RULE_6}"
+      - "${MY_REVIEW_RULE_7}"
+      - "${MY_REVIEW_RULE_8}"
+      - "${MY_REVIEW_RULE_9}"
+      - "${MY_REVIEW_RULE_10}"
+      - "${MY_REVIEW_RULE_11}"
+      - "${MY_REVIEW_RULE_12}"
+      - "${MY_REVIEW_RULE_13}"
+      - "${MY_REVIEW_RULE_14}"
+      - "${MY_REVIEW_RULE_15}"
+      - "${MY_REVIEW_RULE_16}"
+      - "${MY_REVIEW_RULE_17}"
+      - "${MY_REVIEW_RULE_18}"
+      - "${MY_REVIEW_RULE_19}"
+      - "${MY_REVIEW_RULE_20}"
+    template: |
+        As an developer expert, you're requested by users to review provided code:
+        {{.review_rules}}
+        Code to review: 
+        path: {{.path}}
+        {{.code_to_review}}
+
+models:
+  - id: openai/gpt-4o
+    name: gpt-4o
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    context_window: 128000
+    max_output_tokens: 4096
+    tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    api_key: ${OPENAI_API_KEY}
+    base_url: ${OPENAI_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ${OPENAI_PROXY_URL}
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ${OPENAI_PROXY_USER}
+    proxy_pass: ${OPENAI_PROXY_PASS}
+    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
+
+  - id: openai/gpt-4o-mini
+    name: gpt-4o-mini
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    context_window: 128000
+    max_output_tokens: 16384
+    tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    api_key: ${OPENAI_API_KEY}
+    base_url: ${OPENAI_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ${OPENAI_PROXY_URL}
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ${OPENAI_PROXY_USER}
+    proxy_pass: ${OPENAI_PROXY_PASS}
+    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
+
+  - id: openai/gpt-4-turbo
+    name: gpt-4-turbo
+    context_window: 12800
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    max_output_tokens: 4096
+    tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    api_key: ${OPENAI_API_KEY}
+    base_url: ${OPENAI_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ${OPENAI_PROXY_URL}
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ${OPENAI_PROXY_USER}
+    proxy_pass: ${OPENAI_PROXY_PASS}
+    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
+
+  - id: openai/gpt-4
+    name: gpt-4
+    context_window: 8192
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    max_output_tokens: 8192
+    tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    api_key: ${OPENAI_API_KEY}
+    base_url: ${OPENAI_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ${OPENAI_PROXY_URL}
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ${OPENAI_PROXY_USER}
+    proxy_pass: ${OPENAI_PROXY_PASS}
+    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
+
+  - id: openai/gpt-3.5-turbo
+    name: gpt-3.5-turbo
+    context_window: 16385
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    max_output_tokens: 4096
+    tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    api_key: ${OPENAI_API_KEY}
+    base_url: ${OPENAI_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ${OPENAI_PROXY_URL}
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ${OPENAI_PROXY_USER}
+    proxy_pass: ${OPENAI_PROXY_PASS}
+    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
+
+  - id: openai/gpt-3.5-turbo-instruct
+    name: gpt-3.5-turbo-instruct
+    context_window: 4096
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    max_output_tokens: 4096
+    tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    api_key: ${OPENAI_API_KEY}
+    base_url: ${OPENAI_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ${OPENAI_PROXY_URL}
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ${OPENAI_PROXY_USER}
+    proxy_pass: ${OPENAI_PROXY_PASS}
+    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
+
+  - id: tongyi/qwen2.5-coder-7b-instruct
+    name: qwen2.5-coder-7b-instruct
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    context_window: 32768
+    max_output_tokens: 32768
+    tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    api_key: ${QWEN_API_KEY}
+    base_url: ${QWEN_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ''
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ''
+    proxy_pass: ''
+    max_concurrent_requests: ${QWEN_MAX_CONCURRENT_REQUESTS}
+
+  - id: ollama/qwen2.5-coder:7b-instruct-fp16
+    name: qwen2.5-coder:7b-instruct-fp16
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    context_window: 32768
+    max_output_tokens: 32768
+    tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    api_key: ${OLLAMA_API_KEY}
+    base_url: ${OLLAMA_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ''
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ''
+    proxy_pass: ''
+    max_concurrent_requests: ${OLLAMA_MAX_CONCURRENT_REQUESTS}
+

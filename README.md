@@ -1,0 +1,1 @@
+# batchai - uses AI to batch processing project files

@@ -1,0 +1,59 @@
+# Reference https://github.com/github/gitignore/blob/master/Go.gitignore
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+/coverage.out
+/coverage.html
+
+# for goreportcard-cli
+*.grc.bk
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# OS General
+Thumbs.db
+.DS_Store
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+*.log
+/target
+/build
+idea.txt
+/__debug_bin
+/local.md
+
+# Develop tools
+.idea/
+*.swp
+
+/statik/
+
+nohup.out
+dist/
+log.txt
+
+/private/
+/gomock_reflect_*
+*.syso
+
+/.task/
+/temp/
+
+__debug_bin*
+
+/.env
+/work
+/.vscode
