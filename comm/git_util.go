@@ -26,9 +26,12 @@ func GetUnstagedFiles(fs afero.Fs, workDir string) ([]string, error) {
 		return nil, err
 	}
 
-	lines := strings.Split(output, "\n")
-	for i, line := range lines {
-		lines[i] = strings.TrimSpace(line)
+	lines := []string{}
+	for _, line := range strings.Split(output, "\n") {
+		line = strings.TrimSpace(line)
+		if len(line) > 0 {
+			lines = append(lines, line)
+		}
 	}
 	return lines, nil
 }

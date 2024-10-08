@@ -1,5 +1,6 @@
 services:
   
+  # run 'docker exec batchai.ollama ollama pull [model]' to pull specific models
   ollama:
     image: ollama/ollama:0.3.12
     container_name: batchai.ollama
