@@ -3,7 +3,6 @@ excludes: ['.git','.svn']
 cache_dir: ${BATCHAI_CACHE_DIR}
 lang: ${LANG}
 review:
-  branch: ${BATCHAI_REVIEW_BRANCH}
   model_id: ${BATCHAI_REVIEW_MODEL}
   severity: ${BATCHAI_REVIEW_SEVERITY}
   prompt:

@@ -10,14 +10,36 @@ env:
     sh: go env GOOS
   GOARCH:
     sh: go env GOARCH
-
-includes:
-  release: tasks/{{OS}}.yml
-  base: tasks/base.yml
+  LD_FLAGS_WINDOWS: -H=windowsgui
+  LD_FLAGS_EXTRA: '{{if eq OS "windows"}} {{.LD_FLAGS_WINDOWS}} {{else}}    {{end}}'
 
 output: prefixed
 
 tasks:
+  go_build:
+    env:
+      GO111MODULE: on
+      CGO_ENABLED: 1
+    cmds:
+      #- go vet
+      - rm -f target/batchai.0*
+      - go clean -cache
+      - GOOS={{.GOOS}} GOARCH={{.GOARCH}} CGO_ENABLED=0 go build -trimpath -ldflags '-extldflags "-static" -s -w -X main.Version={{.VERSION}} -X main.CommitId={{.COMMIT_ID}} {{.LD_FLAGS_EXTRA}}' -o target/batchai.{{.GOOS}}-{{.GOARCH}}{{.exeExt}} ./cmd/batchai/main.go
+
+  mockgen:
+    cmds:
+      - task: rm
+        vars:
+           TARGET: pkg/{{.MOCK_PKG_DEST}}/{{.MOCK_DEST_FILE}}
+      - mockgen -destination pkg/{{.MOCK_PKG_DEST}}/{{.MOCK_DEST_FILE}} -package test --build_flags=--mod=mod {{.PROJECT_PKG}}/pkg/{{.MOCK_PKG_SRC}} {{.MOCK_INTERFACE}}
+  rm:
+    cmds:
+      - echo $PATH
+      - '{{if eq OS "windows"}} powershell Remove-Item {{.TARGET}} -Force -Recurse {{else}} rm -rf {{.TARGET}} {{end}}'
+  cp:
+    cmds:
+      - '{{if eq OS "windows"}} powershell Copy-Item {{.SRC}} {{.TARGET}} -Recurse {{else}} cp -rf  {{.SRC}} {{.TARGET}} {{end}}'
+
   init:
     desc: init env, including install dependent tools
     cmds:
@@ -52,7 +74,7 @@ tasks:
     cmds:
       - statik -src=./res/static -dest=./res -f -include=* -ns=res
       #- enumer -gqlgen -json -sql -text -yaml -output pkg/plugin/plugin_kind_generated.go -trimprefix PLUGIN_KIND_ -transform whitespace -transform upper -type PluginKind pkg/plugin/plugin.go
-      #- task: base:mockgen
+      #- task: mockgen
       #  vars:
       #    MOCK_DEST_FILE: controller_mock_test.go
       #    MOCK_PKG_SRC: hosts
@@ -62,7 +84,7 @@ tasks:
   clean:
     desc: clean target directory
     cmds:
-      - task: base:rm
+      - task: rm
         vars:
           TARGET: target
 
@@ -74,14 +96,54 @@ tasks:
     desc: build for development
     cmds:
       - task: format
-      - task: base:go_build
+      - task: go_build
 
-  install:
+  darwin:
+    desc: release for MacOS
+    cmds:
+      - task: go_build
+        vars:
+          GOARCH: amd64
+          GOOS: darwin
+      - upx -9 -k -v --force-macos target/batchai.darwin-amd64
+      - task: go_build
+        vars:
+          GOARCH: arm64
+          GOOS: darwin
+      - upx -9 -k -v --force-macos target/batchai.darwin-arm64
+
+  linux:
+    desc: release for linux
+    cmds:
+      - task: go_build
+        vars:
+          GOARCH: amd64
+          GOOS: linux      
+      - upx -9 -k -v target/batchai.linux-amd64
+
+  windows:
+    desc: release for windows
+    cmds:
+      - task: go_build
+        vars:
+          GOARCH: amd64
+          GOOS: windows
+          exeExt: .exe
+      - upx -9 -k -v target/batchai.windows-amd64.exe
+      - task: go_build
+        vars:
+          GOARCH: arm64
+          GOOS: windows
+          exeExt: .exe
+
+  release:
     cmds:
       - task: clean
       - task: gen
       - task: build
-      - sudo cp target/batchai.{{.GOOS}}-{{.GOARCH}}{{exeExt}} /usr/bin/batchai
+      - task: linux
+      - task: windows
+      - task: darwin
 
   run:
     cmds:

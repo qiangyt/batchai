@@ -6,7 +6,6 @@ import (
 
 type ReviewConfigT struct {
 	AppConfig AppConfig
-	Branch    string       `mapstructure:"branch"`
 	ModelId   string       `mapstructure:"model_id"`
 	Severity  string       `mapstructure:"severity"`
 	Prompt    ReviewPrompt `mapstructure:"prompt"`

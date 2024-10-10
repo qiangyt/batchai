@@ -1,26 +1,24 @@
 # batchai - utilizes AI for batch processing of project codes
 
-[![Latest Release]()
+I often rely on ChatGPT and GitHub Copilot, but feel a bit tired of:
 
-I often rely on ChatGPT and GitHub Copilot, but frustrated sometimes:
+- Have to repeatedly copy and paste between the chat window and opened code files. Why can't AI update the files directly?
 
-- Have to copy and paste between chat windows and my open files. Why can't AI update the files directly? 
+- When there are many files to process, I have to open each one individually for the AI to "review." Why can't AI handle everything in batches at once?
 
-- Have to repeatedly open code files to ask AI for assistance with them. Why can't AI handle this in batches?
+Thus I created this `batchai`. The philosophy behind it is simple: no more copy-pasting, as it will traverse the targeted directories and files. It only runs within a Git repository, so we need to confirm all changes made by `batchai` (since AI actually often makes mistakes).
 
-That's why I created this `BatchAI` — a command-line tool that utilizes AI for batch processing of project code within a Git repository. With `BatchAI`, I can work on all project files with a single command, eliminating the need for copy-pasting between AI chat windows and code files. For example, ask AI fix code directly.
+Currently, `batchai` only supports code review and fixing general issues (think of it as an AI-powered local SonarQube). I'm still working on adding more features, including explanation and comment generation, test code generation, as well as refactoring — all will be handled in batches.
 
-The philosophy behind `BatchAI` is simple: there's no need for copy-pasting anymore, as it operates solely within a Git repository directory and will reject attempts to run in non-Git repositories. This ensures that all changes made by `BatchAI` require our confirmation since AI is not infallible.
+Over the past two weeks, I’ve been trying out `batchai` on some of my own projects and have made some interesting findings:
 
-Currently, ``BatchAI` only supports code review and fixing general issues (think of it as an AI-powered local SonarQube). I'm still working on adding more features, including explanation and comment generation, test code generation, as well as refactoring — all will be handled in batches.
+- AI can identify issues that traditional tools, such as SonarQube, tend to miss.
+- AI may not report all issues in one go, so I need to run it multiple times.
+- Due to outdated LLM training data and hallucinations, it's crucial to confirm the changes for accuracy by myself - That's why I make `batchai` work only on clean Git repository directories.
 
-I've been using it myself over the past few days, and here are my findings:
+I used the [spring-petclinic (cloned from https://github.com/spring-projects/spring-petclinic)](https://github.com/qiangyt/spring-petclinic) for demonstration.
 
-- It consistently identifies issues that traditional tools (like Sonarqube) might miss, saving me time in the process.
-- It may not report all issues in one go, so I need to run it through several iterations.
-- Due to outdated LLM training data and hallucinations, it's crucial to confirm the changes for accuracy by myself. That's why I make `BatchAI` work only on clean Git repository directories, making it easier to manage the changes.
-
-Below is the positive cases:
+Here are some examples of correct review:
 
 - [Adds a check to ensure birthday not be in the future](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7ba90c8df45063ea6569e3ea29850f6dbd777bc14f76b1115f556ade61441207)
 
@@ -34,28 +32,28 @@ Below is the positive cases:
   <img src="doc/batchai-demo-2.png" width="800">
 </p>
 
-And also wrong fix:
+And also a wrong fix:
 
-- [Downgraded MySQL version from 9.0 back to 8.0 as it think latest MySQL version is 8.0](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7bc3b8001f97e9913dec25d48040a4a71b2ff4fcf915b49325602b4facad5979)
+- [Downgraded MySQL version from 9.0 back to 8.0 (gpt4o-mini think latest MySQL version is 8.0)](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7bc3b8001f97e9913dec25d48040a4a71b2ff4fcf915b49325602b4facad5979)
 
 <p align="center">
   <img src="doc/batchai-demo-3.png" width="800">
 </p>
 
-More detail.
+More detail:
 
-- [Review report](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
+- [Code Review report](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
 
 - [Fix following the review report](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712)
 
 ## Features
 
-- [x] Review : Reports issues to the console, saves as a review report, and then fixes code directly.
-- [x] Customized Prompts : Allows for tailored prompts based on user needs.
+- [x] Code Review : Reports issues to the console, saves as a review report, and then fixes code directly.
+- [x] Customized Prompts.
 - [x] File Ignoring : Specifies files to ignore, respecting both `.gitignore` and an additional `.batchai_ignore` file.
 - [x] Target Specification : Allows specifying target directories and files within the Git repository.
-- [x] Built using Go: Resulting in a single executable binary that works on Mac OSX, Linux, and Windows.
-- [x] Colorized Diff : Displays colorized diffs in the console.
+- [x] Implemented using Go: Resulting in a single executable binary that works on Mac OSX, Linux, and Windows.
+- [x] Diff: Displays colorized diffs in the console.
 - [x] LLM Support : Supports OpenAI-compatible LLMs, including Ollama.
 - [x] I18N : Supports internationalization comment/explaination generation.
 
@@ -73,8 +71,9 @@ More detail.
 2. Clone the demo project. The following steps assume the cloned project directory is `/data/spring-petclinic`
 
    ```shell
+   cd /data
    git clone https://github.com/spring-projects/spring-petclinic
-   cd /data/spring-petclinic
+   cd spring-petclinic
    ```
 
    In this directory, create a .env file. In the .env file, set the OPENAI_API_KEY. Below is an example:
@@ -190,13 +189,13 @@ Tested and supported models:
   
   - `openai/gpt-4o-mini`
 
-  Other should work too.
+  Other OpenAI models should work too.
 
 - Ali TONYI Qwen series: 
   
-  - `qwen2.5-coder-7b-instruct` (also available via Ollama.)
+  - `qwen2.5-coder-7b-instruct` (also available via Ollama)
 
-  Other should work too.
+  Other Qwen models should work too.
   
 To add more LLMs, simply follow the configuration in [res/static/batchai.yaml](res/static/batchai.yaml), as long as the LLM exposes an OpenAI-compatible API.
 
@@ -204,11 +203,18 @@ To add more LLMs, simply follow the configuration in [res/static/batchai.yaml](r
 
 - Optional configuration file:
 
-  You can provide an optional configuration file at `${HOME}/batchai/batchai.yaml`. For a full example, refer to [res/static/batchai.yaml](res/static/batchai.yaml)
+  You can provide an optional configuration file: `${HOME}/batchai/batchai.yaml`. For a full example, refer to [res/static/batchai.yaml](res/static/batchai.yaml)
 
 - Environment file:
 
-  You can also configure BatchAI via an environment file `.env` located in the target Git repository directory. Refer to [res/static/batchai.yaml](res/static/batchai.yaml) for all available environment variables, and [res/static/batchai.env](res/static/batchai.env) for their default values.
+  You can also configure `batchai` via an environment file `.env` located in the target Git repository directory. Refer to [res/static/batchai.yaml](res/static/batchai.yaml) for all available environment variables, and [res/static/batchai.env](res/static/batchai.env) for their default values.
+
+- Ignore specific files:
+
+  `batchai` ignores the directories and files following `.gitignore` files. This is usually sufficient, but if there are additional files or directories that cannot be ignored by Git but should not be processed by batchai, we can specify them in the `.batchai_ignore` files. The rules are written in the same way as in `.gitignore`.
+  
+- Customized Prompts
+  Refer to `BATCHAI_REVIEW_RULE_*` and `MY_REVIEW_RULE_*` in [res/static/batchai.yaml]
 
 ## License
 
