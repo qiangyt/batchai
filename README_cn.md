@@ -1,5 +1,7 @@
 # batchai - 用 AI 批量处理项目代码
 
+[English](./README.md)
+
 我经常依赖 ChatGPT 和 GitHub Copilot，只是时不时心烦：
 
 - 需要在chat窗口和打开的代码文件之间反复ctrl+c/ctrl+v。为什么 AI 不能直接修改文件呢？

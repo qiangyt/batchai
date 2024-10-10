@@ -1,4 +1,7 @@
+
 # batchai - utilizes AI for batch processing of project codes
+
+[中文](./README_cn.md)
 
 I often rely on ChatGPT and GitHub Copilot, but feel a bit tired of:
 
