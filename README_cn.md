@@ -83,7 +83,7 @@
    ```shell
    # OpenAI
    OPENAI_API_KEY=change-it
-   #OPENAI_PROXY_URL=
+   #OPENAI_PROXY_URL= 对于国内用户，需要在这里设置代理的URL和用户名密码等等
    #OPENAI_PROXY_USER=
    #OPENAI_PROXY_PASS=
    #BATCHAI_REVIEW_MODEL=openai/gpt-4o-mini
