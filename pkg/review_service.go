@@ -91,7 +91,9 @@ func (me ReviewService) Review(x Kontext) {
 
 	targetFiles, _, _, repoFiles := me.CollectWorkingFiles(x, c)
 	if len(targetFiles) > 0 {
-		me.launchSymbolAgents(x, repoFiles)
+		if x.ReviewArgs.EnableSymbolCollection {
+			me.launchSymbolAgents(x, repoFiles)
+		}
 		me.launchReviewAgents(x, targetFiles, metrics)
 	}
 

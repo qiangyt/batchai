@@ -17,26 +17,27 @@ func IsGitInited(fs afero.Fs, workDir string) bool {
 }
 
 func GetGitStatus(fs afero.Fs, workDir string) (string, error) {
-	return ExecGit(fs, workDir, []string{"status"})
+	return ExecGit(fs, workDir, []string{"status"}, true)
 }
 
 func GetUnstagedFiles(fs afero.Fs, workDir string) ([]string, error) {
-	output, err := ExecGit(fs, workDir, []string{"status", "--porcelain"})
+	output, err := ExecGit(fs, workDir, []string{"status", "--porcelain"}, false)
 	if err != nil {
 		return nil, err
 	}
 
 	lines := []string{}
 	for _, line := range strings.Split(output, "\n") {
-		line = strings.TrimSpace(line)
 		if len(line) > 0 {
-			lines = append(lines, line)
+			if strings.HasPrefix(line, "?? ") || strings.HasPrefix(line, " M ") {
+				lines = append(lines, line)
+			}
 		}
 	}
 	return lines, nil
 }
 
-func ExecGit(fs afero.Fs, workDir string, args []string) (string, error) {
+func ExecGit(fs afero.Fs, workDir string, args []string, trim bool) (string, error) {
 	var err error
 
 	if len(workDir) > 0 {
@@ -59,7 +60,9 @@ func ExecGit(fs afero.Fs, workDir string, args []string) (string, error) {
 	}
 
 	r := string(t)
-	r = strings.Trim(r, "\n\r\t ")
+	if trim {
+		r = strings.Trim(r, "\n\r\t ")
+	}
 	return r, nil
 }
 

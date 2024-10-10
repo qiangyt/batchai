@@ -11,7 +11,7 @@ import (
 const SYMBOL_JSON_FORMAT = `
 {
 	"name": name of this symbol,
-	"lines": content of lines that declares this symbol; don't include body of methods or functions
+	"lines": "content of lines that defines or initialize this symbol; don't include body of methods or functions"
 }
 `
 

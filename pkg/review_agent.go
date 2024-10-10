@@ -83,13 +83,14 @@ func (me ReviewAgent) reviewFile(x Kontext, c comm.Console) ReviewResult {
 	}
 
 	r := me.reviewCode(x, c, code.Latest)
+	r.Print(c, code.Original)
+
 	if r.HasIssue {
 		if x.ReviewArgs.Fix {
 			// replace the original code file with reviewed code
 			me.codeFileManager.Save(x, me.file, r.FixedCode)
 		}
 	}
-	r.Print(c, code.Original)
 
 	reportFile := me.reportManager.SaveReport(x, me.file, r)
 	c.NewLine().Blue("report: ").Default(reportFile)
@@ -161,8 +162,10 @@ func (me ReviewAgent) reviewCode(x Kontext, c comm.Console, code string) ReviewR
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
-	// TODO: merge metrics
-	me.provideSymbols(x, c, me.file)
+	if x.ReviewArgs.EnableSymbolCollection {
+		// TODO: merge metrics
+		me.provideSymbols(x, c, me.file)
+	}
 
 	mem.AddUserMessage("review the code")
 	if verbose {
@@ -175,7 +178,7 @@ func (me ReviewAgent) reviewCode(x Kontext, c comm.Console, code string) ReviewR
 	}
 
 	fixeCode, remainedAnswer := ExtractFixedCode(answer)
-	r, _ := ExtractReviewReport(remainedAnswer)
+	r := ExtractReviewReport(remainedAnswer)
 	r.ModelUsageMetrics = metrics
 	r.FixedCode = fixeCode
 

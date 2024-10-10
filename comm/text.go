@@ -287,10 +287,9 @@ func ExtractMarkdownJsonBlocks(input string) (string, string, error) {
 
 	end := strings.Index(block, "```")
 	if end <= 0 {
-		return "", input, errors.New("unmatched markdown ```json tag")
+		return block, input[:begin], nil // errors.New("unmatched markdown ```json tag")
 	}
 	result := block[:end]
-
 	remained := input[:begin] + block[end+len("```"):]
 	return result, remained, nil
 }

@@ -9,16 +9,18 @@ import (
 )
 
 type AppArgsT struct {
-	Verbose     bool
-	Lang        string
-	TargetPaths []string
-	Repository  string
+	EnableSymbolCollection bool
+	Verbose                bool
+	Lang                   string
+	TargetPaths            []string
+	Repository             string
 }
 
 type AppArgs = *AppArgsT
 
 func (me AppArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
-	me.Verbose = cliContext.Bool("verbose")
+	me.EnableSymbolCollection = cliContext.IsSet("enable-symbol-collection")
+	me.Verbose = cliContext.IsSet("verbose")
 	me.Lang = cliContext.String("lang")
 
 	if !cliContext.Args().Present() {

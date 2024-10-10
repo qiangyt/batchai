@@ -45,7 +45,7 @@ func ReviewOrListFunc(x Kontext, list bool) func(*cli.Context) error {
 				return errors.Wrap(err, "failed to check unstaged files")
 			}
 			if len(unstagedFiles) > 0 {
-				return fmt.Errorf("please stage your local changes before fix.\nunstaged files: %s", strings.Join(unstagedFiles, "\n"))
+				return fmt.Errorf("please stage your local changes before fix.\nunstaged files: \n%s", strings.Join(unstagedFiles, "\n"))
 			}
 		}
 

@@ -75,12 +75,13 @@ func main() {
 	}
 
 	app := &cli.App{
-		Version:                fmt.Sprintf("%s\ncommit id: %s", Version, CommitId),
+		Version:                fmt.Sprintf("%s (%s)", Version, CommitId),
 		UseShortOptionHandling: true,
 		Commands:               []*cli.Command{review, list, explain, comment, refactor},
 		Name:                   "batchai",
-		Usage:                  "uses AI to batch processing project files",
+		Usage:                  "utilizes AI for batch processing of project codes",
 		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "enable-symbol-reference", Usage: "Enables symbol collection to examine code references across the entire project"},
 			&cli.BoolFlag{Name: "verbose", Hidden: true},
 			&cli.StringFlag{
 				Name:        "lang",

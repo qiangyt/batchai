@@ -94,8 +94,8 @@ func ExtractFixedCode(input string) (string, string) {
 	return result, remained
 }
 
-func ExtractReviewReport(answer string) (ReviewReport, string) {
-	jsonStr, remained := comm.ExtractMarkdownJsonBlocksP(answer)
+func ExtractReviewReport(answer string) ReviewReport {
+	jsonStr, _ := comm.ExtractMarkdownJsonBlocksP(answer)
 
 	indexOfLeftBrace := strings.Index(jsonStr, "{")
 	if indexOfLeftBrace < 0 {
@@ -111,7 +111,7 @@ func ExtractReviewReport(answer string) (ReviewReport, string) {
 
 	report := &ReviewReportT{}
 	comm.FromJsonP(jsonStr, false, report)
-	return report, remained
+	return report
 }
 
 func (me ReviewReport) Print(console comm.Console, originalCode string) {

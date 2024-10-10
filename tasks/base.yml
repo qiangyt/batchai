@@ -12,7 +12,8 @@ tasks:
     cmds:
       #- go vet
       - rm -f target/batchai.0*
-      - GOOS={{.GOOS}} GOARCH={{.GOARCH}} go build -trimpath -ldflags "-s -w -X main.Version={{.VERSION}} -X main.CommitId={{.COMMIT_ID}} {{.LD_FLAGS_EXTRA}}" -o target/batchai.{{.GOOS}}-{{.GOARCH}}{{exeExt}} ./cmd/batchai/main.go
+      - go clean -cache
+      - GOOS={{.GOOS}} GOARCH={{.GOARCH}} CGO_ENABLED=0 go build -trimpath -ldflags '-extldflags "-static" -s -w -X main.Version={{.VERSION}} -X main.CommitId={{.COMMIT_ID}} {{.LD_FLAGS_EXTRA}}' -o target/batchai.{{.GOOS}}-{{.GOARCH}}{{exeExt}} ./cmd/batchai/main.go
       #- upx -9 -k -v target/batchai.{{.GOOS}}-{{.GOARCH}}{{exeExt}}
   mockgen:
     cmds:
