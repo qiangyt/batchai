@@ -1,6 +1,6 @@
 services:
   
-  # run 'docker exec batchai.ollama ollama pull [model]' to pull specific models
+  # run 'docker exec batchai.ollama ollama pull [qwen2.5-coder:7b-instruct-fp16]' to pull specific models
   ollama:
     image: ollama/ollama:0.3.12
     container_name: batchai.ollama
