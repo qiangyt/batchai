@@ -4,48 +4,57 @@
 
 I often rely on ChatGPT and GitHub Copilot, but frustrated sometimes:
 
-- Have to copy and paste between chat windows and my open files. Why can't AI update the files directly? My project files are under Git control, making it easy to view diffs and revert changes, so I'm not concerned about introducing unwanted modifications.
+- Have to copy and paste between chat windows and my open files. Why can't AI update the files directly? 
+
 - Have to repeatedly open code files to ask AI for assistance with them. Why can't AI handle this in batches?
-That's why I created BatchAI — a command-line tool that utilizes AI for batch processing of project code within a Git repository. With BatchAI, you can work on all project files with a single command, eliminating the need for copy-pasting between AI chat windows and your code files. For example, you can have AI fix code directly.
 
-The philosophy behind BatchAI is simple: there's no need for copy-pasting anymore, as it operates solely within a Git repository directory and will reject attempts to run in non-Git repositories. This ensures that all changes made by BatchAI require our confirmation since AI is not infallible.
+That's why I created this `BatchAI` — a command-line tool that utilizes AI for batch processing of project code within a Git repository. With `BatchAI`, I can work on all project files with a single command, eliminating the need for copy-pasting between AI chat windows and code files. For example, ask AI fix code directly.
 
-Currently, it only supports code review and fixing general issues (think of it as an AI-powered local SonarQube). I'm working on adding more features, including explanation and comment generation, text generation, and refactoring — all handled in batches.
+The philosophy behind `BatchAI` is simple: there's no need for copy-pasting anymore, as it operates solely within a Git repository directory and will reject attempts to run in non-Git repositories. This ensures that all changes made by `BatchAI` require our confirmation since AI is not infallible.
+
+Currently, ``BatchAI` only supports code review and fixing general issues (think of it as an AI-powered local SonarQube). I'm still working on adding more features, including explanation and comment generation, test code generation, as well as refactoring — all will be handled in batches.
 
 I've been using it myself over the past few days, and here are my findings:
 
 - It consistently identifies issues that traditional tools (like Sonarqube) might miss, saving me time in the process.
 - It may not report all issues in one go, so I need to run it through several iterations.
-- Due to outdated LLM training data and hallucinations, it's crucial to confirm the changes for accuracy by myself. That's why I make BatchAI work only on clean Git repository directories, making it easier to manage the changes.
+- Due to outdated LLM training data and hallucinations, it's crucial to confirm the changes for accuracy by myself. That's why I make `BatchAI` work only on clean Git repository directories, making it easier to manage the changes.
 
 Below is the positive cases:
 
 - [Adds a check to ensure birthday not be in the future](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7ba90c8df45063ea6569e3ea29850f6dbd777bc14f76b1115f556ade61441207)
+
 <p align="center">
   <img src="doc/batchai-demo-1.png" width="800">
 </p>
 
 - [Renamed method to adhere to JavaBeans naming conventions](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-4788251011337c19f735f2061cf599b8dbc0394a92ba86447b0db9b386f869cd)
+
 <p align="center">
   <img src="doc/batchai-demo-2.png" width="800">
 </p>
 
 And also wrong fix:
 
-- [Downgraded MySQL version from 9.0 back to 8.0 as it think latest MySQL version is 8.0](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-b817f116541a3c3c50a563dac65d00a385635018b062ff6912bbe2aa12261bff)
+- [Downgraded MySQL version from 9.0 back to 8.0 as it think latest MySQL version is 8.0](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7bc3b8001f97e9913dec25d48040a4a71b2ff4fcf915b49325602b4facad5979)
+
 <p align="center">
   <img src="doc/batchai-demo-3.png" width="800">
 </p>
 
-See [Demo cases](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712) for more cases
+More detail.
+
+- [Review report](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
+
+- [Fix following the review report](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712)
 
 ## Features
 
 - [x] Review : Reports issues to the console, saves as a review report, and then fixes code directly.
 - [x] Customized Prompts : Allows for tailored prompts based on user needs.
-- [x] File Ignoring : Specifies files to ignore, respecting both .gitignore and an additional .batchai_ignore file.
+- [x] File Ignoring : Specifies files to ignore, respecting both `.gitignore` and an additional `.batchai_ignore` file.
 - [x] Target Specification : Allows specifying target directories and files within the Git repository.
-- [x] Built using Go: Resulting in a single executable binary that works on macOS, Linux, and Windows.
+- [x] Built using Go: Resulting in a single executable binary that works on Mac OSX, Linux, and Windows.
 - [x] Colorized Diff : Displays colorized diffs in the console.
 - [x] LLM Support : Supports OpenAI-compatible LLMs, including Ollama.
 - [x] I18N : Supports internationalization comment/explaination generation.
@@ -53,7 +62,7 @@ See [Demo cases](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b
 ## Planned features
 
 - Explain, Comment Generation, Test Generation, Refactoring.
-- Rejected Change Tracking : Tracks rejected changes to avoid redundant modifications.
+- Rejected Changes Tracking : Tracks rejected changes to avoid redundant modifications.
 - Language-Specific Prompts : Different prompts for various programming languages.
 - LLM Usage Metrics : Implements metrics for tracking LLM usage.
 
@@ -98,11 +107,11 @@ See [Demo cases](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b
    batchai review . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
    ```
 
-   - Directly fix the target files:
+   - Directly fix the target files via option `--fix`:
 
    ```shell
    cd /data/spring-petclinic
-   batchai review . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
+   batchai review --fix . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
    ```
 
    - Run `batchai` in main Java code only:
@@ -187,7 +196,7 @@ Tested and supported models:
   
   - `qwen2.5-coder-7b-instruct` (also available via Ollama.)
 
-Other should work too.
+  Other should work too.
   
 To add more LLMs, simply follow the configuration in [res/static/batchai.yaml](res/static/batchai.yaml), as long as the LLM exposes an OpenAI-compatible API.
 
@@ -195,11 +204,11 @@ To add more LLMs, simply follow the configuration in [res/static/batchai.yaml](r
 
 - Optional configuration file:
 
-You can provide an optional configuration file at `${HOME}/batchai/batchai.yaml`. For a full example, refer to [res/static/batchai.yaml](res/static/batchai.yaml)
+  You can provide an optional configuration file at `${HOME}/batchai/batchai.yaml`. For a full example, refer to [res/static/batchai.yaml](res/static/batchai.yaml)
 
 - Environment file:
 
-You can also configure BatchAI via an environment file `.env` located in the target Git repository directory. Refer to [res/static/batchai.yaml](res/static/batchai.yaml) for all available environment variables, and [res/static/batchai.env](res/static/batchai.env) for their default values.
+  You can also configure BatchAI via an environment file `.env` located in the target Git repository directory. Refer to [res/static/batchai.yaml](res/static/batchai.yaml) for all available environment variables, and [res/static/batchai.env](res/static/batchai.env) for their default values.
 
 ## License
 
