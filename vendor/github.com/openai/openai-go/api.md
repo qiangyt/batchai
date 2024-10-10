@@ -119,6 +119,7 @@ Methods:
 Params Types:
 
 - <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioModel">AudioModel</a>
+- <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioResponseFormat">AudioResponseFormat</a>
 
 ## Transcriptions
 
@@ -128,7 +129,7 @@ Response Types:
 
 Methods:
 
-- <code title="post /audio/transcriptions">client.Audio.Transcriptions.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioTranscriptionService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioTranscriptionNewParams">AudioTranscriptionNewParams</a>) (<a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#Transcription">Transcription</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /audio/transcriptions">client.Audio.Transcriptions.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioTranscriptionService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioTranscriptionNewParams">AudioTranscriptionNewParams</a>) (Transcription, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Translations
 
@@ -138,7 +139,7 @@ Response Types:
 
 Methods:
 
-- <code title="post /audio/translations">client.Audio.Translations.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioTranslationService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioTranslationNewParams">AudioTranslationNewParams</a>) (<a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#Translation">Translation</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /audio/translations">client.Audio.Translations.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioTranslationService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#AudioTranslationNewParams">AudioTranslationNewParams</a>) (Translation, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Speech
 
@@ -154,7 +155,10 @@ Methods:
 
 Params Types:
 
+- <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#ModerationImageURLInputParam">ModerationImageURLInputParam</a>
 - <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#ModerationModel">ModerationModel</a>
+- <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#ModerationMultiModalInputUnionParam">ModerationMultiModalInputUnionParam</a>
+- <a href="https://pkg.go.dev/github.com/openai/openai-go">openai</a>.<a href="https://pkg.go.dev/github.com/openai/openai-go#ModerationTextInputParam">ModerationTextInputParam</a>
 
 Response Types:
 

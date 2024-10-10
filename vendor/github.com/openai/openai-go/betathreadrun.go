@@ -42,6 +42,7 @@ func NewBetaThreadRunService(opts ...option.RequestOption) (r *BetaThreadRunServ
 // Create a run.
 func (r *BetaThreadRunService) New(ctx context.Context, threadID string, params BetaThreadRunNewParams, opts ...option.RequestOption) (res *Run, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -58,7 +59,7 @@ func (r *BetaThreadRunService) NewStreaming(ctx context.Context, threadID string
 		err error
 	)
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithJSONSet("stream", true)}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2"), option.WithJSONSet("stream", true)}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -71,6 +72,7 @@ func (r *BetaThreadRunService) NewStreaming(ctx context.Context, threadID string
 // Retrieves a run.
 func (r *BetaThreadRunService) Get(ctx context.Context, threadID string, runID string, opts ...option.RequestOption) (res *Run, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -87,6 +89,7 @@ func (r *BetaThreadRunService) Get(ctx context.Context, threadID string, runID s
 // Modifies a run.
 func (r *BetaThreadRunService) Update(ctx context.Context, threadID string, runID string, body BetaThreadRunUpdateParams, opts ...option.RequestOption) (res *Run, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -104,7 +107,7 @@ func (r *BetaThreadRunService) Update(ctx context.Context, threadID string, runI
 func (r *BetaThreadRunService) List(ctx context.Context, threadID string, query BetaThreadRunListParams, opts ...option.RequestOption) (res *pagination.CursorPage[Run], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2"), option.WithResponseInto(&raw)}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -130,6 +133,7 @@ func (r *BetaThreadRunService) ListAutoPaging(ctx context.Context, threadID stri
 // Cancels a run that is `in_progress`.
 func (r *BetaThreadRunService) Cancel(ctx context.Context, threadID string, runID string, opts ...option.RequestOption) (res *Run, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -149,6 +153,7 @@ func (r *BetaThreadRunService) Cancel(ctx context.Context, threadID string, runI
 // request.
 func (r *BetaThreadRunService) SubmitToolOutputs(ctx context.Context, threadID string, runID string, body BetaThreadRunSubmitToolOutputsParams, opts ...option.RequestOption) (res *Run, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -172,7 +177,7 @@ func (r *BetaThreadRunService) SubmitToolOutputsStreaming(ctx context.Context, t
 		err error
 	)
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithJSONSet("stream", true)}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2"), option.WithJSONSet("stream", true)}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -297,7 +302,7 @@ type Run struct {
 	MaxPromptTokens int64 `json:"max_prompt_tokens,required,nullable"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata interface{} `json:"metadata,required,nullable"`
 	// The model that the
@@ -692,7 +697,7 @@ type BetaThreadRunNewParams struct {
 	MaxPromptTokens param.Field[int64] `json:"max_prompt_tokens"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 	// The ID of the [Model](https://platform.openai.com/docs/api-reference/models) to
@@ -759,7 +764,7 @@ type BetaThreadRunNewParamsAdditionalMessage struct {
 	Attachments param.Field[[]BetaThreadRunNewParamsAdditionalMessagesAttachment] `json:"attachments"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 }
@@ -901,7 +906,7 @@ func (r BetaThreadRunNewParamsTruncationStrategyType) IsKnown() bool {
 type BetaThreadRunUpdateParams struct {
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 }

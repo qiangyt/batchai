@@ -1,5 +1,63 @@
 # Changelog
 
+## 0.1.0-alpha.26 (2024-10-08)
+
+Full Changelog: [v0.1.0-alpha.25...v0.1.0-alpha.26](https://github.com/openai/openai-go/compare/v0.1.0-alpha.25...v0.1.0-alpha.26)
+
+### Bug Fixes
+
+* **beta:** pass beta header by default ([#75](https://github.com/openai/openai-go/issues/75)) ([cb66b47](https://github.com/openai/openai-go/commit/cb66b474fb86646501314456fce6acc4b31a2026))
+
+## 0.1.0-alpha.25 (2024-10-02)
+
+Full Changelog: [v0.1.0-alpha.24...v0.1.0-alpha.25](https://github.com/openai/openai-go/compare/v0.1.0-alpha.24...v0.1.0-alpha.25)
+
+### Documentation
+
+* improve and reference contributing documentation ([#73](https://github.com/openai/openai-go/issues/73)) ([03a8261](https://github.com/openai/openai-go/commit/03a8261970011b2be7e101ec095a0eb93b361a04))
+
+## 0.1.0-alpha.24 (2024-10-01)
+
+Full Changelog: [v0.1.0-alpha.23...v0.1.0-alpha.24](https://github.com/openai/openai-go/compare/v0.1.0-alpha.23...v0.1.0-alpha.24)
+
+### Features
+
+* **api:** support storing chat completions, enabling evals and model distillation in the dashboard ([#72](https://github.com/openai/openai-go/issues/72)) ([1e50f54](https://github.com/openai/openai-go/commit/1e50f549ef135d7494c9260c4638c6054fe06c74))
+
+
+### Chores
+
+* **docs:** fix maxium typo ([#69](https://github.com/openai/openai-go/issues/69)) ([3a5c6a6](https://github.com/openai/openai-go/commit/3a5c6a657ac8d821e95e07b442f00140b5332c93))
+
+## 0.1.0-alpha.23 (2024-09-29)
+
+Full Changelog: [v0.1.0-alpha.22...v0.1.0-alpha.23](https://github.com/openai/openai-go/compare/v0.1.0-alpha.22...v0.1.0-alpha.23)
+
+### Chores
+
+* **docs:** remove some duplicative api.md entries ([#65](https://github.com/openai/openai-go/issues/65)) ([13a1ca2](https://github.com/openai/openai-go/commit/13a1ca2eb6320c797d6e278bfe258e1e7f27e031))
+
+## 0.1.0-alpha.22 (2024-09-26)
+
+Full Changelog: [v0.1.0-alpha.21...v0.1.0-alpha.22](https://github.com/openai/openai-go/compare/v0.1.0-alpha.21...v0.1.0-alpha.22)
+
+### Features
+
+* **api:** add omni-moderation model ([#63](https://github.com/openai/openai-go/issues/63)) ([9ca9ebb](https://github.com/openai/openai-go/commit/9ca9ebb1f40c056642d987445ea0cc8d60a1d15f))
+
+## 0.1.0-alpha.21 (2024-09-25)
+
+Full Changelog: [v0.1.0-alpha.20...v0.1.0-alpha.21](https://github.com/openai/openai-go/compare/v0.1.0-alpha.20...v0.1.0-alpha.21)
+
+### Features
+
+* **client:** send retry count header ([#60](https://github.com/openai/openai-go/issues/60)) ([8797500](https://github.com/openai/openai-go/commit/87975004c4917be6b59c34b1252b6a393412a754))
+
+
+### Bug Fixes
+
+* **audio:** correct response_format translations type ([#62](https://github.com/openai/openai-go/issues/62)) ([4b8df65](https://github.com/openai/openai-go/commit/4b8df6595d2d416c3589d6a270ebdf247bbe18af))
+
 ## 0.1.0-alpha.20 (2024-09-20)
 
 Full Changelog: [v0.1.0-alpha.19...v0.1.0-alpha.20](https://github.com/openai/openai-go/compare/v0.1.0-alpha.19...v0.1.0-alpha.20)

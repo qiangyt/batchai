@@ -41,6 +41,7 @@ func NewBetaThreadRunStepService(opts ...option.RequestOption) (r *BetaThreadRun
 // Retrieves a run step.
 func (r *BetaThreadRunStepService) Get(ctx context.Context, threadID string, runID string, stepID string, query BetaThreadRunStepGetParams, opts ...option.RequestOption) (res *RunStep, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -62,7 +63,7 @@ func (r *BetaThreadRunStepService) Get(ctx context.Context, threadID string, run
 func (r *BetaThreadRunStepService) List(ctx context.Context, threadID string, runID string, query BetaThreadRunStepListParams, opts ...option.RequestOption) (res *pagination.CursorPage[RunStep], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2"), option.WithResponseInto(&raw)}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -1127,7 +1128,7 @@ type RunStep struct {
 	LastError RunStepLastError `json:"last_error,required,nullable"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata interface{} `json:"metadata,required,nullable"`
 	// The object type, which is always `thread.run.step`.

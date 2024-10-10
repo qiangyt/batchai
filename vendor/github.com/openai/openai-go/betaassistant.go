@@ -42,6 +42,7 @@ func NewBetaAssistantService(opts ...option.RequestOption) (r *BetaAssistantServ
 // Create an assistant with a model and instructions.
 func (r *BetaAssistantService) New(ctx context.Context, body BetaAssistantNewParams, opts ...option.RequestOption) (res *Assistant, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	path := "assistants"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -50,6 +51,7 @@ func (r *BetaAssistantService) New(ctx context.Context, body BetaAssistantNewPar
 // Retrieves an assistant.
 func (r *BetaAssistantService) Get(ctx context.Context, assistantID string, opts ...option.RequestOption) (res *Assistant, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if assistantID == "" {
 		err = errors.New("missing required assistant_id parameter")
 		return
@@ -62,6 +64,7 @@ func (r *BetaAssistantService) Get(ctx context.Context, assistantID string, opts
 // Modifies an assistant.
 func (r *BetaAssistantService) Update(ctx context.Context, assistantID string, body BetaAssistantUpdateParams, opts ...option.RequestOption) (res *Assistant, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if assistantID == "" {
 		err = errors.New("missing required assistant_id parameter")
 		return
@@ -75,7 +78,7 @@ func (r *BetaAssistantService) Update(ctx context.Context, assistantID string, b
 func (r *BetaAssistantService) List(ctx context.Context, query BetaAssistantListParams, opts ...option.RequestOption) (res *pagination.CursorPage[Assistant], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2"), option.WithResponseInto(&raw)}, opts...)
 	path := "assistants"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
 	if err != nil {
@@ -97,6 +100,7 @@ func (r *BetaAssistantService) ListAutoPaging(ctx context.Context, query BetaAss
 // Delete an assistant.
 func (r *BetaAssistantService) Delete(ctx context.Context, assistantID string, opts ...option.RequestOption) (res *AssistantDeleted, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if assistantID == "" {
 		err = errors.New("missing required assistant_id parameter")
 		return
@@ -119,7 +123,7 @@ type Assistant struct {
 	Instructions string `json:"instructions,required,nullable"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata interface{} `json:"metadata,required,nullable"`
 	// ID of the model to use. You can use the
@@ -2063,7 +2067,7 @@ type BetaAssistantNewParams struct {
 	Instructions param.Field[string] `json:"instructions"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 	// The name of the assistant. The maximum length is 256 characters.
@@ -2144,7 +2148,7 @@ type BetaAssistantNewParamsToolResourcesFileSearchVectorStore struct {
 	FileIDs param.Field[[]string] `json:"file_ids"`
 	// Set of 16 key-value pairs that can be attached to a vector store. This can be
 	// useful for storing additional information about the vector store in a structured
-	// format. Keys can be a maximum of 64 characters long and values can be a maxium
+	// format. Keys can be a maximum of 64 characters long and values can be a maximum
 	// of 512 characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 }
@@ -2161,7 +2165,7 @@ type BetaAssistantUpdateParams struct {
 	Instructions param.Field[string] `json:"instructions"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 	// ID of the model to use. You can use the

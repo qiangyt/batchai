@@ -72,7 +72,7 @@ github.com/mitchellh/mapstructure
 # github.com/mitchellh/reflectwalk v1.0.0
 ## explicit
 github.com/mitchellh/reflectwalk
-# github.com/openai/openai-go v0.1.0-alpha.20
+# github.com/openai/openai-go v0.1.0-alpha.26
 ## explicit; go 1.21
 github.com/openai/openai-go
 github.com/openai/openai-go/internal

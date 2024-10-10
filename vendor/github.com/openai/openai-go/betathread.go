@@ -44,6 +44,7 @@ func NewBetaThreadService(opts ...option.RequestOption) (r *BetaThreadService) {
 // Create a thread.
 func (r *BetaThreadService) New(ctx context.Context, body BetaThreadNewParams, opts ...option.RequestOption) (res *Thread, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	path := "threads"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -52,6 +53,7 @@ func (r *BetaThreadService) New(ctx context.Context, body BetaThreadNewParams, o
 // Retrieves a thread.
 func (r *BetaThreadService) Get(ctx context.Context, threadID string, opts ...option.RequestOption) (res *Thread, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -64,6 +66,7 @@ func (r *BetaThreadService) Get(ctx context.Context, threadID string, opts ...op
 // Modifies a thread.
 func (r *BetaThreadService) Update(ctx context.Context, threadID string, body BetaThreadUpdateParams, opts ...option.RequestOption) (res *Thread, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -76,6 +79,7 @@ func (r *BetaThreadService) Update(ctx context.Context, threadID string, body Be
 // Delete a thread.
 func (r *BetaThreadService) Delete(ctx context.Context, threadID string, opts ...option.RequestOption) (res *ThreadDeleted, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	if threadID == "" {
 		err = errors.New("missing required thread_id parameter")
 		return
@@ -88,6 +92,7 @@ func (r *BetaThreadService) Delete(ctx context.Context, threadID string, opts ..
 // Create a thread and run it in one request.
 func (r *BetaThreadService) NewAndRun(ctx context.Context, body BetaThreadNewAndRunParams, opts ...option.RequestOption) (res *Run, err error) {
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2")}, opts...)
 	path := "threads/runs"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -100,7 +105,7 @@ func (r *BetaThreadService) NewAndRunStreaming(ctx context.Context, body BetaThr
 		err error
 	)
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithJSONSet("stream", true)}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("OpenAI-Beta", "assistants=v2"), option.WithJSONSet("stream", true)}, opts...)
 	path := "threads/runs"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &raw, opts...)
 	return ssestream.NewStream[AssistantStreamEvent](ssestream.NewDecoder(raw), err)
@@ -270,7 +275,7 @@ type Thread struct {
 	CreatedAt int64 `json:"created_at,required"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata interface{} `json:"metadata,required,nullable"`
 	// The object type, which is always `thread`.
@@ -437,7 +442,7 @@ type BetaThreadNewParams struct {
 	Messages param.Field[[]BetaThreadNewParamsMessage] `json:"messages"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 	// A set of resources that are made available to the assistant's tools in this
@@ -468,7 +473,7 @@ type BetaThreadNewParamsMessage struct {
 	Attachments param.Field[[]BetaThreadNewParamsMessagesAttachment] `json:"attachments"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 }
@@ -622,7 +627,7 @@ type BetaThreadNewParamsToolResourcesFileSearchVectorStore struct {
 	FileIDs param.Field[[]string] `json:"file_ids"`
 	// Set of 16 key-value pairs that can be attached to a vector store. This can be
 	// useful for storing additional information about the vector store in a structured
-	// format. Keys can be a maximum of 64 characters long and values can be a maxium
+	// format. Keys can be a maximum of 64 characters long and values can be a maximum
 	// of 512 characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 }
@@ -634,7 +639,7 @@ func (r BetaThreadNewParamsToolResourcesFileSearchVectorStore) MarshalJSON() (da
 type BetaThreadUpdateParams struct {
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 	// A set of resources that are made available to the assistant's tools in this
@@ -706,7 +711,7 @@ type BetaThreadNewAndRunParams struct {
 	MaxPromptTokens param.Field[int64] `json:"max_prompt_tokens"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 	// The ID of the [Model](https://platform.openai.com/docs/api-reference/models) to
@@ -762,7 +767,7 @@ type BetaThreadNewAndRunParamsThread struct {
 	Messages param.Field[[]BetaThreadNewAndRunParamsThreadMessage] `json:"messages"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 	// A set of resources that are made available to the assistant's tools in this
@@ -793,7 +798,7 @@ type BetaThreadNewAndRunParamsThreadMessage struct {
 	Attachments param.Field[[]BetaThreadNewAndRunParamsThreadMessagesAttachment] `json:"attachments"`
 	// Set of 16 key-value pairs that can be attached to an object. This can be useful
 	// for storing additional information about the object in a structured format. Keys
-	// can be a maximum of 64 characters long and values can be a maxium of 512
+	// can be a maximum of 64 characters long and values can be a maximum of 512
 	// characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 }
@@ -947,7 +952,7 @@ type BetaThreadNewAndRunParamsThreadToolResourcesFileSearchVectorStore struct {
 	FileIDs param.Field[[]string] `json:"file_ids"`
 	// Set of 16 key-value pairs that can be attached to a vector store. This can be
 	// useful for storing additional information about the vector store in a structured
-	// format. Keys can be a maximum of 64 characters long and values can be a maxium
+	// format. Keys can be a maximum of 64 characters long and values can be a maximum
 	// of 512 characters long.
 	Metadata param.Field[interface{}] `json:"metadata"`
 }
