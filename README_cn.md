@@ -68,7 +68,7 @@
 
 ## 开始使用
 
-1. 从[这里](https://github.com/qiangyt/batchai/releases/)下载最新的可执行二进制文件并将其添加到您的 $PATH 中。对于 Linux 和 Mac OSX，请记得运行`chmod +x ...`使下载的二进制文件可执行。
+1. 从[这里](https://github.com/qiangyt/batchai/releases/latest)下载最新的可执行二进制文件并将其添加到您的 $PATH 中。对于 Linux 和 Mac OSX，请记得运行`chmod +x ...`使下载的二进制文件可执行。
 
 2. 克隆演示项目。以下步骤假设克隆的项目目录为 `/data/spring-petclinic`
 
@@ -220,3 +220,9 @@
 ## 许可证
 
 MIT
+
+## NA
+
+[![GitHub release](https://img.shields.io/github/v/release/qiangyt/batchai.svg)](https://github.com/qiangyt/batchai/releases/latest)
+[![GitHub Releases Download](https://img.shields.io/github/downloads/qiangyt/batchai/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=qiangyt&repository=batchai)
+

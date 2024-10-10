@@ -69,7 +69,7 @@ More detail:
 
 ## Getting Started
 
-1. Download the latest executable binary from [here](https://github.com/qiangyt/batchai/releases/) and add it to your $PATH. For Linux and Mac OSX, remember to run `chmod +x ...` to make the binary executable.
+1. Download the latest executable binary from [here](https://github.com/qiangyt/batchai/releases/latest) and add it to your $PATH. For Linux and Mac OSX, remember to run `chmod +x ...` to make the binary executable.
 
 2. Clone the demo project. The following steps assume the cloned project directory is `/data/spring-petclinic`
 
@@ -222,3 +222,8 @@ To add more LLMs, simply follow the configuration in [res/static/batchai.yaml](r
 ## License
 
 MIT
+
+## NA
+
+[![GitHub release](https://img.shields.io/github/v/release/qiangyt/batchai.svg)](https://github.com/qiangyt/batchai/releases/latest)
+[![GitHub Releases Download](https://img.shields.io/github/downloads/qiangyt/batchai/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=qiangyt&repository=batchai)
