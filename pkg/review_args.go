@@ -21,9 +21,6 @@ func (me ReviewArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
 }
 
 func ReviewFunc(x Kontext) func(*cli.Context) error {
-	modelService := NewModelService(x.Config)
-	reviewService := NewReviewCommand(modelService)
-
 	return func(cliContext *cli.Context) error {
 		a := &AppArgsT{}
 		if err := a.WithCliContext(x, cliContext); err != nil {
@@ -46,7 +43,7 @@ func ReviewFunc(x Kontext) func(*cli.Context) error {
 			}
 		}
 
-		reviewService.Review(x, ra)
+		NewReviewCommand(x).Review(x, ra)
 
 		return nil
 	}
