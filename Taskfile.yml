@@ -105,12 +105,10 @@ tasks:
         vars:
           GOARCH: amd64
           GOOS: darwin
-      - upx -9 -k -v --force-macos target/batchai.darwin-amd64
       - task: go_build
         vars:
           GOARCH: arm64
           GOOS: darwin
-      - upx -9 -k -v --force-macos target/batchai.darwin-arm64
 
   linux:
     desc: release for linux
