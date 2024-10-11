@@ -115,3 +115,12 @@ func ListFunc(x Kontext) func(*cli.Context) error {
 		return nil
 	}
 }
+
+func ListUrfaveCommand(x Kontext) *cli.Command {
+	return &cli.Command{
+		Name:   "list",
+		Usage:  "Lists files to process",
+		Args:   true,
+		Action: ListFunc(x),
+	}
+}

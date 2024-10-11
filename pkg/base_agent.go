@@ -1,14 +1,14 @@
 package batchai
 
-type AgentT struct {
+type BaseAgentT struct {
 	modelService ModelService
 	memory       ChatMemory
 }
 
-type Agent = *AgentT
+type BaseAgent = *BaseAgentT
 
-func newAgent(modelService ModelService) AgentT {
-	return AgentT{
+func newBaseAgent(modelService ModelService) BaseAgentT {
+	return BaseAgentT{
 		modelService: modelService,
 		memory:       NewChatMemory(),
 	}

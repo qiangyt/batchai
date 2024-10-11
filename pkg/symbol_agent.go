@@ -8,7 +8,7 @@ import (
 )
 
 type SymbolAgentT struct {
-	AgentT
+	BaseAgentT
 
 	file            string
 	symbolManager   SymbolManager
@@ -23,7 +23,7 @@ func NewSymbolAgent(symbolManager SymbolManager,
 	file string,
 ) SymbolAgent {
 	return &SymbolAgentT{
-		AgentT:          newAgent(modelService),
+		BaseAgentT:      newBaseAgent(modelService),
 		file:            file,
 		symbolManager:   symbolManager,
 		codeFileManager: codeFileManager,

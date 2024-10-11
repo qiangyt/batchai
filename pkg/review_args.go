@@ -2,6 +2,7 @@ package batchai
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -18,6 +19,17 @@ type ReviewArgs = *ReviewArgsT
 func (me ReviewArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
 	me.Fix = cliContext.Bool("fix")
 	return nil
+}
+
+func ReviewUrfaveCommand(x Kontext) *cli.Command {
+	return &cli.Command{
+		Name:  "review",
+		Usage: fmt.Sprintf("Report issues to console, also saved to '%s'", os.Getenv("BATCHAI_CACHE_DIR")),
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "fix", Aliases: []string{"f"}, DefaultText: "false", Usage: "Replaces the target files"},
+		},
+		Action: ReviewFunc(x),
+	}
 }
 
 func ReviewFunc(x Kontext) func(*cli.Context) error {

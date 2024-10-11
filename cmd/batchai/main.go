@@ -25,14 +25,7 @@ func main() {
 	x := batchai.NewKontext(fs)
 	x.Config = batchai.ConfigWithYaml(fs)
 
-	review := &cli.Command{
-		Name:  "review",
-		Usage: fmt.Sprintf("Report issues to console, also saved to '%s'", os.Getenv("BATCHAI_CACHE_DIR")),
-		Flags: []cli.Flag{
-			&cli.BoolFlag{Name: "fix", Aliases: []string{"f"}, DefaultText: "false", Usage: "Replaces the target files"},
-		},
-		Action: batchai.ReviewFunc(x),
-	}
+	review := batchai.ReviewUrfaveCommand(x)
 
 	explain := &cli.Command{
 		Name:  "explain (TODO)",
@@ -67,17 +60,13 @@ func main() {
 		},
 	}
 
-	list := &cli.Command{
-		Name:   "list",
-		Usage:  "Lists files to process",
-		Args:   true,
-		Action: batchai.ListFunc(x),
-	}
+	list := batchai.ListUrfaveCommand(x)
+	test := batchai.TestUrfaveCommand(x)
 
 	app := &cli.App{
 		Version:                fmt.Sprintf("%s (%s)", Version, CommitId),
 		UseShortOptionHandling: true,
-		Commands:               []*cli.Command{review, list, explain, comment, refactor},
+		Commands:               []*cli.Command{review, list, test, explain, comment, refactor},
 		Name:                   "batchai",
 		Usage:                  "utilizes AI for batch processing of project codes",
 		Flags: []cli.Flag{
