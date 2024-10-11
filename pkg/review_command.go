@@ -8,17 +8,17 @@ import (
 	"github.com/qiangyt/batchai/comm"
 )
 
-type ReviewServiceT struct {
+type ReviewCommandT struct {
 	modelService    ModelService
 	reportManager   ReviewReportManager
 	codeFileManager CodeFileManager
 	symbolManager   SymbolManager
 }
 
-type ReviewService = *ReviewServiceT
+type ReviewCommand = *ReviewCommandT
 
-func NewReviewService(modelService ModelService) ReviewService {
-	return &ReviewServiceT{
+func NewReviewCommand(modelService ModelService) ReviewCommand {
+	return &ReviewCommandT{
 		modelService:    modelService,
 		reportManager:   NewReviewReportManager(),
 		codeFileManager: NewCodeFileManager(),
@@ -26,7 +26,7 @@ func NewReviewService(modelService ModelService) ReviewService {
 	}
 }
 
-func (me ReviewService) List(x Kontext) {
+func (me ReviewCommand) List(x Kontext) {
 	c := comm.NewConsole()
 
 	targetFiles, _, _, _ := me.CollectWorkingFiles(x, c)
@@ -36,7 +36,7 @@ func (me ReviewService) List(x Kontext) {
 }
 
 // launch symbol agents and wait for them
-func (me ReviewService) launchSymbolAgents(x Kontext, repoFiles []string) {
+func (me ReviewCommand) launchSymbolAgents(x Kontext, repoFiles []string) {
 	me.symbolManager.LoadAll(x, repoFiles)
 
 	wg := &sync.WaitGroup{}
@@ -51,7 +51,7 @@ func (me ReviewService) launchSymbolAgents(x Kontext, repoFiles []string) {
 	close(resultChan)
 }
 
-func (me ReviewService) launchReviewAgents(x Kontext, reviewArgs ReviewArgs, targetFiles []string, metrics ReviewMetrics) {
+func (me ReviewCommand) launchReviewAgents(x Kontext, reviewArgs ReviewArgs, targetFiles []string, metrics ReviewMetrics) {
 	// launch review agents and wait for them
 	wg := &sync.WaitGroup{}
 	resultChan := make(chan ReviewResult, len(targetFiles))
@@ -85,7 +85,7 @@ func (me ReviewService) launchReviewAgents(x Kontext, reviewArgs ReviewArgs, tar
 	}
 }
 
-func (me ReviewService) Review(x Kontext, reviewArgs ReviewArgs) {
+func (me ReviewCommand) Review(x Kontext, reviewArgs ReviewArgs) {
 	metrics := NewReviewMetrics()
 	c := comm.NewConsole()
 
@@ -101,7 +101,7 @@ func (me ReviewService) Review(x Kontext, reviewArgs ReviewArgs) {
 	// metrics.Print(c)
 }
 
-func (me ReviewService) CollectWorkingFiles(x Kontext, c comm.Console) ([]string, int, int, []string) {
+func (me ReviewCommand) CollectWorkingFiles(x Kontext, c comm.Console) ([]string, int, int, []string) {
 	var targetFiles []string
 
 	repoFiles, ignored, failed := me.CollectFiles(x, c, x.Args.Repository)
@@ -115,7 +115,7 @@ func (me ReviewService) CollectWorkingFiles(x Kontext, c comm.Console) ([]string
 	return targetFiles, ignored, failed, repoFiles
 }
 
-func (me ReviewService) CollectTargetFiles(x Kontext, c comm.Console) ([]string, int, int) {
+func (me ReviewCommand) CollectTargetFiles(x Kontext, c comm.Console) ([]string, int, int) {
 	ignored := 0
 	failed := 0
 
@@ -145,7 +145,7 @@ func (me ReviewService) CollectTargetFiles(x Kontext, c comm.Console) ([]string,
 	return r, ignored, failed
 }
 
-func (me ReviewService) CollectFiles(x Kontext, c comm.Console, dirPath string) ([]string, int, int) {
+func (me ReviewCommand) CollectFiles(x Kontext, c comm.Console, dirPath string) ([]string, int, int) {
 	fs := x.Fs
 
 	exclude := x.Config.GetExclude()
