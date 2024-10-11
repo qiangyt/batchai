@@ -2,6 +2,8 @@ includes: ['Dockerfile','*.xml','*.py', '*.python', '*.cs', '*.cpp', '*.cc', '*.
 excludes: ['.git','.svn']
 cache_dir: ${BATCHAI_CACHE_DIR}
 lang: ${LANG}
+test:
+  model_id: ${BATCHAI_TEST_MODEL}
 review:
   model_id: ${BATCHAI_REVIEW_MODEL}
   severity: ${BATCHAI_REVIEW_SEVERITY}

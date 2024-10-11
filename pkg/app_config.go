@@ -30,6 +30,7 @@ type AppConfigT struct {
 	Excludes []string      `mapstructure:"excludes"`
 	CacheDir string        `mapstructure:"cache_dir"`
 	Lang     string        `mapstructure:"lang"`
+	Test     TestConfig    `mapstructure:"test"`
 	Review   ReviewConfig  `mapstructure:"review"`
 	Models   []ModelConfig `mapstructure:"models"`
 
@@ -75,6 +76,11 @@ func (me AppConfig) init() {
 	} else {
 		me.CacheDir = comm.AbsPathWithP(me.CacheDir, workDir)
 	}
+
+	if me.Test == nil {
+		me.Test = &TestConfigT{}
+	}
+	me.Test.Init(me)
 
 	if me.Review == nil {
 		me.Review = &ReviewConfigT{}
