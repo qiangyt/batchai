@@ -31,7 +31,7 @@ func main() {
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "fix", Aliases: []string{"f"}, DefaultText: "false", Usage: "Replaces the target files"},
 		},
-		Action: batchai.ReviewOrListFunc(x, false),
+		Action: batchai.ReviewFunc(x),
 	}
 
 	explain := &cli.Command{
@@ -68,9 +68,10 @@ func main() {
 	}
 
 	list := &cli.Command{
-		Name:  "list",
-		Usage: "Lists files to process",
-		Args:  true,
+		Name:   "list",
+		Usage:  "Lists files to process",
+		Args:   true,
+		Action: batchai.ListFunc(x),
 	}
 
 	app := &cli.App{

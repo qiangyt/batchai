@@ -20,7 +20,7 @@ func (me ReviewArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
 	return nil
 }
 
-func ReviewOrListFunc(x Kontext, list bool) func(*cli.Context) error {
+func ReviewFunc(x Kontext) func(*cli.Context) error {
 	modelService := NewModelService(x.Config)
 	reviewService := NewReviewService(modelService)
 
@@ -46,11 +46,7 @@ func ReviewOrListFunc(x Kontext, list bool) func(*cli.Context) error {
 			}
 		}
 
-		if list {
-			reviewService.List(x)
-		} else {
-			reviewService.Review(x, ra)
-		}
+		reviewService.Review(x, ra)
 
 		return nil
 	}
