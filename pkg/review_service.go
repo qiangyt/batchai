@@ -51,7 +51,7 @@ func (me ReviewService) launchSymbolAgents(x Kontext, repoFiles []string) {
 	close(resultChan)
 }
 
-func (me ReviewService) launchReviewAgents(x Kontext, targetFiles []string, metrics ReviewMetrics) {
+func (me ReviewService) launchReviewAgents(x Kontext, reviewArgs ReviewArgs, targetFiles []string, metrics ReviewMetrics) {
 	// launch review agents and wait for them
 	wg := &sync.WaitGroup{}
 	resultChan := make(chan ReviewResult, len(targetFiles))
@@ -60,7 +60,7 @@ func (me ReviewService) launchReviewAgents(x Kontext, targetFiles []string, metr
 		metrics.Processed++
 
 		agent := NewReviewAgent(me.reportManager, me.codeFileManager, me.symbolManager, me.modelService, f)
-		agent.Run(x, resultChan, wg)
+		agent.Run(x, reviewArgs, resultChan, wg)
 	}
 
 	wg.Wait()
@@ -85,16 +85,16 @@ func (me ReviewService) launchReviewAgents(x Kontext, targetFiles []string, metr
 	}
 }
 
-func (me ReviewService) Review(x Kontext) {
+func (me ReviewService) Review(x Kontext, reviewArgs ReviewArgs) {
 	metrics := NewReviewMetrics()
 	c := comm.NewConsole()
 
 	targetFiles, _, _, repoFiles := me.CollectWorkingFiles(x, c)
 	if len(targetFiles) > 0 {
-		if x.ReviewArgs.EnableSymbolCollection {
+		if x.Args.EnableSymbolCollection {
 			me.launchSymbolAgents(x, repoFiles)
 		}
-		me.launchReviewAgents(x, targetFiles, metrics)
+		me.launchReviewAgents(x, reviewArgs, targetFiles, metrics)
 	}
 
 	// c.NewLine()
@@ -104,9 +104,9 @@ func (me ReviewService) Review(x Kontext) {
 func (me ReviewService) CollectWorkingFiles(x Kontext, c comm.Console) ([]string, int, int, []string) {
 	var targetFiles []string
 
-	repoFiles, ignored, failed := me.CollectFiles(x, c, x.ReviewArgs.Repository)
+	repoFiles, ignored, failed := me.CollectFiles(x, c, x.Args.Repository)
 
-	if len(x.ReviewArgs.TargetPaths) > 0 {
+	if len(x.Args.TargetPaths) > 0 {
 		targetFiles, ignored, failed = me.CollectTargetFiles(x, c)
 	} else {
 		targetFiles = repoFiles
@@ -120,14 +120,14 @@ func (me ReviewService) CollectTargetFiles(x Kontext, c comm.Console) ([]string,
 	failed := 0
 
 	r := []string{}
-	for _, p := range x.ReviewArgs.TargetPaths {
+	for _, p := range x.Args.TargetPaths {
 		// replace := false
 		// if len(gitDir) == 0 {
 		// 	replace = x.ReviewArgs.Fix && x.ReviewArgs.Force
 		// } else {
 		// 	replace = x.ReviewArgs.Fix && (x.ReviewArgs.Force || comm.IsGitInited(x.Fs, gitDir))
 		// }
-		if !strings.HasPrefix(p, x.ReviewArgs.Repository) {
+		if !strings.HasPrefix(p, x.Args.Repository) {
 			c.NewLine().Yellow("ignored: ").Default(p)
 			continue
 		}
@@ -166,7 +166,7 @@ func (me ReviewService) CollectFiles(x Kontext, c comm.Console, dirPath string) 
 		},
 		func(codeFile string) {
 			ignored++
-			if x.ReviewArgs.Verbose {
+			if x.Args.Verbose {
 				c.NewLine().Gray("ignored: ").Default(codeFile)
 			}
 		},

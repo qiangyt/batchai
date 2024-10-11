@@ -7,19 +7,19 @@ import (
 )
 
 type KontextT struct {
-	Context    context.Context
-	Fs         afero.Fs
-	ReviewArgs ReviewArgs
-	Config     AppConfig
+	Context context.Context
+	Fs      afero.Fs
+	Args    AppArgs
+	Config  AppConfig
 }
 
 type Kontext = *KontextT
 
 func NewKontext(fs afero.Fs) Kontext {
 	return &KontextT{
-		Context:    context.TODO(),
-		Fs:         fs,
-		ReviewArgs: nil,
-		Config:     nil,
+		Context: context.TODO(),
+		Fs:      fs,
+		Args:    nil,
+		Config:  nil,
 	}
 }

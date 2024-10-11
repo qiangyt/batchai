@@ -14,6 +14,7 @@ type AppArgsT struct {
 	Lang                   string
 	TargetPaths            []string
 	Repository             string
+	Force                  bool
 }
 
 type AppArgs = *AppArgsT
@@ -22,6 +23,10 @@ func (me AppArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
 	me.EnableSymbolCollection = cliContext.IsSet("enable-symbol-collection")
 	me.Verbose = cliContext.IsSet("verbose")
 	me.Lang = cliContext.String("lang")
+
+	if len(me.Lang) > 0 {
+		x.Config.Lang = me.Lang
+	}
 
 	if !cliContext.Args().Present() {
 		return errors.New("please specifies the repository directory")

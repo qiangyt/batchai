@@ -52,7 +52,7 @@ func (me CodeFileManager) Load(x Kontext, file string) CodeFile {
 
 	r = &CodeFileT{Latest: latest}
 
-	originalPath := ResolveOriginalCodeFile(x.Config.CacheDir, x.ReviewArgs.Repository, file)
+	originalPath := ResolveOriginalCodeFile(x.Config.CacheDir, x.Args.Repository, file)
 	if comm.FileExistsP(fs, originalPath) {
 		r.Original = comm.ReadFileTextP(fs, originalPath)
 	} else {
@@ -72,7 +72,7 @@ func (me CodeFileManager) Save(x Kontext, file string, fixed string) {
 
 	comm.WriteFileTextP(x.Fs, file, fixed)
 
-	originalPath := ResolveOriginalCodeFile(x.Config.CacheDir, x.ReviewArgs.Repository, file)
+	originalPath := ResolveOriginalCodeFile(x.Config.CacheDir, x.Args.Repository, file)
 	comm.MkdirP(x.Fs, path.Dir(originalPath))
 	comm.WriteFileTextP(x.Fs, originalPath, fixed)
 

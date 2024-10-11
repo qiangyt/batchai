@@ -29,7 +29,7 @@ func (me ReviewReportManager) LoadReport(x Kontext, file string) ReviewReport {
 		return r
 	}
 
-	reportFile := ResolveReviewReportFile(x.Config.CacheDir, x.ReviewArgs.Repository, file)
+	reportFile := ResolveReviewReportFile(x.Config.CacheDir, x.Args.Repository, file)
 
 	r = &ReviewReportT{}
 	if err := comm.FromJsonFile(x.Fs, reportFile, false, r); err != nil {
@@ -50,7 +50,7 @@ func (me ReviewReportManager) SaveReport(x Kontext, file string, report ReviewRe
 	reportText := comm.ToJsonP(report, true)
 	report.Path = file
 
-	reportFile := ResolveReviewReportFile(x.Config.CacheDir, x.ReviewArgs.Repository, file)
+	reportFile := ResolveReviewReportFile(x.Config.CacheDir, x.Args.Repository, file)
 
 	comm.Mkdir(x.Fs, path.Dir(reportFile))
 	comm.WriteFileText(x.Fs, reportFile, reportText)

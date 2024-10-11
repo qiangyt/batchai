@@ -56,14 +56,14 @@ func (me SymbolAgent) Run(x Kontext, resultChan chan<- []Symbol, wg *sync.WaitGr
 }
 
 func (me SymbolAgent) collectSymbols(x Kontext, c comm.Console) []Symbol {
-	verbose := x.ReviewArgs.Verbose
+	verbose := x.Args.Verbose
 	f := me.file
 
 	code := me.codeFileManager.Load(x, f)
 	if !code.IsChanged() {
 		cachedSymbols := me.symbolManager.Load(x, f)
 		if cachedSymbols != nil {
-			if !x.ReviewArgs.Force {
+			if !x.Args.Force {
 				return cachedSymbols
 			}
 		}

@@ -157,6 +157,7 @@
 
   GLOBAL OPTIONS:
     --enable-symbol-reference  启用符号收集以检查整个项目中的代码引用（默认：false）
+    --force                    忽略缓存（默认：false）
     --lang value, -l value     生成文本的语言（默认：en_US.UTF-8）[$LANG]
     --help, -h                 print the version
     --version, -v              打印版本
@@ -177,7 +178,6 @@
 
   OPTIONS:
     --fix, -f   替换目标文件（默认：false）
-    --force     忽略缓存（默认：false）
     --help, -h  show help
   ```
 

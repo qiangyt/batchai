@@ -10,22 +10,13 @@ import (
 )
 
 type ReviewArgsT struct {
-	AppArgsT
-
-	Fix   bool
-	Force bool
+	Fix bool
 }
 
 type ReviewArgs = *ReviewArgsT
 
 func (me ReviewArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
-	if err := me.AppArgsT.WithCliContext(x, cliContext); err != nil {
-		return err
-	}
-
 	me.Fix = cliContext.Bool("fix")
-	me.Force = cliContext.Bool("force")
-
 	return nil
 }
 
@@ -34,12 +25,18 @@ func ReviewOrListFunc(x Kontext, list bool) func(*cli.Context) error {
 	reviewService := NewReviewService(modelService)
 
 	return func(cliContext *cli.Context) error {
-		a := &ReviewArgsT{}
+		a := &AppArgsT{}
 		if err := a.WithCliContext(x, cliContext); err != nil {
 			return err
 		}
+		x.Args = a
 
-		if a.Fix {
+		ra := &ReviewArgsT{}
+		if err := ra.WithCliContext(x, cliContext); err != nil {
+			return err
+		}
+
+		if ra.Fix {
 			unstagedFiles, err := comm.GetUnstagedFiles(x.Fs, a.Repository)
 			if err != nil {
 				return errors.Wrap(err, "failed to check unstaged files")
@@ -49,16 +46,10 @@ func ReviewOrListFunc(x Kontext, list bool) func(*cli.Context) error {
 			}
 		}
 
-		if len(a.Lang) > 0 {
-			x.Config.Lang = a.Lang
-		}
-
-		x.ReviewArgs = a
-
 		if list {
 			reviewService.List(x)
 		} else {
-			reviewService.Review(x)
+			reviewService.Review(x, ra)
 		}
 
 		return nil

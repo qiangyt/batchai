@@ -42,7 +42,7 @@ func NewReviewAgent(reportManager ReviewReportManager,
 	}
 }
 
-func (me ReviewAgent) Run(x Kontext, resultChan chan<- ReviewResult, wg *sync.WaitGroup) {
+func (me ReviewAgent) Run(x Kontext, reviewArgs ReviewArgs, resultChan chan<- ReviewResult, wg *sync.WaitGroup) {
 	wg.Add(1)
 
 	go func() {
@@ -61,13 +61,13 @@ func (me ReviewAgent) Run(x Kontext, resultChan chan<- ReviewResult, wg *sync.Wa
 			}
 		}()
 
-		result := me.reviewFile(x, c)
+		result := me.reviewFile(x, reviewArgs, c)
 
 		resultChan <- result
 	}()
 }
 
-func (me ReviewAgent) reviewFile(x Kontext, c comm.Console) ReviewResult {
+func (me ReviewAgent) reviewFile(x Kontext, reviewArgs ReviewArgs, c comm.Console) ReviewResult {
 	c.NewLine().Green("--------------------")
 	c.NewLine().Greenln(me.file)
 
@@ -75,7 +75,7 @@ func (me ReviewAgent) reviewFile(x Kontext, c comm.Console) ReviewResult {
 	if !code.IsChanged() {
 		cachedReport := me.reportManager.LoadReport(x, me.file)
 		if cachedReport != nil {
-			if !x.ReviewArgs.Force {
+			if !x.Args.Force {
 				c.NewLine().Default("no code changes, skipped")
 				return &ReviewResultT{Report: cachedReport, Skipped: true}
 			}
@@ -86,7 +86,7 @@ func (me ReviewAgent) reviewFile(x Kontext, c comm.Console) ReviewResult {
 	r.Print(c, code.Original)
 
 	if r.HasIssue {
-		if x.ReviewArgs.Fix {
+		if reviewArgs.Fix {
 			// replace the original code file with reviewed code
 			me.codeFileManager.Save(x, me.file, r.FixedCode)
 		}
@@ -99,7 +99,7 @@ func (me ReviewAgent) reviewFile(x Kontext, c comm.Console) ReviewResult {
 }
 
 func (me ReviewAgent) provideSymbols(x Kontext, c comm.Console, file string) ModelUsageMetrics {
-	verbose := x.ReviewArgs.Verbose
+	verbose := x.Args.Verbose
 	mem := me.memory
 
 	msg1 := `
@@ -156,13 +156,13 @@ func (me ReviewAgent) provideSymbols(x Kontext, c comm.Console, file string) Mod
 }
 
 func (me ReviewAgent) reviewCode(x Kontext, c comm.Console, code string) ReviewReport {
-	verbose := x.ReviewArgs.Verbose
+	verbose := x.Args.Verbose
 
 	sysPrompt := x.Config.Review.RenderPrompt(code, me.file)
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
-	if x.ReviewArgs.EnableSymbolCollection {
+	if x.Args.EnableSymbolCollection {
 		// TODO: merge metrics
 		me.provideSymbols(x, c, me.file)
 	}

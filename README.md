@@ -158,6 +158,7 @@ More detail:
 
   GLOBAL OPTIONS:
     --enable-symbol-reference  Enables symbol collection to examine code references across the entire project (default: false)
+    --force                    Ignores the cache (default: false)
     --lang value, -l value     language for generated text (default: en_US.UTF-8) [$LANG]
     --help, -h                 show help
     --version, -v              print the version
@@ -178,7 +179,6 @@ More detail:
 
   OPTIONS:
     --fix, -f   Replaces the target files (default: false)
-    --force     Ignores the cache (default: false)
     --help, -h  show help
   ```
 

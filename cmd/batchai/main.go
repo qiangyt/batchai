@@ -30,7 +30,6 @@ func main() {
 		Usage: fmt.Sprintf("Report issues to console, also saved to '%s'", os.Getenv("BATCHAI_CACHE_DIR")),
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "fix", Aliases: []string{"f"}, DefaultText: "false", Usage: "Replaces the target files"},
-			&cli.BoolFlag{Name: "force", DefaultText: "false", Usage: "Ignores the cache"},
 		},
 		Action: batchai.ReviewOrListFunc(x, false),
 	}
@@ -82,6 +81,7 @@ func main() {
 		Usage:                  "utilizes AI for batch processing of project codes",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "enable-symbol-reference", Usage: "Enables symbol collection to examine code references across the entire project"},
+			&cli.BoolFlag{Name: "force", DefaultText: "false", Usage: "Ignores the cache"},
 			&cli.BoolFlag{Name: "verbose", Hidden: true},
 			&cli.StringFlag{
 				Name:        "lang",

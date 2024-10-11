@@ -73,7 +73,7 @@ func (me SymbolManager) Load(x Kontext, file string) []Symbol {
 
 	fs := x.Fs
 
-	symbolFile := ResolveSymbolFile(x.Config.CacheDir, x.ReviewArgs.Repository, file)
+	symbolFile := ResolveSymbolFile(x.Config.CacheDir, x.Args.Repository, file)
 	if !comm.FileExistsP(fs, symbolFile) {
 		return nil
 	}
@@ -132,7 +132,7 @@ func (me SymbolManager) Save(x Kontext, file string, symbols []Symbol) {
 		}
 	}
 
-	symbolFile := ResolveSymbolFile(x.Config.CacheDir, x.ReviewArgs.Repository, file)
+	symbolFile := ResolveSymbolFile(x.Config.CacheDir, x.Args.Repository, file)
 	symbolText := comm.ToJsonP(symbols, true)
 
 	comm.MkdirP(x.Fs, path.Dir(symbolFile))
