@@ -1,4 +1,4 @@
-# batchai - 用 AI 批量处理项目代码
+# batchai - 对Copilot和Cursor们的补充：用 AI 批量处理项目代码
 
 [English](./README.md)
 
