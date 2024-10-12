@@ -66,15 +66,15 @@ func (me CodeFileManager) Load(x Kontext, file string) CodeFile {
 	return r
 }
 
-func (me CodeFileManager) Save(x Kontext, file string, fixed string) {
+func (me CodeFileManager) Save(x Kontext, file string, newCode string) {
 	me.lock.Lock()
 	defer me.lock.Unlock()
 
-	comm.WriteFileTextP(x.Fs, file, fixed)
+	comm.WriteFileTextP(x.Fs, file, newCode)
 
 	originalPath := ResolveOriginalCodeFile(x.Config.CacheDir, x.Args.Repository, file)
 	comm.MkdirP(x.Fs, path.Dir(originalPath))
-	comm.WriteFileTextP(x.Fs, originalPath, fixed)
+	comm.WriteFileTextP(x.Fs, originalPath, newCode)
 
 	codeFile, has := me.files[file]
 	if !has {
@@ -82,6 +82,6 @@ func (me CodeFileManager) Save(x Kontext, file string, fixed string) {
 		me.files[file] = codeFile
 	}
 
-	codeFile.Latest = fixed
-	codeFile.Original = fixed
+	codeFile.Latest = newCode
+	codeFile.Original = newCode
 }
