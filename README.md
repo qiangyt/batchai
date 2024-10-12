@@ -3,20 +3,16 @@
 
 [中文](./README_cn.md)
 
-I often rely on ChatGPT and GitHub Copilot, but feel a bit tired of:
+I often rely on ChatGPT and GitHub Copilot, but it is a little bit frustrating to constantly copy and paste between the copilot chat window and my open code files. Why not update the files directly? I also tried using Cursor, which solved the first problem, but still have to open each file individually to add them to the AI's context.
 
-- Have to repeatedly copy and paste between the chat window and opened code files. Why can't AI update the files directly?
+That's why I created `batchai`. The idea is simple: less copy-pasting, fewer clicks on 'Add to Chat' or 'Apply.' `batchai` traverses files and processing each of them. Since AI isn’t always perfect, I’ve designed it to run only on a Git directory, so we can easily diff the changes and choose to either commit or revert them.
 
-- When there are many files to process, I have to open each one individually for the AI to "review." Why can't AI handle everything in batches at once?
+Currently, `batchai` only supports code review and fixing common issues (think of it as a local AI-driven SonarQube). The next feature in progress is generating unit test code in batches, which I plan to use in a few of my personal projects (including this `batchai`), as they have very few unit tests. Other planned features include code explanation, comment generation, and refactoring — all of which will be handled in batches. Additionally, I’m working on enabling `batchai` to have a overall insight of the project’s code, such as building cross-file code symbol indexing, which should help the AI perform better.
 
-Thus I created this `batchai`. The philosophy behind it is simple: no more copy-pasting, as it will traverse the targeted directories and files. It only runs within a Git repository, so we need to confirm all changes made by `batchai` (since AI actually often makes mistakes).
+Here are some interesting findings from testing batchai on my personal projects over the past two weeks:
 
-Currently, `batchai` only supports code review and fixing general issues (think of it as an AI-powered local SonarQube). I'm still working on adding more features, including explanation and comment generation, test code generation, as well as refactoring — all will be handled in batches.
-
-Over the past two weeks, I’ve been trying out `batchai` on some of my own projects and have made some interesting findings:
-
-- AI can identify issues that traditional tools, such as SonarQube, tend to miss.
-- AI may not report all issues in one go, so I need to run it multiple times.
+- It can identify issues that traditional tools, such as SonarQube, tend to miss.
+- It may not report all issues in one go, so I need to run it multiple times.
 - Due to outdated LLM training data and hallucinations, it's crucial to confirm the changes for accuracy by myself - That's why I make `batchai` work only on clean Git repository directories.
 
 I used the [spring-petclinic (cloned from https://github.com/spring-projects/spring-petclinic)](https://github.com/qiangyt/spring-petclinic) for demonstration.
