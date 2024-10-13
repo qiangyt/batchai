@@ -1,5 +1,5 @@
 
-# batchai - utilizes AI for batch processing of project codes
+# batchai - A supplement to Copilot and Cursor - utilizes AI for batch processing of project codes
 
 [中文](./README_cn.md)
 
@@ -7,7 +7,7 @@ I often rely on ChatGPT and GitHub Copilot, but it is a little bit frustrating t
 
 That's why I created `batchai`. The idea is simple: less copy-pasting, fewer clicks on 'Add to Chat' or 'Apply.' `batchai` traverses files and processing each of them. Since AI isn’t always perfect, I’ve designed it to run only on a Git directory, so we can easily diff the changes and choose to either commit or revert them.
 
-Currently, `batchai` only supports code review and fixing common issues (think of it as a local AI-driven SonarQube). The next feature in progress is generating unit test code in batches, which I plan to use in a few of my personal projects (including this `batchai`), as they have very few unit tests. Other planned features include code explanation, comment generation, and refactoring — all of which will be handled in batches. Additionally, I’m working on enabling `batchai` to have a overall insight of the project’s code, such as building cross-file code symbol indexing, which should help the AI perform better.
+Currently, `batchai` only supports code review and fixing common issues (think of it as a local AI-driven SonarQube). The next feature in progress is generating unit test code in batches, which I plan to use in a few of my personal projects (including this `batchai`), as they have very few unit tests. Other planned features include code explanation, comment generation, and refactoring — all of which will be handled in batches. Additionally, I’m working on enabling `batchai` to have an overall insight of the project’s code, such as building cross-file code symbol indexing, which should help the AI perform better.
 
 Here are some interesting findings from testing batchai on my personal projects over the past two weeks:
 
