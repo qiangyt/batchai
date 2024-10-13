@@ -120,7 +120,7 @@ func (me ReviewAgent) reviewCode(x Kontext, c comm.Console, code string) ReviewR
 	}
 
 	fixeCode, remainedAnswer := ExtractFixedCode(answer)
-	r := ExtractReviewReport(remainedAnswer)
+	r := ExtractReviewReport(remainedAnswer, strings.HasSuffix(me.file, ".go"))
 	r.ModelUsageMetrics = metrics
 	r.FixedCode = fixeCode
 

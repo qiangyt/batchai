@@ -1,6 +1,7 @@
 package batchai
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/qiangyt/batchai/comm"
@@ -67,9 +68,10 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 	c.NewLine().Green("--------------------")
 	c.NewLine().Greenln(me.file)
 
+	cachedReport := me.reportManager.LoadReport(x, me.file)
+
 	code := me.codeFileManager.Load(x, me.file)
 	if !code.IsChanged() {
-		cachedReport := me.reportManager.LoadReport(x, me.file)
 		if cachedReport != nil {
 			if !x.Args.Force {
 				c.NewLine().Default("no code changes, skipped")
@@ -78,7 +80,7 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 		}
 	}
 
-	r := me.generateTestCode(x, c, testArgs, code.Latest)
+	r := me.generateTestCode(x, c, testArgs, code.Latest, cachedReport)
 	r.Print(c)
 
 	me.codeFileManager.Save(x, r.TestFilePath, r.TestCode)
@@ -89,10 +91,15 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 	return &TestResultT{Report: r, Skipped: false}
 }
 
-func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string) TestReport {
+func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string, cachedReport TestReport) TestReport {
 	verbose := x.Args.Verbose
 
-	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Frameworks, code, me.file)
+	exstingTestCode := ""
+	if cachedReport != nil && testArgs.Update {
+		exstingTestCode = cachedReport.TestCode
+	}
+
+	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Libraries, code, me.file, exstingTestCode)
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
@@ -111,8 +118,10 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}
 
-	r := ExtractTestReport(answer)
-	r.Path = me.file
+	testCode, remainedAnswer := ExtractTestCode(answer)
+	r := ExtractTestReport(remainedAnswer, strings.HasSuffix(me.file, ".go"))
 	r.ModelUsageMetrics = metrics
+	r.TestCode = testCode
+	r.Path = me.file
 	return r
 }

@@ -10,7 +10,6 @@ import (
 const TEST_REPORT_JSON_FORMAT = `
 {
   "test_file_path": "",
-  "test_code": "",  
   "amount_of_generated_test_cases": 0,
   "single_test_run_command": ""
 }`
@@ -37,7 +36,28 @@ func (me TestReport) Print(console comm.Console) {
 	console.NewLine().Printf("Test Command: %s", me.SingleTestRunCommand)
 }
 
-func ExtractTestReport(answer string) TestReport {
+func ExtractTestCode(input string) (string, string) {
+	begin := strings.Index(input, TEST_BEGIN_LINE)
+	if begin < 0 {
+		return "", input
+	}
+	block := input[begin+len(TEST_BEGIN_LINE):]
+
+	end := strings.LastIndex(block, TEST_END_LINE)
+	if end <= 0 {
+		panic(errors.New("unmatched separator tag"))
+	}
+	result := block[:end]
+
+	if strings.HasPrefix(strings.TrimSpace(result), "```") {
+		result, _ = comm.ExtractMarkdownCodeBlocksP(result)
+	}
+
+	remained := input[:begin] + block[end+len(TEST_END_LINE):]
+	return result, remained
+}
+
+func ExtractTestReport(answer string, isGolang bool) TestReport {
 	jsonStr, _ := comm.ExtractMarkdownJsonBlocksP(answer)
 
 	indexOfLeftBrace := strings.Index(jsonStr, "{")
@@ -53,6 +73,9 @@ func ExtractTestReport(answer string) TestReport {
 	jsonStr = jsonStr[:indexOfRightBrace+1]
 
 	report := &TestReportT{}
-	comm.FromJsonP(jsonStr, false, report)
+	if err := comm.FromJson(jsonStr, false, report); err != nil {
+		jsonStr = comm.FixJson(jsonStr, isGolang)
+		comm.FromJsonP(jsonStr, false, report)
+	}
 	return report
 }

@@ -2,118 +2,138 @@ package batchai
 
 import (
 	"testing"
+	"strings"
+
+	"github.com/stretchr/testify/require"
 )
 
 // TestNewReviewPromptVariables tests the NewReviewPromptVariables function.
 func TestNewReviewPromptVariables(t *testing.T) {
-	variables := NewReviewPromptVariables()
-
-	// Check if the Data map is initialized correctly.
-	if variables.Data["fix_begin"] != FIX_BEGIN {
-		t.Errorf("Expected fix_begin to be %s, got %s", FIX_BEGIN, variables.Data["fix_begin"])
-	}
-	if variables.Data["fix_end"] != FIX_END {
-		t.Errorf("Expected fix_end to be %s, got %s", FIX_END, variables.Data["fix_end"])
-	}
+	vars := NewReviewPromptVariables()
+	require.Equal(t, FIX_BEGIN, vars.Data["fix_begin"], "Expected fix_begin to be %s, got %s", FIX_BEGIN, vars.Data["fix_begin"])
+	require.Equal(t, FIX_END, vars.Data["fix_end"], "Expected fix_end to be %s, got %s", FIX_END, vars.Data["fix_end"])
 }
 
-// TestWithSeverity tests the WithSeverity method.
+// TestWithSeverity tests the WithSeverity method with various inputs.
 func TestWithSeverity(t *testing.T) {
-	variables := NewReviewPromptVariables()
+	vars := NewReviewPromptVariables()
 
-	// Test with a specific severity level.
-	variables = variables.WithSeverity("critical")
-	if variables.Data["severity"] != "critical" {
-		t.Errorf("Expected severity to be critical, got %s", variables.Data["severity"])
-	}
+	// Happy path: setting severity to 'high'
+	vars = vars.WithSeverity("high")
+	require.Equal(t, "high", vars.Data["severity"], "Expected severity to be 'high', got %s", vars.Data["severity"])
 
-	// Test with an empty severity, should default to "minor".
-	variables = variables.WithSeverity("")
-	if variables.Data["severity"] != "minor" {
-		t.Errorf("Expected severity to be minor, got %s", variables.Data["severity"])
-	}
+	// Positive case: setting severity to 'minor' (default)
+	vars = vars.WithSeverity("")
+	require.Equal(t, "minor", vars.Data["severity"], "Expected severity to be 'minor', got %s", vars.Data["severity"])
+
+	// Negative case: setting severity to a long string
+	longSeverity := strings.Repeat("a", 100)
+	vars = vars.WithSeverity(longSeverity)
+	require.Equal(t, longSeverity, vars.Data["severity"], "Expected severity to be '%s', got %s", longSeverity, vars.Data["severity"])
+
+	// Corner case: setting severity to a string with special characters
+	specialSeverity := "!@#$%^&*()"
+	vars = vars.WithSeverity(specialSeverity)
+	require.Equal(t, specialSeverity, vars.Data["severity"], "Expected severity to be '%s', got %s", specialSeverity, vars.Data["severity"])
 }
 
 // TestWithCodeToReview tests the WithCodeToReview method.
 func TestWithCodeToReview(t *testing.T) {
-	variables := NewReviewPromptVariables()
-	code := "package main\nfunc main() {}"
-	variables = variables.WithCodeToReview(code)
+	vars := NewReviewPromptVariables()
+	code := "print('Hello, World!')"
+	vars = vars.WithCodeToReview(code)
+	require.Equal(t, code, vars.Data["code_to_review"], "Expected code_to_review to be '%s', got '%s'", code, vars.Data["code_to_review"])
 
-	// Check if the code_to_review is set correctly.
-	if variables.Data["code_to_review"] != code {
-		t.Errorf("Expected code_to_review to be %s, got %s", code, variables.Data["code_to_review"])
-	}
+	// Negative case: setting code to an empty string
+	vars = vars.WithCodeToReview("")
+	require.Equal(t, "", vars.Data["code_to_review"], "Expected code_to_review to be '', got '%s'", vars.Data["code_to_review"])
+
+	// Corner case: setting code to a very long string
+	longCode := strings.Repeat("a", 1000)
+	vars = vars.WithCodeToReview(longCode)
+	require.Equal(t, longCode, vars.Data["code_to_review"], "Expected code_to_review to be '%s', got '%s'", longCode, vars.Data["code_to_review"])
 }
 
 // TestWithLang tests the WithLang method.
 func TestWithLang(t *testing.T) {
-	variables := NewReviewPromptVariables()
-	lang := "go"
-	variables = variables.WithLang(lang)
+	vars := NewReviewPromptVariables()
+	lang := "python"
+	vars = vars.WithLang(lang)
+	require.Equal(t, lang, vars.Data["lang"], "Expected lang to be '%s', got '%s'", lang, vars.Data["lang"])
 
-	// Check if the lang is set correctly.
-	if variables.Data["lang"] != lang {
-		t.Errorf("Expected lang to be %s, got %s", lang, variables.Data["lang"])
-	}
+	// Negative case: setting lang to an empty string
+	vars = vars.WithLang("")
+	require.Equal(t, "", vars.Data["lang"], "Expected lang to be '', got '%s'", vars.Data["lang"])
+
+	// Corner case: setting lang to a very long string
+	longLang := strings.Repeat("a", 100)
+	vars = vars.WithLang(longLang)
+	require.Equal(t, longLang, vars.Data["lang"], "Expected lang to be '%s', got '%s'", longLang, vars.Data["lang"])
 }
 
 // TestWithPath tests the WithPath method.
 func TestWithPath(t *testing.T) {
-	variables := NewReviewPromptVariables()
+	vars := NewReviewPromptVariables()
 	path := "/path/to/code"
-	variables = variables.WithPath(path)
+	vars = vars.WithPath(path)
+	require.Equal(t, path, vars.Data["path"], "Expected path to be '%s', got '%s'", path, vars.Data["path"])
 
-	// Check if the path is set correctly.
-	if variables.Data["path"] != path {
-		t.Errorf("Expected path to be %s, got %s", path, variables.Data["path"])
-	}
+	// Negative case: setting path to an empty string
+	vars = vars.WithPath("")
+	require.Equal(t, "", vars.Data["path"], "Expected path to be '', got '%s'", vars.Data["path"])
+
+	// Corner case: setting path to a very long string
+	longPath := strings.Repeat("/a", 100)
+	vars = vars.WithPath(longPath)
+	require.Equal(t, longPath, vars.Data["path"], "Expected path to be '%s', got '%s'", longPath, vars.Data["path"])
 }
 
 // TestInit tests the Init method of ReviewPrompt.
 func TestInit(t *testing.T) {
-	prompt := &ReviewPromptT{
-		Rules:    []string{"Rule 1", "Rule 2"},
-		Template: "Template text",
-	}
-	
-	// Initialize the prompt.
-	prompt.Init(AppConfig{})
+	prompt := ReviewPrompt{Rules: []string{"Rule 1", "Rule 2"}, Template: "Template"}
+	config := AppConfig{} // Assuming AppConfig is defined elsewhere
+	prompt.Init(config)
 
-	// Check if the rules are formatted correctly.
-	if prompt.Rules[0] != "0) Rule 1." {
-		t.Errorf("Expected first rule to be formatted correctly, got %s", prompt.Rules[0])
-	}
-	if prompt.Rules[1] != "1) Rule 2." {
-		t.Errorf("Expected second rule to be formatted correctly, got %s", prompt.Rules[1])
-	}
-
-	// Check if the template is trimmed.
-	if prompt.Template != "Template text" {
-		t.Errorf("Expected template to be trimmed, got %s", prompt.Template)
-	}
+	require.Equal(t, 2, len(prompt.Rules), "Expected 2 rules, got %d", len(prompt.Rules))
+	require.Equal(t, "0) Rule 1.", prompt.Rules[0], "Expected first rule to be '0) Rule 1.', got '%s'", prompt.Rules[0])
+	require.Equal(t, "Template", prompt.Template, "Expected template to be 'Template', got '%s'", prompt.Template)
 }
 
 // TestGenerate tests the Generate method of ReviewPrompt.
 func TestGenerate(t *testing.T) {
-	variables := NewReviewPromptVariables()
-	variables = variables.WithSeverity("high").WithCodeToReview("code").WithLang("go").WithPath("/path")
+	vars := NewReviewPromptVariables().WithSeverity("high").WithCodeToReview("code").WithLang("go").WithPath("/path")
+	prompt := ReviewPrompt{Rules: []string{"Rule 1", "Rule 2"}, Template: "{{.fix_begin}}\n{{.review_rules}}\n{{.fix_end}}"}
+	result := prompt.Generate(vars)
 
-	prompt := &ReviewPromptT{
-		Rules:    []string{"Rule 1", "Rule 2"},
-		Template: "Review Rules: {{.review_rules}}\nSeverity: {{.severity}}",
-	}
-	
-	// Generate the output string.
-	output := prompt.Generate(variables)
+	require.Contains(t, result, FIX_BEGIN, "Expected result to contain FIX_BEGIN")
+	require.Contains(t, result, FIX_END, "Expected result to contain FIX_END")
+	require.Contains(t, result, "0) Rule 1.", "Expected result to contain '0) Rule 1.'")
+}
 
-	// Check if the output contains the expected severity.
-	if !strings.Contains(output, "Severity: high") {
-		t.Errorf("Expected output to contain severity high, got %s", output)
-	}
-	
-	// Check if the output contains the review rules.
-	if !strings.Contains(output, "Review Rules:") {
-		t.Errorf("Expected output to contain review rules, got %s", output)
-	}
+// TestGenerateEmptyRules tests Generate with empty rules.
+func TestGenerateEmptyRules(t *testing.T) {
+	vars := NewReviewPromptVariables()
+	prompt := ReviewPrompt{Rules: []string{}, Template: "{{.fix_begin}}\n{{.fix_end}}"}
+	result := prompt.Generate(vars)
+
+	require.Contains(t, result, FIX_BEGIN, "Expected result to contain FIX_BEGIN")
+	require.Contains(t, result, FIX_END, "Expected result to contain FIX_END")
+	require.NotContains(t, result, "0) Rule 1.", "Expected result to NOT contain '0) Rule 1.'")
+}
+
+// TestGenerateWithEmptyTemplate tests Generate with an empty template.
+func TestGenerateWithEmptyTemplate(t *testing.T) {
+	vars := NewReviewPromptVariables().WithSeverity("high").WithCodeToReview("code").WithLang("go").WithPath("/path")
+	prompt := ReviewPrompt{Rules: []string{"Rule 1", "Rule 2"}, Template: ""}
+	result := prompt.Generate(vars)
+
+	require.Empty(t, result, "Expected result to be empty, got '%s'", result)
+}
+
+// TestGenerateWithNilVariables tests Generate with nil variables.
+func TestGenerateWithNilVariables(t *testing.T) {
+	prompt := ReviewPrompt{Rules: []string{"Rule 1", "Rule 2"}, Template: "{{.fix_begin}}\n{{.fix_end}}"}
+	result := prompt.Generate(nil)
+
+	require.Empty(t, result, "Expected result to be empty, got '%s'", result)
 }

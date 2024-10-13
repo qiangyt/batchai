@@ -13,10 +13,24 @@ type TestPromptVariablesT struct {
 
 type TestPromptVariables = *TestPromptVariablesT
 
+const (
+	TEST_BEGIN      = "!!!!test_begin!!!!"
+	TEST_BEGIN_LINE = TEST_BEGIN + "\n"
+	TEST_END        = "!!!!test_end!!!!"
+	TEST_END_LINE   = /*"\n" + */ TEST_END
+)
+
 func NewTestPromptVariables() TestPromptVariables {
 	return &TestPromptVariablesT{Data: map[string]any{
+		"test_begin":  TEST_BEGIN,
+		"test_end":    TEST_END,
 		"test_format": TEST_REPORT_JSON_FORMAT,
 	}}
+}
+
+func (me TestPromptVariables) WithExistingTestCode(existingTestCode string) TestPromptVariables {
+	me.Data["existing_test_code"] = existingTestCode
+	return me
 }
 
 func (me TestPromptVariables) WithCodeToTest(codeToTest string) TestPromptVariables {
@@ -34,8 +48,8 @@ func (me TestPromptVariables) WithPath(path string) TestPromptVariables {
 	return me
 }
 
-func (me TestPromptVariables) WithFrameworks(frameworks []string) TestPromptVariables {
-	me.Data["frameworks"] = frameworks
+func (me TestPromptVariables) WithLibraries(libraries []string) TestPromptVariables {
+	me.Data["libraries"] = libraries
 	return me
 }
 

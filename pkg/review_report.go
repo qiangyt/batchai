@@ -94,7 +94,7 @@ func ExtractFixedCode(input string) (string, string) {
 	return result, remained
 }
 
-func ExtractReviewReport(answer string) ReviewReport {
+func ExtractReviewReport(answer string, isGolang bool) ReviewReport {
 	jsonStr, _ := comm.ExtractMarkdownJsonBlocksP(answer)
 
 	indexOfLeftBrace := strings.Index(jsonStr, "{")
@@ -110,7 +110,10 @@ func ExtractReviewReport(answer string) ReviewReport {
 	jsonStr = jsonStr[:indexOfRightBrace+1]
 
 	report := &ReviewReportT{}
-	comm.FromJsonP(jsonStr, false, report)
+	if err := comm.FromJson(jsonStr, false, report); err != nil {
+		jsonStr = comm.FixJson(jsonStr, isGolang)
+		comm.FromJsonP(jsonStr, false, report)
+	}
 	return report
 }
 

@@ -49,7 +49,12 @@ test:
     template: |
         As an developer expert, you're requested to write test cases provided code following belows rules:
         {{.test_rules}}
+        
         Path of code to test: {{.path}}
+        
+        Existing test code: 
+        {{.existing_test_code}}
+        
         Content of code to test:
         {{.code_to_test}}
 review:
@@ -100,8 +105,11 @@ review:
     template: |
         As an developer expert, you're requested by users to review provided code:
         {{.review_rules}}
+        
         Code to review: 
+        
         path: {{.path}}
+        
         {{.code_to_review}}
 
 models:

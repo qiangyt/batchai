@@ -25,11 +25,12 @@ func (me TestConfig) Init(config AppConfig) {
 	}
 }
 
-func (me TestConfig) RenderPrompt(frameworks []string, codeToTest string, codeFile string) string {
+func (me TestConfig) RenderPrompt(libraries []string, codeToTest string, codeFile string, exstingTestCode string) string {
 	vars := NewTestPromptVariables().
 		WithCodeToTest(codeToTest).
 		WithLang(me.AppConfig.Lang).
 		WithPath(codeFile).
-		WithFrameworks(frameworks)
+		WithLibraries(libraries).
+		WithExistingTestCode(exstingTestCode)
 	return me.Prompt.Generate(vars)
 }
