@@ -41,10 +41,9 @@ func (me TestCommand) launchTestAgents(x Kontext, testArgs TestArgs, targetFiles
 		} else {
 			metrics.Succeeded++
 
-			report := r.Report
-			metrics.ModelUsageMetricsT.IncreaseUsage(report.ModelUsageMetrics)
+			metrics.ModelUsageMetricsT.IncreaseUsage(r.ModelUsageMetrics)
 
-			metrics.TotalTestCases += report.TestCases
+			metrics.TotalTestCases += r.Response.AmountOfGeneratedTestCases
 		}
 	}
 }

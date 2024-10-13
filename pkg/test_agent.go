@@ -4,32 +4,41 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pkg/errors"
 	"github.com/qiangyt/batchai/comm"
 )
 
+const TEST_RESPONSE_JSON_FORMAT = `
+{
+  "test_file_path": "",
+  "test_code": "",  
+  "amount_of_generated_test_cases": 0
+}`
+
 type TestResultT struct {
-	Skipped bool
-	Failed  bool
-	Report  TestReport
-}
-
-type TestReportT struct {
-	TestPath          string            `json:"test_path"`
-	ModelUsageMetrics ModelUsageMetrics `json:"model_usage_metrics"`
-	TestCases         int               `json:"test_cases"`
-	TestCode          string            `json:"test_code"`
-}
-
-type TestReport = *TestReportT
-
-func (me TestReport) Print(console comm.Console) {
-	me.ModelUsageMetrics.Print(console, comm.DEFAULT_COLOR)
-
-	console.NewLine().Printf("Test Path: %s", me.TestPath)
-	console.NewLine().Printf("Test Cases: %d", me.TestCases)
+	Skipped           bool
+	Failed            bool
+	Response          TestResponse
+	ModelUsageMetrics ModelUsageMetrics
 }
 
 type TestResult = *TestResultT
+
+type TestResponseT struct {
+	TestFilePath               string `json:"test_file_path"`
+	TestCode                   string `json:"test_code"`
+	AmountOfGeneratedTestCases int    `json:"amount_of_generated_test_cases"`
+}
+
+type TestResponse = *TestResponseT
+
+func (me TestResponse) Print(console comm.Console, metrics ModelUsageMetrics) {
+	metrics.Print(console, comm.DEFAULT_COLOR)
+
+	console.NewLine().Printf("Test File Path: %s", me.TestFilePath)
+	console.NewLine().Printf("Amoutn of Generated Test Cases: %d", me.AmountOfGeneratedTestCases)
+	console.NewLine().Printf("Test Code: %s", me.TestCode)
+}
 
 type TestAgentT struct {
 	SymbolAwareAgentT
@@ -72,7 +81,7 @@ func (me TestAgent) Run(x Kontext, testArgs TestArgs, resultChan chan<- TestResu
 			}
 		}()
 
-		result := me.testFile(x, testArgs, c)
+		result := me.generateTestFile(x, testArgs, c)
 
 		resultChan <- result
 	}()
@@ -83,40 +92,36 @@ func (me TestAgent) generateTestFile(x Kontext, testArgs TestArgs, c comm.Consol
 	c.NewLine().Greenln(me.file)
 
 	code := me.codeFileManager.Load(x, me.file)
-	if !code.IsChanged() {
-		if !x.Args.Force {
-			c.NewLine().Default("no code changes, skipped")
-			return &TestResultT{Skipped: true}
-		}
-	}
+	// if !code.IsChanged() {
+	// 	if !x.Args.Force {
+	// 		c.NewLine().Default("no code changes, skipped")
+	// 		return &TestResultT{Skipped: true}
+	// 	}
+	// }
 
-	r := me.generateTestCode(x, c, code.Latest)
-	r.Print(c)
+	r, metrics := me.generateTestCode(x, c, testArgs, code.Latest)
+	r.Print(c, metrics)
 
-	me.codeFileManager.Save(x, r.TestPath, r.TestCode)
+	me.codeFileManager.Save(x, r.TestFilePath, r.TestCode)
 
-	return &TestResultT{Report: r, Skipped: false}
+	return &TestResultT{Response: r, Skipped: false}
 }
 
-func (me TestAgent) generateTestCode(x Kontext, c comm.Console, code string) TestReport {
+func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string) (TestResponse, ModelUsageMetrics) {
 	verbose := x.Args.Verbose
 
+	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Frameworks, code, me.file)
 	mem := me.memory
-	mem.AddSystemMessage(`
-As an developer expert, you're requested to write unit tests for provided code.
-1. Each test case should be in a separate method/function. The test cases should be in a separate file.
-2. 
-}
-`)
+	mem.AddSystemMessage(sysPrompt)
 
 	if x.Args.EnableSymbolCollection {
 		// TODO: merge metrics
 		me.provideSymbols(x, c, me.file)
 	}
 
-	mem.AddUserMessage("test the code")
+	mem.AddUserMessage("generates tests")
 	if verbose {
-		c.NewLine().Gray("chat: ").Default("test the code")
+		c.NewLine().Gray("chat: ").Default("generates tests")
 	}
 
 	answer, metrics := me.modelService.Chat(x, x.Config.Test.ModelId, mem)
@@ -124,26 +129,27 @@ As an developer expert, you're requested to write unit tests for provided code.
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}
 
-	fixeCode, remainedAnswer := ExtractFixedCode(answer)
-	r := ExtractTestReport(remainedAnswer)
-	r.ModelUsageMetrics = metrics
-	r.FixedCode = fixeCode
+	r := ExtractTestResponse(answer)
 
-	if r.HasIssue {
-		trimmedOriginalCode := strings.TrimSpace(code)
-		trimmedFixedCode := strings.TrimSpace(fixeCode)
+	return r, metrics
+}
 
-		if trimmedFixedCode == trimmedOriginalCode {
-			r.HasIssue = false
-			r.Issues = []TestIssue{}
-			r.FixedCode = code
-			r.OverallSeverity = ""
-		} else if len(trimmedFixedCode) == 0 {
-			r.FixedCode = code
-		} else if !strings.HasSuffix(fixeCode, "\n") {
-			r.FixedCode = fixeCode + "\n"
-		}
+func ExtractTestResponse(answer string) TestResponse {
+	jsonStr, _ := comm.ExtractMarkdownJsonBlocksP(answer)
+
+	indexOfLeftBrace := strings.Index(jsonStr, "{")
+	if indexOfLeftBrace < 0 {
+		panic(errors.New("invalid json format - missing left brace"))
 	}
+	jsonStr = jsonStr[indexOfLeftBrace:]
 
-	return r
+	indexOfRightBrace := strings.LastIndex(jsonStr, "}")
+	if indexOfRightBrace <= 0 {
+		panic(errors.New("invalid json format - missing right brace"))
+	}
+	jsonStr = jsonStr[:indexOfRightBrace+1]
+
+	report := &TestResponseT{}
+	comm.FromJsonP(jsonStr, false, report)
+	return report
 }

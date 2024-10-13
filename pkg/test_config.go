@@ -4,8 +4,8 @@ import "fmt"
 
 type TestConfigT struct {
 	AppConfig AppConfig
-	ModelId   string       `mapstructure:"model_id"`
-	Prompt    ReviewPrompt `mapstructure:"prompt"`
+	ModelId   string     `mapstructure:"model_id"`
+	Prompt    TestPrompt `mapstructure:"prompt"`
 }
 
 type TestConfig = *TestConfigT
@@ -19,16 +19,17 @@ func (me TestConfig) Init(config AppConfig) {
 		if model.ReviewPrompt == nil {
 			panic(fmt.Errorf("missing test prompt for model: %s", me.ModelId))
 		}
-		me.Prompt = model.ReviewPrompt
+		me.Prompt = model.TestPrompt
 	} else {
 		me.Prompt.Init(config)
 	}
 }
 
-func (me TestConfig) RenderPrompt(codeToTest string, codeFile string) string {
-	vars := NewReviewPromptVariables().
-		WithPath(codeFile).
+func (me TestConfig) RenderPrompt(frameworks []string, codeToTest string, codeFile string) string {
+	vars := NewTestPromptVariables().
+		WithCodeToTest(codeToTest).
 		WithLang(me.AppConfig.Lang).
-		WithCodeToReview(codeToTest)
+		WithPath(codeFile).
+		WithFrameworks(frameworks)
 	return me.Prompt.Generate(vars)
 }

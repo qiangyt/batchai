@@ -7,13 +7,13 @@ import (
 )
 
 type TestArgsT struct {
-	Framework bool
+	Frameworks []string
 }
 
 type TestArgs = *TestArgsT
 
 func (me TestArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
-	me.Framework = cliContext.Bool("framework")
+	me.Frameworks = cliContext.StringSlice("framework")
 	return nil
 }
 
@@ -36,12 +36,12 @@ func TestFunc(x Kontext) func(*cli.Context) error {
 		}
 		x.Args = a
 
-		ra := &TestArgsT{}
-		if err := ra.WithCliContext(x, cliContext); err != nil {
+		ta := &TestArgsT{}
+		if err := ta.WithCliContext(x, cliContext); err != nil {
 			return err
 		}
 
-		NewTestCommand(x).Test(x, ra)
+		NewTestCommand(x).Test(x, ta)
 
 		return nil
 	}

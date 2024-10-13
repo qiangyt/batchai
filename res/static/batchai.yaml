@@ -47,10 +47,10 @@ test:
       - "${MY_TEST_RULE_19}"
       - "${MY_TEST_RULE_20}"
     template: |
-        As an developer expert, you're requested by users to test provided code:
+        As an developer expert, you're requested to write test cases provided code following belows rules:
         {{.test_rules}}
-        Code to test: 
-        path: {{.path}}
+        Path of code to test: {{.path}}
+        Content of code to test:
         {{.code_to_test}}
 review:
   model_id: ${BATCHAI_REVIEW_MODEL}

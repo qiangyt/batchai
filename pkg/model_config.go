@@ -19,6 +19,7 @@ type ModelConfigT struct {
 	ProxyPass               string        `mapstructure:"proxy_pass,omitempty"`
 	ProxyInsecureSkipVerify bool          `mapstructure:"proxy_insecure_skip_verify" default:"false"`
 	ReviewPrompt            ReviewPrompt  `mapstructure:"review_prompt"`
+	TestPrompt              TestPrompt    `mapstructure:"test_prompt"`
 	MaxConcurrentRequests   int           `mapstructure:"max_concurrent_requests"`
 }
 

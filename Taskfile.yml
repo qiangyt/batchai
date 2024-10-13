@@ -117,7 +117,8 @@ tasks:
         vars:
           GOARCH: amd64
           GOOS: linux      
-      - upx -9 -k -v target/batchai.linux-amd64
+      #- upx -9 -k -v target/batchai.linux-amd64
+      - sudo cp target/batchai.linux-amd64 /usr/bin/batchai
 
   windows:
     desc: release for windows
@@ -127,7 +128,7 @@ tasks:
           GOARCH: amd64
           GOOS: windows
           exeExt: .exe
-      - upx -9 -k -v target/batchai.windows-amd64.exe
+      #- upx -9 -k -v target/batchai.windows-amd64.exe
       - task: go_build
         vars:
           GOARCH: arm64

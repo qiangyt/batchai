@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/qiangyt/batchai/comm"
 )
 
@@ -14,17 +13,9 @@ type TestPromptVariablesT struct {
 
 type TestPromptVariables = *TestPromptVariablesT
 
-const (
-	TEST_FILE_BEGIN      = "!!!!test_file_begin!!!!"
-	TEST_FILE_BEGIN_LINE = TEST_FILE_BEGIN + "\n"
-	TEST_FILE_END        = "!!!!test_file_end!!!!"
-	TEST_FILE_END_LINE   = /*"\n" + */ TEST_FILE_END
-)
-
 func NewTestPromptVariables() TestPromptVariables {
 	return &TestPromptVariablesT{Data: map[string]any{
-		"fix_begin": TEST_FILE_BEGIN,
-		"fix_end":   TEST_FILE_END,
+		"test_format": TEST_RESPONSE_JSON_FORMAT,
 	}}
 }
 
@@ -42,6 +33,14 @@ func (me TestPromptVariables) WithPath(path string) TestPromptVariables {
 	me.Data["path"] = path
 	return me
 }
+
+func (me TestPromptVariables) WithFrameworks(frameworks []string) TestPromptVariables {
+	me.Data["frameworks"] = frameworks
+	return me
+}
+
+// TODO: test coverage
+// TODO: example
 
 type TestPromptT struct {
 	Rules    []string `mapstructure:"rules"`
@@ -68,25 +67,4 @@ func (me TestPrompt) Generate(variables TestPromptVariables) string {
 	}
 
 	return comm.RenderAsTemplateP(me.Template, data)
-}
-
-func ExtractTestFile(input string) (string, string) {
-	begin := strings.Index(input, TEST_FILE_BEGIN_LINE)
-	if begin < 0 {
-		return "", input
-	}
-	block := input[begin+len(TEST_FILE_BEGIN_LINE):]
-
-	end := strings.LastIndex(block, TEST_FILE_END_LINE)
-	if end <= 0 {
-		panic(errors.New("unmatched separator tag"))
-	}
-	result := block[:end]
-
-	if strings.HasPrefix(strings.TrimSpace(result), "```") {
-		result, _ = comm.ExtractMarkdownCodeBlocksP(result)
-	}
-
-	remained := input[:begin] + block[end+len(TEST_FILE_END_LINE):]
-	return result, remained
 }
