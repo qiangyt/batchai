@@ -1,55 +1,30 @@
 package batchai
 
 import (
-	"strings"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/qiangyt/batchai/comm"
 )
 
-const TEST_RESPONSE_JSON_FORMAT = `
-{
-  "test_file_path": "",
-  "test_code": "",  
-  "amount_of_generated_test_cases": 0
-}`
-
 type TestResultT struct {
-	Skipped           bool
-	Failed            bool
-	Response          TestResponse
-	ModelUsageMetrics ModelUsageMetrics
+	Skipped bool
+	Failed  bool
+	Report  TestReport
 }
 
 type TestResult = *TestResultT
 
-type TestResponseT struct {
-	TestFilePath               string `json:"test_file_path"`
-	TestCode                   string `json:"test_code"`
-	AmountOfGeneratedTestCases int    `json:"amount_of_generated_test_cases"`
-}
-
-type TestResponse = *TestResponseT
-
-func (me TestResponse) Print(console comm.Console, metrics ModelUsageMetrics) {
-	metrics.Print(console, comm.DEFAULT_COLOR)
-
-	console.NewLine().Printf("Test File Path: %s", me.TestFilePath)
-	console.NewLine().Printf("Amoutn of Generated Test Cases: %d", me.AmountOfGeneratedTestCases)
-	console.NewLine().Printf("Test Code: %s", me.TestCode)
-}
-
 type TestAgentT struct {
 	SymbolAwareAgentT
 
+	reportManager   TestReportManager
 	codeFileManager CodeFileManager
 	file            string
 }
 
 type TestAgent = *TestAgentT
 
-func NewTestAgent(
+func NewTestAgent(reportManager TestReportManager,
 	codeFileManager CodeFileManager,
 	symbolManager SymbolManager,
 	modelService ModelService,
@@ -58,6 +33,7 @@ func NewTestAgent(
 	return &TestAgentT{
 		SymbolAwareAgentT: newSymbolAwareAgent(symbolManager, modelService),
 		codeFileManager:   codeFileManager,
+		reportManager:     reportManager,
 		file:              codeFile,
 	}
 }
@@ -81,33 +57,39 @@ func (me TestAgent) Run(x Kontext, testArgs TestArgs, resultChan chan<- TestResu
 			}
 		}()
 
-		result := me.generateTestFile(x, testArgs, c)
+		result := me.generateTest(x, testArgs, c)
 
 		resultChan <- result
 	}()
 }
 
-func (me TestAgent) generateTestFile(x Kontext, testArgs TestArgs, c comm.Console) TestResult {
+func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) TestResult {
 	c.NewLine().Green("--------------------")
 	c.NewLine().Greenln(me.file)
 
 	code := me.codeFileManager.Load(x, me.file)
-	// if !code.IsChanged() {
-	// 	if !x.Args.Force {
-	// 		c.NewLine().Default("no code changes, skipped")
-	// 		return &TestResultT{Skipped: true}
-	// 	}
-	// }
+	if !code.IsChanged() {
+		cachedReport := me.reportManager.LoadReport(x, me.file)
+		if cachedReport != nil {
+			if !x.Args.Force {
+				c.NewLine().Default("no code changes, skipped")
+				return &TestResultT{Skipped: true}
+			}
+		}
+	}
 
-	r, metrics := me.generateTestCode(x, c, testArgs, code.Latest)
-	r.Print(c, metrics)
+	r := me.generateTestCode(x, c, testArgs, code.Latest)
+	r.Print(c)
 
 	me.codeFileManager.Save(x, r.TestFilePath, r.TestCode)
 
-	return &TestResultT{Response: r, Skipped: false}
+	reportFile := me.reportManager.SaveReport(x, me.file, r)
+	c.NewLine().Blue("report: ").Default(reportFile)
+
+	return &TestResultT{Report: r, Skipped: false}
 }
 
-func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string) (TestResponse, ModelUsageMetrics) {
+func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string) TestReport {
 	verbose := x.Args.Verbose
 
 	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Frameworks, code, me.file)
@@ -129,27 +111,8 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}
 
-	r := ExtractTestResponse(answer)
-
-	return r, metrics
-}
-
-func ExtractTestResponse(answer string) TestResponse {
-	jsonStr, _ := comm.ExtractMarkdownJsonBlocksP(answer)
-
-	indexOfLeftBrace := strings.Index(jsonStr, "{")
-	if indexOfLeftBrace < 0 {
-		panic(errors.New("invalid json format - missing left brace"))
-	}
-	jsonStr = jsonStr[indexOfLeftBrace:]
-
-	indexOfRightBrace := strings.LastIndex(jsonStr, "}")
-	if indexOfRightBrace <= 0 {
-		panic(errors.New("invalid json format - missing right brace"))
-	}
-	jsonStr = jsonStr[:indexOfRightBrace+1]
-
-	report := &TestResponseT{}
-	comm.FromJsonP(jsonStr, false, report)
-	return report
+	r := ExtractTestReport(answer)
+	r.Path = me.file
+	r.ModelUsageMetrics = metrics
+	return r
 }

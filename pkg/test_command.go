@@ -8,6 +8,7 @@ import (
 
 type TestCommandT struct {
 	BaseModelCommandT
+	reportManager TestReportManager
 }
 
 type TestCommand = *TestCommandT
@@ -15,6 +16,7 @@ type TestCommand = *TestCommandT
 func NewTestCommand(x Kontext) TestCommand {
 	return &TestCommandT{
 		BaseModelCommandT: *NewBaseModelCommand(x),
+		reportManager:     NewTestReportManager(),
 	}
 }
 
@@ -26,7 +28,7 @@ func (me TestCommand) launchTestAgents(x Kontext, testArgs TestArgs, targetFiles
 	for _, f := range targetFiles {
 		metrics.Processed++
 
-		agent := NewTestAgent(me.codeFileManager, me.symbolManager, me.modelService, f)
+		agent := NewTestAgent(me.reportManager, me.codeFileManager, me.symbolManager, me.modelService, f)
 		agent.Run(x, testArgs, resultChan, wg)
 	}
 
@@ -41,9 +43,10 @@ func (me TestCommand) launchTestAgents(x Kontext, testArgs TestArgs, targetFiles
 		} else {
 			metrics.Succeeded++
 
-			metrics.ModelUsageMetricsT.IncreaseUsage(r.ModelUsageMetrics)
+			report := r.Report
+			metrics.ModelUsageMetricsT.IncreaseUsage(report.ModelUsageMetrics)
 
-			metrics.TotalTestCases += r.Response.AmountOfGeneratedTestCases
+			metrics.TotalTestCases += report.AmountOfGeneratedTestCases
 		}
 	}
 }

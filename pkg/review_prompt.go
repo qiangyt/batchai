@@ -67,8 +67,8 @@ func (me ReviewPrompt) Init(config AppConfig) {
 	me.Template = strings.TrimSpace(me.Template)
 }
 
-func (me ReviewPrompt) Generate(variables ReviewPromptVariables) string {
-	data := variables.Data
+func (me ReviewPrompt) Generate(vars ReviewPromptVariables) string {
+	data := vars.Data
 
 	rules := comm.RenderAsTemplateArrayP(me.Rules, data)
 	if len(rules) > 0 {

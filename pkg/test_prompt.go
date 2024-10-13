@@ -15,7 +15,7 @@ type TestPromptVariables = *TestPromptVariablesT
 
 func NewTestPromptVariables() TestPromptVariables {
 	return &TestPromptVariablesT{Data: map[string]any{
-		"test_format": TEST_RESPONSE_JSON_FORMAT,
+		"test_format": TEST_REPORT_JSON_FORMAT,
 	}}
 }
 
@@ -58,8 +58,8 @@ func (me TestPrompt) Init(config AppConfig) {
 	me.Template = strings.TrimSpace(me.Template)
 }
 
-func (me TestPrompt) Generate(variables TestPromptVariables) string {
-	data := variables.Data
+func (me TestPrompt) Generate(vars TestPromptVariables) string {
+	data := vars.Data
 
 	rules := comm.RenderAsTemplateArrayP(me.Rules, data)
 	if len(rules) > 0 {
