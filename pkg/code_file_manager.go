@@ -48,6 +48,9 @@ func (me CodeFileManager) Load(x Kontext, file string) CodeFile {
 	}
 
 	fs := x.Fs
+	if !comm.FileExistsP(fs, file) {
+		return nil
+	}
 	latest := comm.ReadFileTextP(fs, file)
 
 	r = &CodeFileT{Latest: latest}

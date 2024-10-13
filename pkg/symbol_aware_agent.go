@@ -28,9 +28,9 @@ func (me SymbolAwareAgent) provideSymbols(x Kontext, c comm.Console, file string
 	mem := me.memory
 
 	msg1 := `
-1) list all referred non-standard symbols and all symbols which is missing and not defined or initialized in current file, includes: type, class, enum, const, constant, literal, variable, interface, property, field, attributes, method, function;
+1) list all referred non-standard symbols and all symbols which is missing and not defined or initialized in current file, includes: type, class,traits, enum, const, constant, literal, variable, interface, property, field, attributes, method, function;
 2) return a json array of simple name of symbols, e.g. ["symbol1", "symbol2"]; 
-3) excludes either package names or full qualified names
+3) output full-qualified symbol name excluding package name or module name
 4) exclude any other words excepts the json array
 5) if no symbol to check, return an empty array []
 `
@@ -63,7 +63,7 @@ func (me SymbolAwareAgent) provideSymbols(x Kontext, c comm.Console, file string
 
 	symbolDetails := []string{}
 	for _, s := range symbols {
-		symbolDetails = append(symbolDetails, fmt.Sprintf("The symbol %s is defined and initialized in another file, %s. Should use this definition while reviewing and do not report anything related to it as an issue. See: %s", s.Name, s.Path, s.Lines))
+		symbolDetails = append(symbolDetails, fmt.Sprintf("The symbol %s is defined and initialized in other files, %s. Must use this definition while reviewing and do not report anything related to it as an issue. See: %s", s.Name, s.Path, s.Lines))
 	}
 	msg2 := strings.Join(symbolDetails, "\n")
 	mem.AddUserMessage(msg2)

@@ -3,6 +3,7 @@ package batchai
 import (
 	"fmt"
 	"path"
+	"strings"
 	"sync"
 
 	"github.com/qiangyt/batchai/comm"
@@ -10,7 +11,7 @@ import (
 
 const SYMBOL_JSON_FORMAT = `
 {
-	"name": name of this symbol,
+	"name": name of this symbol, full qualified, but excluding module name or package name,
 	"lines": "content of lines that defines or initialize this symbol; don't include body of methods or functions"
 }
 `
@@ -49,11 +50,13 @@ func (me SymbolManager) Lookup(x Kontext, symbolNames []string, excludedFile str
 	defer me.lock.RUnlock()
 
 	r := []Symbol{}
-	for _, s := range symbolNames {
-		if matchedSymbols, has := me.symbolsByName[s]; has {
-			for _, matchedSymbol := range matchedSymbols {
-				if matchedSymbol.Path != excludedFile {
-					r = append(r, matchedSymbol)
+	for _, sn := range symbolNames {
+		for name, symbols := range me.symbolsByName {
+			if strings.Contains(name, sn) {
+				for _, s := range symbols {
+					if s.Path != excludedFile {
+						r = append(r, s)
+					}
 				}
 			}
 		}

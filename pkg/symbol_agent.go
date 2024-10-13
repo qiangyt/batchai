@@ -77,7 +77,7 @@ func (me SymbolAgent) collectSymbols(x Kontext, c comm.Console) []Symbol {
 
 	mem := me.memory
 	mem.AddSystemMessage(strings.Join(sysPrompt, "\n"))
-	mem.AddUserMessage("extract any either visible or exposable symbols 1) includes: type, class, enum, const, constant, literal, variable, interface, property, field, attributes, method, function 2) output them following below json format: \n[" + SYMBOL_JSON_FORMAT + "]. 3) don't output any other words except the json array")
+	mem.AddUserMessage("extract any either visible or exposable symbols 1) includes: type, class, enum, const, constant, traits, literal, variable, interface, property, field, attributes, method, function 2) output them following below json format: \n[" + SYMBOL_JSON_FORMAT + "]. 3) don't output any other words except the json array 4) output symbol names with full-qualified names excluding package name or module name")
 
 	if verbose {
 		c.NewLine().Gray("chat: ").Default(mem.Format())

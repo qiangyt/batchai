@@ -104,12 +104,13 @@ func (me ReviewAgent) reviewCode(x Kontext, c comm.Console, code string) ReviewR
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
-	if x.Args.EnableSymbolCollection {
+	if x.Args.EnableSymbolReference {
 		// TODO: merge metrics
 		me.provideSymbols(x, c, me.file)
+		mem.AddUserMessage("review the code, with provided symbols as references")
+	} else {
+		mem.AddUserMessage("review the code")
 	}
-
-	mem.AddUserMessage("review the code")
 	if verbose {
 		c.NewLine().Gray("chat: ").Default("review the code")
 	}

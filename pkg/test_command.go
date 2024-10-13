@@ -57,7 +57,7 @@ func (me TestCommand) Test(x Kontext, testArgs TestArgs) {
 
 	targetFiles, _, _, repoFiles := me.listCommand.CollectWorkingFiles(x, c)
 	if len(targetFiles) > 0 {
-		if x.Args.EnableSymbolCollection {
+		if x.Args.EnableSymbolReference {
 			me.launchSymbolAgents(x, repoFiles)
 		}
 		me.launchTestAgents(x, testArgs, targetFiles, metrics)

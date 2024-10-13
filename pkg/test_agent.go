@@ -80,7 +80,14 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 		}
 	}
 
-	r := me.generateTestCode(x, c, testArgs, code.Latest, cachedReport)
+	exstingTestCode := ""
+	if cachedReport != nil && testArgs.Update {
+		if f := me.codeFileManager.Load(x, cachedReport.TestFilePath); f != nil {
+			exstingTestCode = f.Latest
+		}
+	}
+
+	r := me.generateTestCode(x, c, testArgs, code.Latest, exstingTestCode)
 	r.Print(c)
 
 	me.codeFileManager.Save(x, r.TestFilePath, r.TestCode)
@@ -91,24 +98,21 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 	return &TestResultT{Report: r, Skipped: false}
 }
 
-func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string, cachedReport TestReport) TestReport {
+func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string, exstingTestCode string) TestReport {
 	verbose := x.Args.Verbose
-
-	exstingTestCode := ""
-	if cachedReport != nil && testArgs.Update {
-		exstingTestCode = cachedReport.TestCode
-	}
 
 	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Libraries, code, me.file, exstingTestCode)
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
-	if x.Args.EnableSymbolCollection {
+	if x.Args.EnableSymbolReference {
 		// TODO: merge metrics
 		me.provideSymbols(x, c, me.file)
+		mem.AddUserMessage("generates tests, with provided symbols as references")
+	} else {
+		mem.AddUserMessage("generates tests")
 	}
 
-	mem.AddUserMessage("generates tests")
 	if verbose {
 		c.NewLine().Gray("chat: ").Default("generates tests")
 	}
