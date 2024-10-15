@@ -47,7 +47,7 @@ func (me TestAgent) Run(x Kontext, testArgs TestArgs, resultChan chan<- TestResu
 
 		c := comm.NewConsole()
 
-		c.Greenf("processing: %s\n", me.file)
+		c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
 		c.Begin()
 		defer c.End()
 
@@ -74,7 +74,7 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 	if !code.IsChanged() {
 		if cachedReport != nil {
 			if !x.Args.Force {
-				c.NewLine().Default("no code changes, skipped")
+				c.NewLine().Default("✔ no code changes, skipped")
 				return &TestResultT{Skipped: true}
 			}
 		}
@@ -93,7 +93,7 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 	me.codeFileManager.Save(x, r.TestFilePath, r.TestCode)
 
 	reportFile := me.reportManager.SaveReport(x, me.file, r)
-	c.NewLine().Blue("report: ").Default(reportFile)
+	c.NewLine().Blue("✔ report: ").Default(reportFile)
 
 	return &TestResultT{Report: r, Skipped: false}
 }

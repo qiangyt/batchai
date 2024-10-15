@@ -19,6 +19,7 @@ func NewReviewCommand(x Kontext) ReviewCommand {
 		reportManager:     NewReviewReportManager(),
 	}
 }
+
 func (me ReviewCommand) launchReviewAgents(x Kontext, reviewArgs ReviewArgs, targetFiles []string, metrics ReviewMetrics) {
 	// launch review agents and wait for them
 	wg := &sync.WaitGroup{}
@@ -66,5 +67,5 @@ func (me ReviewCommand) Review(x Kontext, reviewArgs ReviewArgs) {
 	}
 
 	// c.NewLine()
-	// metrics.Print(c)
+	// metrics.Print(✔ c)
 }

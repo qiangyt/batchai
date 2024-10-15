@@ -218,8 +218,8 @@ models:
     proxy_pass: ''
     max_concurrent_requests: ${QWEN_MAX_CONCURRENT_REQUESTS}
 
-  - id: ollama/qwen2.5-coder:7b-instruct-fp16
-    name: qwen2.5-coder:7b-instruct-fp16
+  - id: ollama/qwen2.5-coder:7b-instruct
+    name: qwen2.5-coder:7b-instruct
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 32768
     max_output_tokens: 32768

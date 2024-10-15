@@ -49,7 +49,7 @@ func (me ReviewAgent) Run(x Kontext, reviewArgs ReviewArgs, resultChan chan<- Re
 
 		c := comm.NewConsole()
 
-		c.Greenf("processing: %s\n", me.file)
+		c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
 		c.Begin()
 		defer c.End()
 
@@ -75,7 +75,7 @@ func (me ReviewAgent) reviewFile(x Kontext, reviewArgs ReviewArgs, c comm.Consol
 		cachedReport := me.reportManager.LoadReport(x, me.file)
 		if cachedReport != nil {
 			if !x.Args.Force {
-				c.NewLine().Default("no code changes, skipped")
+				c.NewLine().Default("✔ no code changes, skipped")
 				return &ReviewResultT{Report: cachedReport, Skipped: true}
 			}
 		}
@@ -92,7 +92,7 @@ func (me ReviewAgent) reviewFile(x Kontext, reviewArgs ReviewArgs, c comm.Consol
 	}
 
 	reportFile := me.reportManager.SaveReport(x, me.file, r)
-	c.NewLine().Blue("report: ").Default(reportFile)
+	c.NewLine().Blue("✔ report: ").Default(reportFile)
 
 	return &ReviewResultT{Report: r, Skipped: false}
 }

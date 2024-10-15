@@ -16,7 +16,8 @@ type SymbolAwareAgentT struct {
 type SymbolAwareAgent = *SymbolAwareAgentT
 
 func newSymbolAwareAgent(symbolManager SymbolManager,
-	modelService ModelService) SymbolAwareAgentT {
+	modelService ModelService,
+) SymbolAwareAgentT {
 	return SymbolAwareAgentT{
 		BaseAgentT:    newBaseAgent(modelService),
 		symbolManager: symbolManager,

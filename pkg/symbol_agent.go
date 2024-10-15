@@ -38,7 +38,7 @@ func (me SymbolAgent) Run(x Kontext, resultChan chan<- []Symbol, wg *sync.WaitGr
 
 		c := comm.NewConsole()
 
-		c.Defaultf("processing symbols: %s\n", me.file)
+		c.Defaultf("▹▹▹▹▹ processing symbols: %s\n", me.file)
 		c.Begin()
 		defer c.End()
 

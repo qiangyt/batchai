@@ -9,12 +9,13 @@ import (
 )
 
 type AppArgsT struct {
-	EnableSymbolReference bool
-	Verbose               bool
-	Lang                  string
-	TargetPaths           []string
-	Repository            string
-	Force                 bool
+	EnableSymbolReference  bool
+	Verbose                bool
+	Lang                   string
+	TargetPaths            []string
+	Repository             string
+	Force                  bool
+	NumberOfFilesToProcess int
 }
 
 type AppArgs = *AppArgsT
@@ -24,6 +25,7 @@ func (me AppArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
 	me.Force = cliContext.IsSet("force")
 	me.Verbose = cliContext.IsSet("verbose")
 	me.Lang = cliContext.String("lang")
+	me.NumberOfFilesToProcess = cliContext.Int("num")
 
 	if len(me.Lang) > 0 {
 		x.Config.Lang = me.Lang
