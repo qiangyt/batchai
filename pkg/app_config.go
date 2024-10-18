@@ -20,7 +20,7 @@ func DefaultConfigDir() string {
 func LoadAngineerEnv(fs afero.Fs) {
 	batchaiEnvText := res.FromPath("/batchai.env").ReadText()
 	batchaiEnvMap, _ := comm.ParseEnv(strings.NewReader(batchaiEnvText))
-	comm.LoadEnvMap(batchaiEnvMap, true)
+	comm.LoadEnvMap(batchaiEnvMap)
 
 	comm.OverloadEnv(fs)
 }

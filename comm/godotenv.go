@@ -71,7 +71,7 @@ func LoadEnv(fs afero.Fs, filenames ...string) (err error) {
 	filenames = EnvFilenamesOrDefault(filenames)
 
 	for _, filename := range filenames {
-		err = LoadEnvFile(fs, filename, false)
+		err = LoadEnvFile(fs, filename)
 		if err != nil {
 			return // return early on a spazout
 		}
@@ -94,7 +94,7 @@ func OverloadEnv(fs afero.Fs, filenames ...string) (err error) {
 	filenames = EnvFilenamesOrDefault(filenames)
 
 	for _, filename := range filenames {
-		err = LoadEnvFile(fs, filename, true)
+		err = LoadEnvFile(fs, filename)
 		if err != nil {
 			return // return early on a spazout
 		}
@@ -216,18 +216,18 @@ func EnvFilenamesOrDefault(filenames []string) []string {
 	return filenames
 }
 
-func LoadEnvFile(fs afero.Fs, filename string, overload bool) error {
+func LoadEnvFile(fs afero.Fs, filename string) error {
 	envMap, err := ReadEnvFile(fs, filename)
 	if err != nil {
 		return err
 	}
 
-	LoadEnvMap(envMap, overload)
+	LoadEnvMap(envMap)
 
 	return nil
 }
 
-func LoadEnvMap(envMap map[string]string, overload bool) {
+func LoadEnvMap(envMap map[string]string) {
 	currentEnv := map[string]bool{}
 	rawEnv := os.Environ()
 	for _, rawEnvLine := range rawEnv {
@@ -236,7 +236,7 @@ func LoadEnvMap(envMap map[string]string, overload bool) {
 	}
 
 	for key, value := range envMap {
-		if !currentEnv[key] || overload {
+		if !currentEnv[key] {
 			os.Setenv(key, value)
 		}
 	}
