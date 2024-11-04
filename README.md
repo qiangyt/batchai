@@ -47,7 +47,8 @@ More detail:
 
 ## Features
 
-- [x] Code Check : Reports issues to the console, saves as a check report, and then fixes code directly.
+- [x] Batch Code Check : Reports issues to the console, saves as a check report, and then optionally fixes code directly.
+- [x] Batch Test Code Generation
 - [x] Customized Prompts.
 - [x] File Ignoring : Specifies files to ignore, respecting both `.gitignore` and an additional `.batchai_ignore` file.
 - [x] Target Specification : Allows specifying target directories and files within the Git repository.
@@ -142,7 +143,7 @@ More detail:
     batchai [global options] command [command options] <repository directory>  [target files/directories in the repository]
 
   VERSION:
-    0.1.0 (5eeb081)
+    0.1.2 (5eeb081)
 
   COMMANDS:
     check            Scans project codes to check issues. Report is outputed to console and also saved to 'build/batchai'

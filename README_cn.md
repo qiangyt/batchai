@@ -6,9 +6,9 @@
 
 于是就有了`batchai`这么个工具。出发点很简单: 无需再复制粘贴，因为它会遍历指定的目录和文件，而且只在 Git 仓库目录中运行，所以程序员自己需要核对所有 `batchai`做出的更改（因为 AI 也常常犯错）。
 
-目前，`batchai`只支持代码审查和修复常见问题（可以看作是本地的 AI 驱动 的SonarQube）。已经在做的下一个功能是批量生成单元测试代码，打算用在自己的几个个人项目上（包括这个`batchai`），因为它们几乎没什么单元测试。其它计划的功能包括代码解释和注释生成、重构 —— 所有这些都将被批量处理。还有就是，尝试让`batchai`能对项目代码有整体的视角，譬如建立跨文件的代码符号索引，这应该有助于AI工作得更好。
+目前，`batchai`已经支持批量代码检查（可以看作是本地的 AI 驱动 的SonarQube）和批量生成单元测试代码。打算用在自己的几个个人项目上（包括这个`batchai`），因为一直以来它们就没什么单元测试。其它计划的功能包括代码解释和注释生成、重构等 —— 所有这些都将被批量处理。还有就是，尝试让`batchai`能对项目代码有整体的视角，譬如建立跨文件的代码符号索引，这应该有助于AI工作得更好。
 
-下面是过去两周里我在自己的一些项目测试使用`batchai`后的一些有趣的发现：
+下面是过去几周里我在自己的一些项目测试使用`batchai`后的一些有趣的发现：
 
 - AI常常能发现那些传统工具（譬如SonarQube）会遗漏的问题。
 - AI不会一次性报告所有问题，因此我需要多次运行它。
@@ -16,7 +16,7 @@
 
 我找了[spring-petclinic（克隆自https://github.com/spring-projects/spring-petclinic）](https://github.com/qiangyt/spring-petclinic)这个Java项目来演示。
 
-下面是一些正确的例子：
+下面是一些代码检查结果的例子：
 
 - [添加检查确保生日的值不在未来时间](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7ba90c8df45063ea6569e3ea29850f6dbd777bc14f76b1115f556ade61441207)
 
@@ -40,13 +40,14 @@
 
 更多细节：
 
-- [代码审查报告](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
+- [代码检查报告](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
 
-- [依据审查报告生成的修复](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712)
+- [依据检查报告生成的修复](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712)
 
 ## 功能
 
-- [x] 代码审查 : 在控制台输出审查报告并保存下来，然后直接修复代码。
+- [x] 批量检查代码 : 在控制台输出检查报告并保存下来，然后直接修复代码。
+- [x] 批量生成单元测试代码。
 - [x] 自定义提示词。
 - [x] 文件忽略 : 指定忽略的文件，支持`.gitignore`和额外的`.batchai_ignore`文件。
 - [x] 指定额外的目标路径: 允许指定 Git 仓库中的部分目录和文件。
@@ -141,7 +142,7 @@
     batchai [global options] command [command options] <repository directory>  [target files/directories in the repository]
 
   VERSION:
-    0.1.0 (5eeb081)
+    0.1.2 (5eeb081)
 
   COMMANDS:
     check            将问题报告到控制台，也保存到 'build/batchai'
