@@ -40,7 +40,7 @@ func (me SymbolAwareAgent) provideSymbols(x Kontext, c comm.Console, file string
 		c.NewLine().Gray("chat: ").Default(msg1)
 	}
 
-	modelId := x.Config.Review.ModelId
+	modelId := x.Config.Check.ModelId
 	answer, metrics := me.modelService.Chat(x, modelId, mem)
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(answer)
@@ -64,7 +64,7 @@ func (me SymbolAwareAgent) provideSymbols(x Kontext, c comm.Console, file string
 
 	symbolDetails := []string{}
 	for _, s := range symbols {
-		symbolDetails = append(symbolDetails, fmt.Sprintf("The symbol %s is defined and initialized in other files, %s. Must use this definition while reviewing and do not report anything related to it as an issue. See: %s", s.Name, s.Path, s.Lines))
+		symbolDetails = append(symbolDetails, fmt.Sprintf("The symbol %s is defined and initialized in other files, %s. Must use this definition while checking and do not report anything related to it as an issue. See: %s", s.Name, s.Path, s.Lines))
 	}
 	msg2 := strings.Join(symbolDetails, "\n")
 	mem.AddUserMessage(msg2)

@@ -7,7 +7,7 @@ I often rely on ChatGPT and GitHub Copilot, but it is a little bit frustrating t
 
 That's why I created `batchai`. The idea is simple: less copy-pasting, fewer clicks on 'Add to Chat' or 'Apply.' `batchai` traverses files and processing each of them. Since AI isn’t always perfect, I’ve designed it to run only on a Git directory, so we can easily diff the changes and choose to either commit or revert them.
 
-Currently, `batchai` only supports code review and fixing common issues (think of it as a local AI-driven SonarQube). The next feature in progress is generating unit test code in batches, which I plan to use in a few of my personal projects (including this `batchai`), as they have very few unit tests. Other planned features include code explanation, comment generation, and refactoring — all of which will be handled in batches. Additionally, I’m working on enabling `batchai` to have an overall insight of the project’s code, such as building cross-file code symbol indexing, which should help the AI perform better.
+Currently, `batchai` only supports code check and fixing common issues (think of it as a local AI-driven SonarQube). The next feature in progress is generating unit test code in batches, which I plan to use in a few of my personal projects (including this `batchai`), as they have very few unit tests. Other planned features include code explanation, comment generation, and refactoring — all of which will be handled in batches. Additionally, I’m working on enabling `batchai` to have an overall insight of the project’s code, such as building cross-file code symbol indexing, which should help the AI perform better.
 
 Here are some interesting findings from testing batchai on my personal projects over the past two weeks:
 
@@ -17,7 +17,7 @@ Here are some interesting findings from testing batchai on my personal projects 
 
 I used the [spring-petclinic (cloned from https://github.com/spring-projects/spring-petclinic)](https://github.com/qiangyt/spring-petclinic) for demonstration.
 
-Here are some examples of correct review:
+Here are some examples of correct check:
 
 - [Adds a check to ensure birthday not be in the future](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7ba90c8df45063ea6569e3ea29850f6dbd777bc14f76b1115f556ade61441207)
 
@@ -41,13 +41,13 @@ And also a wrong fix:
 
 More detail:
 
-- [Code Review report](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
+- [Code Check report](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
 
-- [Fix following the review report](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712)
+- [Fix following the check report](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712)
 
 ## Features
 
-- [x] Code Review : Reports issues to the console, saves as a review report, and then fixes code directly.
+- [x] Code Check : Reports issues to the console, saves as a check report, and then fixes code directly.
 - [x] Customized Prompts.
 - [x] File Ignoring : Specifies files to ignore, respecting both `.gitignore` and an additional `.batchai_ignore` file.
 - [x] Target Specification : Allows specifying target directories and files within the Git repository.
@@ -83,15 +83,15 @@ More detail:
    #OPENAI_PROXY_URL=
    #OPENAI_PROXY_USER=
    #OPENAI_PROXY_PASS=
-   #BATCHAI_REVIEW_MODEL=openai/gpt-4o-mini
+   #BATCHAI_CHECK_MODEL=openai/gpt-4o-mini
 
    # Ali TONGYI qwen
    #QWEN_API_KEY=change-it
-   #BATCHAI_REVIEW_MODEL=tongyi/qwen2.5-coder-7b-instruct
+   #BATCHAI_CHECK_MODEL=tongyi/qwen2.5-coder-7b-instruct
 
    # local Ollama
    #OLLAMA_BASE_URL=http://localhost:11434/v1/
-   #BATCHAI_REVIEW_MODEL=ollama/qwen2.5-coder:7b-instruct-fp16
+   #BATCHAI_CHECK_MODEL=ollama/qwen2.5-coder:7b-instruct-fp16
    ```
 
    For Ollama, you can refer to my example [docker-compose.yml](./docker-compose.yml)
@@ -102,28 +102,28 @@ More detail:
 
    ```shell
    cd /data/spring-petclinic
-   batchai review . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
+   batchai check . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
    ```
 
    - Directly fix the target files via option `--fix`:
 
    ```shell
    cd /data/spring-petclinic
-   batchai review --fix . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
+   batchai check --fix . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
    ```
 
    - Run `batchai` in main Java code only:
 
    ```shell
    cd /data/spring-petclinic
-   batchai review . src/main/java/
+   batchai check . src/main/java/
    ```
 
    - Run `batchai` on the entire project:
 
    ```shell
    cd /data/spring-petclinic
-   batchai review .
+   batchai check .
    ```
 
 ## CLI Usage
@@ -145,7 +145,7 @@ More detail:
     0.1.0 (5eeb081)
 
   COMMANDS:
-    review           Report issues to console, also saved to 'build/batchai'
+    check            Scans project codes to check issues. Report is outputed to console and also saved to 'build/batchai'
     list             Lists files to process
     explain (TODO)   Explains the code, output result to console or as comment
     comment (TODO)   Comments the code
@@ -160,18 +160,18 @@ More detail:
     --version, -v              print the version
   ```
 
-- To see detailed help for the `review` command, run:
+- To see detailed help for the `check` command, run:
 
   ```shell
-  batchai review -h
+  batchai check -h
   ```
 
   ```shell
   NAME:
-    batchai review - Report issues to console, also saved to 'build/batchai'
+    batchai check - Report issues to console, also saved to 'build/batchai'
 
   USAGE:
-    batchai review [command options]
+    batchai check [command options]
 
   OPTIONS:
     --fix, -f   Replaces the target files (default: false)
@@ -213,7 +213,7 @@ To add more LLMs, simply follow the configuration in [res/static/batchai.yaml](r
   `batchai` ignores the directories and files following `.gitignore` files. This is usually sufficient, but if there are additional files or directories that cannot be ignored by Git but should not be processed by batchai, we can specify them in the `.batchai_ignore` files. The rules are written in the same way as in `.gitignore`.
   
 - Customized Prompts
-  Refer to `BATCHAI_REVIEW_RULE_*` and `MY_REVIEW_RULE_*` in [res/static/batchai.yaml]
+  Refer to `BATCHAI_CHECK_RULE_*` and `MY_CHECK_RULE_*` in [res/static/batchai.yaml]
 
 ## License
 

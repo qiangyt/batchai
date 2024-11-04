@@ -25,7 +25,7 @@ func main() {
 	x := batchai.NewKontext(fs)
 	x.Config = batchai.ConfigWithYaml(fs)
 
-	review := batchai.ReviewUrfaveCommand(x)
+	check := batchai.CheckUrfaveCommand(x)
 
 	explain := &cli.Command{
 		Name:  "explain (TODO)",
@@ -66,7 +66,7 @@ func main() {
 	app := &cli.App{
 		Version:                fmt.Sprintf("%s (%s)", Version, CommitId),
 		UseShortOptionHandling: true,
-		Commands:               []*cli.Command{review, list, test, explain, comment, refactor},
+		Commands:               []*cli.Command{check, list, test, explain, comment, refactor},
 		Name:                   "batchai",
 		Usage:                  "utilizes AI for batch processing of project codes",
 		Flags: []cli.Flag{

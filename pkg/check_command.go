@@ -6,30 +6,30 @@ import (
 	"github.com/qiangyt/batchai/comm"
 )
 
-type ReviewCommandT struct {
+type CheckCommandT struct {
 	BaseModelCommandT
-	reportManager ReviewReportManager
+	reportManager CheckReportManager
 }
 
-type ReviewCommand = *ReviewCommandT
+type CheckCommand = *CheckCommandT
 
-func NewReviewCommand(x Kontext) ReviewCommand {
-	return &ReviewCommandT{
+func NewCheckCommand(x Kontext) CheckCommand {
+	return &CheckCommandT{
 		BaseModelCommandT: *NewBaseModelCommand(x),
-		reportManager:     NewReviewReportManager(),
+		reportManager:     NewCheckReportManager(),
 	}
 }
 
-func (me ReviewCommand) launchReviewAgents(x Kontext, reviewArgs ReviewArgs, targetFiles []string, metrics ReviewMetrics) {
-	// launch review agents and wait for them
+func (me CheckCommand) launchCheckAgents(x Kontext, checkArgs CheckArgs, targetFiles []string, metrics CheckMetrics) {
+	// launch check agents and wait for them
 	wg := &sync.WaitGroup{}
-	resultChan := make(chan ReviewResult, len(targetFiles))
+	resultChan := make(chan CheckResult, len(targetFiles))
 
 	for _, f := range targetFiles {
 		metrics.Processed++
 
-		agent := NewReviewAgent(me.reportManager, me.codeFileManager, me.symbolManager, me.modelService, f)
-		agent.Run(x, reviewArgs, resultChan, wg)
+		agent := NewCheckAgent(me.reportManager, me.codeFileManager, me.symbolManager, me.modelService, f)
+		agent.Run(x, checkArgs, resultChan, wg)
 	}
 
 	wg.Wait()
@@ -54,8 +54,8 @@ func (me ReviewCommand) launchReviewAgents(x Kontext, reviewArgs ReviewArgs, tar
 	}
 }
 
-func (me ReviewCommand) Review(x Kontext, reviewArgs ReviewArgs) {
-	metrics := NewReviewMetrics()
+func (me CheckCommand) Check(x Kontext, checkArgs CheckArgs) {
+	metrics := NewCheckMetrics()
 	c := comm.NewConsole()
 
 	targetFiles, _, _, repoFiles := me.listCommand.CollectWorkingFiles(x, c)
@@ -63,7 +63,7 @@ func (me ReviewCommand) Review(x Kontext, reviewArgs ReviewArgs) {
 		if x.Args.EnableSymbolReference {
 			me.launchSymbolAgents(x, repoFiles)
 		}
-		me.launchReviewAgents(x, reviewArgs, targetFiles, metrics)
+		me.launchCheckAgents(x, checkArgs, targetFiles, metrics)
 	}
 
 	// c.NewLine()

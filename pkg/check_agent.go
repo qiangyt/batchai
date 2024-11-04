@@ -7,32 +7,32 @@ import (
 	"github.com/qiangyt/batchai/comm"
 )
 
-type ReviewResultT struct {
-	Report  ReviewReport
+type CheckResultT struct {
+	Report  CheckReport
 	Skipped bool
 	Failed  bool
 }
 
-type ReviewResult = *ReviewResultT
+type CheckResult = *CheckResultT
 
-type ReviewAgentT struct {
+type CheckAgentT struct {
 	SymbolAwareAgentT
 
-	reportManager   ReviewReportManager
+	reportManager   CheckReportManager
 	codeFileManager CodeFileManager
 
 	file string
 }
 
-type ReviewAgent = *ReviewAgentT
+type CheckAgent = *CheckAgentT
 
-func NewReviewAgent(reportManager ReviewReportManager,
+func NewCheckAgent(reportManager CheckReportManager,
 	codeFileManager CodeFileManager,
 	symbolManager SymbolManager,
 	modelService ModelService,
 	codeFile string,
-) ReviewAgent {
-	return &ReviewAgentT{
+) CheckAgent {
+	return &CheckAgentT{
 		SymbolAwareAgentT: newSymbolAwareAgent(symbolManager, modelService),
 		codeFileManager:   codeFileManager,
 		reportManager:     reportManager,
@@ -41,7 +41,7 @@ func NewReviewAgent(reportManager ReviewReportManager,
 	}
 }
 
-func (me ReviewAgent) Run(x Kontext, reviewArgs ReviewArgs, resultChan chan<- ReviewResult, wg *sync.WaitGroup) {
+func (me CheckAgent) Run(x Kontext, checkArgs CheckArgs, resultChan chan<- CheckResult, wg *sync.WaitGroup) {
 	wg.Add(1)
 
 	go func() {
@@ -56,17 +56,17 @@ func (me ReviewAgent) Run(x Kontext, reviewArgs ReviewArgs, resultChan chan<- Re
 		defer func() {
 			if e := recover(); e != nil {
 				c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.file, e)
-				resultChan <- &ReviewResultT{Failed: true}
+				resultChan <- &CheckResultT{Failed: true}
 			}
 		}()
 
-		result := me.reviewFile(x, reviewArgs, c)
+		result := me.checkFile(x, checkArgs, c)
 
 		resultChan <- result
 	}()
 }
 
-func (me ReviewAgent) reviewFile(x Kontext, reviewArgs ReviewArgs, c comm.Console) ReviewResult {
+func (me CheckAgent) checkFile(x Kontext, checkArgs CheckArgs, c comm.Console) CheckResult {
 	c.NewLine().Green("--------------------")
 	c.NewLine().Greenln(me.file)
 
@@ -76,17 +76,17 @@ func (me ReviewAgent) reviewFile(x Kontext, reviewArgs ReviewArgs, c comm.Consol
 		if cachedReport != nil {
 			if !x.Args.Force {
 				c.NewLine().Default("✔ no code changes, skipped")
-				return &ReviewResultT{Report: cachedReport, Skipped: true}
+				return &CheckResultT{Report: cachedReport, Skipped: true}
 			}
 		}
 	}
 
-	r := me.reviewCode(x, c, code.Latest)
+	r := me.checkCode(x, c, code.Latest)
 	r.Print(c, code.Original)
 
 	if r.HasIssue {
-		if reviewArgs.Fix {
-			// replace the original code file with reviewed code
+		if checkArgs.Fix {
+			// replace the original code file with checked code
 			me.codeFileManager.Save(x, me.file, r.FixedCode)
 		}
 	}
@@ -94,34 +94,34 @@ func (me ReviewAgent) reviewFile(x Kontext, reviewArgs ReviewArgs, c comm.Consol
 	reportFile := me.reportManager.SaveReport(x, me.file, r)
 	c.NewLine().Blue("✔ report: ").Default(reportFile)
 
-	return &ReviewResultT{Report: r, Skipped: false}
+	return &CheckResultT{Report: r, Skipped: false}
 }
 
-func (me ReviewAgent) reviewCode(x Kontext, c comm.Console, code string) ReviewReport {
+func (me CheckAgent) checkCode(x Kontext, c comm.Console, code string) CheckReport {
 	verbose := x.Args.Verbose
 
-	sysPrompt := x.Config.Review.RenderPrompt(code, me.file)
+	sysPrompt := x.Config.Check.RenderPrompt(code, me.file)
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
 	if x.Args.EnableSymbolReference {
 		// TODO: merge metrics
 		me.provideSymbols(x, c, me.file)
-		mem.AddUserMessage("review the code, with provided symbols as references")
+		mem.AddUserMessage("check the code, with provided symbols as references")
 	} else {
-		mem.AddUserMessage("review the code")
+		mem.AddUserMessage("check the code")
 	}
 	if verbose {
-		c.NewLine().Gray("chat: ").Default("review the code")
+		c.NewLine().Gray("chat: ").Default("check the code")
 	}
 
-	answer, metrics := me.modelService.Chat(x, x.Config.Review.ModelId, mem)
+	answer, metrics := me.modelService.Chat(x, x.Config.Check.ModelId, mem)
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}
 
 	fixeCode, remainedAnswer := ExtractFixedCode(answer)
-	r := ExtractReviewReport(remainedAnswer, strings.HasSuffix(me.file, ".go"))
+	r := ExtractCheckReport(remainedAnswer, strings.HasSuffix(me.file, ".go"))
 	r.ModelUsageMetrics = metrics
 	r.FixedCode = fixeCode
 
@@ -131,7 +131,7 @@ func (me ReviewAgent) reviewCode(x Kontext, c comm.Console, code string) ReviewR
 
 		if trimmedFixedCode == trimmedOriginalCode {
 			r.HasIssue = false
-			r.Issues = []ReviewIssue{}
+			r.Issues = []CheckIssue{}
 			r.FixedCode = code
 			r.OverallSeverity = ""
 		} else if len(trimmedFixedCode) == 0 {

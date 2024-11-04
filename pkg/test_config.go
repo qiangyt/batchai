@@ -16,7 +16,7 @@ func (me TestConfig) Init(config AppConfig) {
 	model := config.LoadModel(me.ModelId)
 
 	if me.Prompt == nil {
-		if model.ReviewPrompt == nil {
+		if model.CheckPrompt == nil {
 			panic(fmt.Errorf("missing test prompt for model: %s", me.ModelId))
 		}
 		me.Prompt = model.TestPrompt

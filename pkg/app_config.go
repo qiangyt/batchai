@@ -31,7 +31,7 @@ type AppConfigT struct {
 	CacheDir string        `mapstructure:"cache_dir"`
 	Lang     string        `mapstructure:"lang"`
 	Test     TestConfig    `mapstructure:"test"`
-	Review   ReviewConfig  `mapstructure:"review"`
+	Check    CheckConfig   `mapstructure:"check"`
 	Models   []ModelConfig `mapstructure:"models"`
 
 	include comm.FileMatch
@@ -82,10 +82,10 @@ func (me AppConfig) init() {
 	}
 	me.Test.Init(me)
 
-	if me.Review == nil {
-		me.Review = &ReviewConfigT{}
+	if me.Check == nil {
+		me.Check = &CheckConfigT{}
 	}
-	me.Review.Init(me)
+	me.Check.Init(me)
 }
 
 func (me AppConfig) LoadModel(modelId string) ModelConfig {

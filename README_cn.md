@@ -82,15 +82,15 @@
    #OPENAI_PROXY_URL= 对于国内用户，需要在这里设置代理的URL和用户名密码等等
    #OPENAI_PROXY_USER=
    #OPENAI_PROXY_PASS=
-   #BATCHAI_REVIEW_MODEL=openai/gpt-4o-mini
+   #BATCHAI_CHECK_MODEL=openai/gpt-4o-mini
 
    # Ali TONGYI qwen
    #QWEN_API_KEY=change-it
-   #BATCHAI_REVIEW_MODEL=tongyi/qwen2.5-coder-7b-instruct
+   #BATCHAI_CHECK_MODEL=tongyi/qwen2.5-coder-7b-instruct
 
    # local Ollama
    #OLLAMA_BASE_URL=http://localhost:11434/v1/
-   #BATCHAI_REVIEW_MODEL=ollama/qwen2.5-coder:7b-instruct-fp16
+   #BATCHAI_CHECK_MODEL=ollama/qwen2.5-coder:7b-instruct-fp16
    ```
 
    对于 Ollama，您可以参考我的示例[docker-compose.yml](./docker-compose.yml)
@@ -101,28 +101,28 @@
 
    ```shell
    cd /data/spring-petclinic
-   batchai review . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
+   batchai check . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
    ```
 
    - 通过`--fix`选项直接修复目标文件:
 
    ```shell
    cd /data/spring-petclinic
-   batchai review --fix . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
+   batchai check --fix . src/main/java/org/springframework/samples/petclinic/vet/Vets.java
    ```
 
    - 仅对 src/main/java 运行 `batchai`:
 
    ```shell
    cd /data/spring-petclinic
-   batchai review . src/main/java/
+   batchai check . src/main/java/
    ```
 
    - 在整个项目中运行`batchai`:
 
    ```shell
    cd /data/spring-petclinic
-   batchai review .
+   batchai check .
    ```
 
 ## CLI 使用
@@ -144,7 +144,7 @@
     0.1.0 (5eeb081)
 
   COMMANDS:
-    review           将问题报告到控制台，也保存到 'build/batchai'
+    check            将问题报告到控制台，也保存到 'build/batchai'
     list             列出要处理的文件
     explain (TODO)   解释代码，输出结果到控制台或作为注释
     comment (TODO)   对代码进行注释
@@ -159,18 +159,18 @@
     --version, -v              打印版本
   ```
 
-- 要查看`review`命令的详细帮助，请运行：
+- 要查看`check`命令的详细帮助，请运行：
 
   ```shell
-  batchai review -h
+  batchai check -h
   ```
 
   ```shell
   NAME:
-    batchai review - 将问题报告到控制台，也保存到 'build/batchai'
+    batchai check - 将问题报告到控制台，也保存到 'build/batchai'
 
   USAGE:
-    batchai review [command options]
+    batchai check [command options]
 
   OPTIONS:
     --fix, -f   替换目标文件（默认：false）
@@ -211,7 +211,7 @@
   `batchai`依据`.gitignore`文件里的规则忽略指定的目录和文件。通常这已经足够，但如果还有额外的不能被git忽略但不必由`batchai`处理的，可以使用`.batchai_ignore`指定，规则写法和`.gitignore`相同。
 
 - 自定义提示词
-  请查看 [res/static/batchai.yaml]里的`BATCHAI_REVIEW_RULE_*`和`MY_REVIEW_RULE_*`
+  请查看 [res/static/batchai.yaml]里的`BATCHAI_CHECK_RULE_*`和`MY_CHECK_RULE_*`
 
 ## 许可证
 

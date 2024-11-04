@@ -4,22 +4,22 @@ import (
 	"github.com/qiangyt/batchai/comm"
 )
 
-type ReviewMetricsT struct {
+type CheckMetricsT struct {
 	BaseMetricsT
 
 	HasIssue   int
 	TotalIssue int
 }
 
-type ReviewMetrics = *ReviewMetricsT
+type CheckMetrics = *CheckMetricsT
 
-func NewReviewMetrics() ReviewMetrics {
-	return &ReviewMetricsT{
+func NewCheckMetrics() CheckMetrics {
+	return &CheckMetricsT{
 		BaseMetricsT: *NewBaseMetrics(),
 	}
 }
 
-func (me ReviewMetrics) Print(console comm.Console) {
+func (me CheckMetrics) Print(console comm.Console) {
 	me.PreparePrint(console)
 
 	console.NewLine().Greenf("Files: %d, Processed: %d, Ignored: %d, Failed: %d, Has Issued: %d, Total Issues: %d, Skipped: %d",

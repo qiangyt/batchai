@@ -10,29 +10,29 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type ReviewArgsT struct {
+type CheckArgsT struct {
 	Fix bool
 }
 
-type ReviewArgs = *ReviewArgsT
+type CheckArgs = *CheckArgsT
 
-func (me ReviewArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
+func (me CheckArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
 	me.Fix = cliContext.Bool("fix")
 	return nil
 }
 
-func ReviewUrfaveCommand(x Kontext) *cli.Command {
+func CheckUrfaveCommand(x Kontext) *cli.Command {
 	return &cli.Command{
-		Name:  "review",
-		Usage: fmt.Sprintf("Report issues to console, also saved to '%s'", os.Getenv("BATCHAI_CACHE_DIR")),
+		Name:  "check",
+		Usage: fmt.Sprintf("Scans project codes to check issues. Report is outputed to console and also saved to '%s'", os.Getenv("BATCHAI_CACHE_DIR")),
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "fix", Aliases: []string{"f"}, DefaultText: "false", Usage: "Replaces the target files"},
 		},
-		Action: ReviewFunc(x),
+		Action: CheckFunc(x),
 	}
 }
 
-func ReviewFunc(x Kontext) func(*cli.Context) error {
+func CheckFunc(x Kontext) func(*cli.Context) error {
 	return func(cliContext *cli.Context) error {
 		a := &AppArgsT{}
 		if err := a.WithCliContext(x, cliContext); err != nil {
@@ -40,7 +40,7 @@ func ReviewFunc(x Kontext) func(*cli.Context) error {
 		}
 		x.Args = a
 
-		ra := &ReviewArgsT{}
+		ra := &CheckArgsT{}
 		if err := ra.WithCliContext(x, cliContext); err != nil {
 			return err
 		}
@@ -55,7 +55,7 @@ func ReviewFunc(x Kontext) func(*cli.Context) error {
 			}
 		}
 
-		NewReviewCommand(x).Review(x, ra)
+		NewCheckCommand(x).Check(x, ra)
 
 		return nil
 	}

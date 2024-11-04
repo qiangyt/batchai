@@ -18,7 +18,7 @@ type ModelConfigT struct {
 	ProxyUser               string        `mapstructure:"proxy_user,omitempty"`
 	ProxyPass               string        `mapstructure:"proxy_pass,omitempty"`
 	ProxyInsecureSkipVerify bool          `mapstructure:"proxy_insecure_skip_verify" default:"false"`
-	ReviewPrompt            ReviewPrompt  `mapstructure:"review_prompt"`
+	CheckPrompt             CheckPrompt   `mapstructure:"check_prompt"`
 	TestPrompt              TestPrompt    `mapstructure:"test_prompt"`
 	MaxConcurrentRequests   int           `mapstructure:"max_concurrent_requests"`
 }
@@ -26,7 +26,7 @@ type ModelConfigT struct {
 type ModelConfig = *ModelConfigT
 
 func (me ModelConfig) Init(config AppConfig) {
-	if me.ReviewPrompt != nil {
-		me.ReviewPrompt.Init(config)
+	if me.CheckPrompt != nil {
+		me.CheckPrompt.Init(config)
 	}
 }

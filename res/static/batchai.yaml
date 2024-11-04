@@ -57,60 +57,60 @@ test:
         
         Content of code to test:
         {{.code_to_test}}
-review:
-  model_id: ${BATCHAI_REVIEW_MODEL}
-  severity: ${BATCHAI_REVIEW_SEVERITY}
+check:
+  model_id: ${BATCHAI_CHECK_MODEL}
+  severity: ${BATCHAI_CHECK_SEVERITY}
   prompt:
     rules:
-      - "${BATCHAI_REVIEW_RULE_1}"
-      - "${BATCHAI_REVIEW_RULE_2}"
-      - "${BATCHAI_REVIEW_RULE_3}"
-      - "${BATCHAI_REVIEW_RULE_4}"
-      - "${BATCHAI_REVIEW_RULE_5}"
-      - "${BATCHAI_REVIEW_RULE_6}"
-      - "${BATCHAI_REVIEW_RULE_7}"
-      - "${BATCHAI_REVIEW_RULE_8}"
-      - "${BATCHAI_REVIEW_RULE_9}"
-      - "${BATCHAI_REVIEW_RULE_10}"
-      - "${BATCHAI_REVIEW_RULE_11}"
-      - "${BATCHAI_REVIEW_RULE_12}"
-      - "${BATCHAI_REVIEW_RULE_13}"
-      - "${BATCHAI_REVIEW_RULE_14}"
-      - "${BATCHAI_REVIEW_RULE_15}"
-      - "${BATCHAI_REVIEW_RULE_16}"
-      - "${BATCHAI_REVIEW_RULE_17}"
-      - "${BATCHAI_REVIEW_RULE_18}"
-      - "${BATCHAI_REVIEW_RULE_19}"
-      - "${BATCHAI_REVIEW_RULE_20}"
-      - "${MY_REVIEW_RULE_1}"
-      - "${MY_REVIEW_RULE_2}"
-      - "${MY_REVIEW_RULE_3}"
-      - "${MY_REVIEW_RULE_4}"
-      - "${MY_REVIEW_RULE_5}"
-      - "${MY_REVIEW_RULE_6}"
-      - "${MY_REVIEW_RULE_7}"
-      - "${MY_REVIEW_RULE_8}"
-      - "${MY_REVIEW_RULE_9}"
-      - "${MY_REVIEW_RULE_10}"
-      - "${MY_REVIEW_RULE_11}"
-      - "${MY_REVIEW_RULE_12}"
-      - "${MY_REVIEW_RULE_13}"
-      - "${MY_REVIEW_RULE_14}"
-      - "${MY_REVIEW_RULE_15}"
-      - "${MY_REVIEW_RULE_16}"
-      - "${MY_REVIEW_RULE_17}"
-      - "${MY_REVIEW_RULE_18}"
-      - "${MY_REVIEW_RULE_19}"
-      - "${MY_REVIEW_RULE_20}"
+      - "${BATCHAI_CHECK_RULE_1}"
+      - "${BATCHAI_CHECK_RULE_2}"
+      - "${BATCHAI_CHECK_RULE_3}"
+      - "${BATCHAI_CHECK_RULE_4}"
+      - "${BATCHAI_CHECK_RULE_5}"
+      - "${BATCHAI_CHECK_RULE_6}"
+      - "${BATCHAI_CHECK_RULE_7}"
+      - "${BATCHAI_CHECK_RULE_8}"
+      - "${BATCHAI_CHECK_RULE_9}"
+      - "${BATCHAI_CHECK_RULE_10}"
+      - "${BATCHAI_CHECK_RULE_11}"
+      - "${BATCHAI_CHECK_RULE_12}"
+      - "${BATCHAI_CHECK_RULE_13}"
+      - "${BATCHAI_CHECK_RULE_14}"
+      - "${BATCHAI_CHECK_RULE_15}"
+      - "${BATCHAI_CHECK_RULE_16}"
+      - "${BATCHAI_CHECK_RULE_17}"
+      - "${BATCHAI_CHECK_RULE_18}"
+      - "${BATCHAI_CHECK_RULE_19}"
+      - "${BATCHAI_CHECK_RULE_20}"
+      - "${MY_CHECK_RULE_1}"
+      - "${MY_CHECK_RULE_2}"
+      - "${MY_CHECK_RULE_3}"
+      - "${MY_CHECK_RULE_4}"
+      - "${MY_CHECK_RULE_5}"
+      - "${MY_CHECK_RULE_6}"
+      - "${MY_CHECK_RULE_7}"
+      - "${MY_CHECK_RULE_8}"
+      - "${MY_CHECK_RULE_9}"
+      - "${MY_CHECK_RULE_10}"
+      - "${MY_CHECK_RULE_11}"
+      - "${MY_CHECK_RULE_12}"
+      - "${MY_CHECK_RULE_13}"
+      - "${MY_CHECK_RULE_14}"
+      - "${MY_CHECK_RULE_15}"
+      - "${MY_CHECK_RULE_16}"
+      - "${MY_CHECK_RULE_17}"
+      - "${MY_CHECK_RULE_18}"
+      - "${MY_CHECK_RULE_19}"
+      - "${MY_CHECK_RULE_20}"
     template: |
-        As an developer expert, you're requested by users to review provided code:
-        {{.review_rules}}
+        As an developer expert, you're requested by users to check provided code:
+        {{.check_rules}}
         
-        Code to review: 
+        Code to check: 
         
         path: {{.path}}
         
-        {{.code_to_review}}
+        {{.code_to_check}}
 
 models:
   - id: openai/gpt-4o

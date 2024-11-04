@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/diff"
 )
 
-const REVIEW_REPORT_JSON_FORMAT = `
+const CHECK_REPORT_JSON_FORMAT = `
 {
   "has_issue": true or false,
   "issues": [
@@ -38,7 +38,7 @@ const REVIEW_REPORT_JSON_FORMAT = `
   "overall_severity": "trivial" or "minor" or "major" or "critical"
 }`
 
-type ReviewIssueT struct {
+type CheckIssueT struct {
 	ShortDescription     string   `json:"short_description"`
 	DetailedExplaination string   `json:"detailed_explaination"`
 	Suggestion           string   `json:"suggestion"`
@@ -49,9 +49,9 @@ type ReviewIssueT struct {
 	SeverityReason       string   `json:"severity_reason"`
 }
 
-type ReviewIssue = *ReviewIssueT
+type CheckIssue = *CheckIssueT
 
-func (me ReviewIssue) Print(console comm.Console) {
+func (me CheckIssue) Print(console comm.Console) {
 	console.NewLine().Printf("Short Description: %s", me.ShortDescription)
 	console.NewLine().Printf("Detailed Description: %s", me.DetailedExplaination)
 	console.NewLine().Printf("Severity: %s", me.Severity)
@@ -62,16 +62,16 @@ func (me ReviewIssue) Print(console comm.Console) {
 	console.NewLine().Printf("IssueReferenceUrls: %s", me.IssueReferenceUrls)
 }
 
-type ReviewReportT struct {
+type CheckReportT struct {
 	HasIssue          bool              `json:"has_issue"`
 	OverallSeverity   string            `json:"overall_severity"`
-	Issues            []ReviewIssue     `json:"issues"`
+	Issues            []CheckIssue      `json:"issues"`
 	FixedCode         string            `json:"fixed_code"`
 	Path              string            `json:"path"`
 	ModelUsageMetrics ModelUsageMetrics `json:"model_usage_metrics"`
 }
 
-type ReviewReport = *ReviewReportT
+type CheckReport = *CheckReportT
 
 func ExtractFixedCode(input string) (string, string) {
 	begin := strings.Index(input, FIX_BEGIN_LINE)
@@ -94,7 +94,7 @@ func ExtractFixedCode(input string) (string, string) {
 	return result, remained
 }
 
-func ExtractReviewReport(answer string, isGolang bool) ReviewReport {
+func ExtractCheckReport(answer string, isGolang bool) CheckReport {
 	jsonStr, _ := comm.ExtractMarkdownJsonBlocksP(answer)
 
 	indexOfLeftBrace := strings.Index(jsonStr, "{")
@@ -109,7 +109,7 @@ func ExtractReviewReport(answer string, isGolang bool) ReviewReport {
 	}
 	jsonStr = jsonStr[:indexOfRightBrace+1]
 
-	report := &ReviewReportT{}
+	report := &CheckReportT{}
 	if err := comm.FromJson(jsonStr, false, report); err != nil {
 		jsonStr = comm.FixJson(jsonStr, isGolang)
 		comm.FromJsonP(jsonStr, false, report)
@@ -117,7 +117,7 @@ func ExtractReviewReport(answer string, isGolang bool) ReviewReport {
 	return report
 }
 
-func (me ReviewReport) Print(console comm.Console, originalCode string) {
+func (me CheckReport) Print(console comm.Console, originalCode string) {
 	if !me.HasIssue {
 		console.NewLine().Print("no issue")
 		return
@@ -135,7 +135,7 @@ func (me ReviewReport) Print(console comm.Console, originalCode string) {
 		issue.Print(console2)
 	}
 
-	console.NewLine().Print("Review:")
+	console.NewLine().Print("Check:")
 	console.NewLine()
 
 	var buf bytes.Buffer
