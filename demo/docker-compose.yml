@@ -1,0 +1,23 @@
+services:
+  
+  nginx:
+    container_name: batchai.example.nginx
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    volumes:
+      - ./private/etc/letsencrypt:/etc/letsencrypt
+    ports:
+      - 8443:8443
+    depends_on:
+      - server
+
+  server:
+    container_name: batchai.example.server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - 4080:4080
+    volumes:
+      - ./work/:/data/batchai-examples/
