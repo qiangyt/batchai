@@ -36,8 +36,10 @@ func (me ListCommand) CollectWorkingFiles(x Kontext, c comm.Console) ([]string, 
 		targetFiles = repoFiles
 	}
 
-	if x.Args.NumberOfFilesToProcess < len(targetFiles) {
-		targetFiles = targetFiles[:x.Args.NumberOfFilesToProcess]
+	if x.Args.NumberOfFilesToProcess > 0 {
+		if x.Args.NumberOfFilesToProcess < len(targetFiles) {
+			targetFiles = targetFiles[:x.Args.NumberOfFilesToProcess]
+		}
 	}
 
 	return targetFiles, ignored, failed, repoFiles
