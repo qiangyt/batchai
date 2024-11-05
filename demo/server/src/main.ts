@@ -3,13 +3,15 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
+//import * as cookieParser from 'cookie-parser';
+//import cookieParser from 'cookie-parser';
 
 dotenv.config({ path: '/data/batchai-examples/.env' });
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 
+	const cookieParser = (await import('cookie-parser')).default;
 	app.use(cookieParser());
 	app.use(
 		helmet({
