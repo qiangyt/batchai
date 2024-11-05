@@ -11,6 +11,7 @@ services:
       - 8443:8443
     depends_on:
       - server
+      - web
 
   server:
     container_name: batchai.example.server
@@ -18,6 +19,15 @@ services:
       context: ./server
       dockerfile: Dockerfile
     ports:
-      - 4080:4080
+      - 127.0.0.1:4080:4080
     volumes:
       - ./work/:/data/batchai-examples/
+
+  web:
+    container_name: batchai.example.web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - 127.0.0.1:4081:4081
+      

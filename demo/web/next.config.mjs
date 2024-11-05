@@ -3,7 +3,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const nextConfig = {
     reactStrictMode: false,
-    //output: 'export',
+    output: 'standalone',
     async rewrites() {
         return [
             {

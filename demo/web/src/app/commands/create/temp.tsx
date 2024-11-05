@@ -79,7 +79,7 @@ const CommandForm: React.FC<CommandFormProps> = ({ repoPath, command, onSubmit }
 };
 
 
-export default function CreateCommand({repoPath, command}: { repoPath:string, command:string }) {
+export default function CreateRepo({repoPath, command}: { repoPath:string, command:string }) {
   const router = useRouter();
   const s = useSession().state;
   const ui = useUIContext();

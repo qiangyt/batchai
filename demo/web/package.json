@@ -1,7 +1,9 @@
 {
-  "name": "batchai_site_web",
-  "version": "0.1.0",
-  "private": true,
+  "name": "batchai-demo-web",
+  "version": "0.1.2",
+  "description": "",
+  "author": "qiangyt@wxcount.com",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 4081",
     "build": "next build",
