@@ -9,13 +9,13 @@ import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 export const requestKontextInterceptor = {
-  provide: APP_INTERCEPTOR,
-  useClass: RequestKontextInterceptor,
+	provide: APP_INTERCEPTOR,
+	useClass: RequestKontextInterceptor,
 };
 
 export const jwtAuthGuard = {
-  provide: APP_GUARD,
-  useClass: JwtAuthGuard,
+	provide: APP_GUARD,
+	useClass: JwtAuthGuard,
 };
 
 export const entities = [User];
@@ -23,9 +23,9 @@ export const entities = [User];
 const providers: Provider[] = [JwtService, UserService, UserFacade, LocalStrategy, JwtStrategy, GithubStrategy];
 
 @Module({
-  imports: [TypeOrmModule.forFeature(entities)],
-  controllers: [UserRest, AuthRest, GithubAuthRest],
-  providers: providers,
-  exports: providers,
+	imports: [TypeOrmModule.forFeature(entities)],
+	controllers: [UserRest, AuthRest, GithubAuthRest],
+	providers: providers,
+	exports: providers,
 })
 export class FrameworkModule {}

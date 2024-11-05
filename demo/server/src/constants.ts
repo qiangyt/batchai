@@ -1,26 +1,26 @@
-import path from 'path';
+import * as path from 'path';
 
 export enum CommandStatus {
-  Pending = 'Pending',
-  Queued = 'Queued',
-  Running = 'Running',
-  Succeeded = 'Succeeded',
-  Failed = 'Failed',
+	Pending = 'Pending',
+	Queued = 'Queued',
+	Running = 'Running',
+	Succeeded = 'Succeeded',
+	Failed = 'Failed',
 }
 
 export enum CommandRunStatus {
-  Begin = 'Begin',
-  CheckedRemote = 'CheckedRemote',
-  Forked = 'Forked',
-  ClonedOrPulled = 'ClonedOrPulled',
-  CheckedOut = 'CheckedOut',
-  BatchAIExecuted = 'BatchAIExecuted',
-  ChangesAdded = 'ChangesAdded',
-  ChangesCommited = 'ChangesCommited',
-  ChangesPushed = 'ChangesPushed',
-  GetCommitId = 'GetCommitId',
-  //CreatedPR = 'CreatedPR',
-  End = 'End',
+	Begin = 'Begin',
+	CheckedRemote = 'CheckedRemote',
+	Forked = 'Forked',
+	ClonedOrPulled = 'ClonedOrPulled',
+	CheckedOut = 'CheckedOut',
+	BatchAIExecuted = 'BatchAIExecuted',
+	ChangesAdded = 'ChangesAdded',
+	ChangesCommited = 'ChangesCommited',
+	ChangesPushed = 'ChangesPushed',
+	GetCommitId = 'GetCommitId',
+	//CreatedPR = 'CreatedPR',
+	End = 'End',
 }
 
 export const DATA_DIR = '/data/batchai-examples';

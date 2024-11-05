@@ -12,20 +12,20 @@ const CONTROLLERS = [RepoRest, CommandRest];
 const PROVIDERS = [RepoService, RepoFacade, CommandService, CommandFacade, requestKontextInterceptor, jwtAuthGuard];
 
 @Module({
-  imports: [
-    FrameworkModule,
-    ScheduleModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      logging: false,
-      database: SQLITE_FILE,
-      synchronize: true,
-      entities: ENTITIES,
-      autoLoadEntities: true,
-    }),
-    TypeOrmModule.forFeature(ENTITIES),
-  ],
-  controllers: CONTROLLERS,
-  providers: PROVIDERS,
+	imports: [
+		FrameworkModule,
+		ScheduleModule.forRoot(),
+		TypeOrmModule.forRoot({
+			type: 'sqlite',
+			logging: false,
+			database: SQLITE_FILE,
+			synchronize: true,
+			entities: ENTITIES,
+			autoLoadEntities: true,
+		}),
+		TypeOrmModule.forFeature(ENTITIES),
+	],
+	controllers: CONTROLLERS,
+	providers: PROVIDERS,
 })
 export class AppModule {}
