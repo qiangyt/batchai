@@ -11,106 +11,107 @@ import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-
-import { RepoBasic, useSession, Page } from '@/lib';
+import { styled } from '@mui/material/styles';
+import Paper from '@mui/material/Paper';
+import Masonry from '@mui/lab/Masonry';
+import Image from 'next/image';
+import { RepoBasic, useSession, Page, RepoSearchParams, SessionState, CommandBasic } from '@/lib';
 import React, { useEffect, useState } from 'react';
 import * as repoApi from '@/api/repo.api';
 import { useRouter } from 'next/navigation';
 import Avatar from '@mui/material/Avatar';
 import { CommandCell } from '@/components/repos/command-cell';
 import TablePagination from '@mui/material/TablePagination';
-import { useUIContext } from '@/lib/ui.context';
+import { UIContextType, useUIContext } from '@/lib/ui.context';
+import SearchBar from './search-bar';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+
+async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dispatch<React.SetStateAction<Page<RepoBasic>>>, params?: RepoSearchParams) {
+  if (ui) ui.setLoading(true);
+  try {
+    const p = await repoApi.SearchRepo(s, ui, params);
+    setPage(p);
+  } catch (err) {
+    if (ui) ui.setError(err);
+  } finally {
+    if (ui) ui.setLoading(false);
+  }
+}
+
+const Item = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  backgroundColor: 'transparent',
+  border: `1px solid ${theme.palette.grey[700]}`,
+  transition: 'background-color 0.3s ease',
+  '&:hover': {
+    backgroundColor: "#4A90E2",
+  },
+}));
+
+function CommandChip({ repo, command, commandId }: {repo: RepoBasic, command: string, commandId: number}) {
+  if (commandId) {
+    return (
+      <NextLink href={{ pathname: `/commands/${commandId}`, query: {id:commandId} }} passHref>
+        <Chip sx={{color:"white"}} label={`batchai ${command}`} variant="outlined" />;
+      </NextLink>
+    )
+  }
+
+  return (
+    <NextLink href={{ pathname: "/commands/create", query: {command} }} passHref>
+      <Chip sx={{color:"white"}} label={`batchai ${command}`} variant="outlined" />
+    </NextLink>
+  )
+}
 
 
 export default function RepoList() {
-  const [page, setPage] = useState<Page<RepoBasic>>({limit: 10, elements:[]});
-  const [pageIndex, setPageIndex] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [page, setPage] = useState<Page<RepoBasic>>({ total: 0, page: 0, limit: 100, elements: [] });
   const s = useSession().state;
   const ui = useUIContext();
   const router = useRouter();
 
   useEffect(() => {
-    const QueryRepo = async () => {
-      ui.setLoading(true);
-      try {
-        const p = await repoApi.QueryRepo(s, ui);
-        setPage(p);
-      } catch(err) {
-        ui.setError(err);
-      } finally {
-        ui.setLoading(false);
-      }
-    };
-    QueryRepo();
+    searchRepo(s, ui, setPage);
   }, [s, ui]);
 
   const onNewCommand = () => {
     router.push('repos/create');
   }
-  
-  
-  const handleChangePage = (event: unknown, newPageIndex: number) => {
-    setPageIndex(newPageIndex);
-  };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPageIndex(0);
+  const handleSearch = async (query: string) => {
+    await searchRepo(s, null, setPage, { page: 0, limit: page.limit, query });
   };
 
   return (<>
-      <NextLink href="/repos/create" passHref>
-        <Button variant="outlined" color="primary" onClick={onNewCommand}>
-          New...
-        </Button>
-      </NextLink>
-      <TableContainer >
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell align="left">Path</TableCell>
-                <TableCell align="left">"check"</TableCell>
-                <TableCell align="left">"test"</TableCell>
-                <TableCell align="left"><PersonOutlinedIcon/></TableCell>
-                <TableCell align="left">Created At</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-            {page.elements.map((repo) => (
-                <TableRow key={repo.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}                >
-                  <TableCell component="th" scope="row"><Link href={repo.repoUrl}>{repo.repoPath()}</Link></TableCell>
-                  <TableCell>
-                    <CommandCell repoPath={repo.repoPath()} commandText='review' command={repo.checkCommand}/>
-                  </TableCell>
-                  <TableCell>
-                    <CommandCell repoPath={repo.repoPath()} commandText='test' command={repo.testCommand}/>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Link href={repo.owner.githubProfileUrl}>
-                      <Avatar alt={repo.creater.displayName} src={repo.creater.avatarUrl}/>
-                      {repo.creater.displayName}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    {repo.createdAt.toString()}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          showFirstButton
-          showLastButton
-          rowsPerPageOptions={[10, 20, 50]}
-          component="div"
-          count={page.total}
-          rowsPerPage={page.limit}
-          page={page.page - 1}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-    </>
+    <Box display="flex" flexDirection="column" alignItems="center">
+      <Image src={"logo.svg"} alt="batchai" width={348} height={120}/>
+      <Typography sx={{ fontSize: 18, color: 'white' }} noWrap>SEARCH REPOSITORY</Typography>
+      <Box sx={{ width: '63.8%' }}><SearchBar onSearch={handleSearch} /></Box>      
+      <Typography sx={{ fontSize: 14 }} color="gray">{page.total} REPOSITORIES</Typography>
+    </Box>
+    <Masonry columns={3} spacing={2} sx={{mt:6}}>
+      {page.elements.map((repo) => (
+          <Item key={repo.id} sx={{display: 'flex',justifyContent: 'space-between'}}>
+            <Box>
+            <Link href={repo.repoUrl}><Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}</Typography></Link>
+              <Typography variant="h5" sx={{color: 'white'}}>{repo.repoPath(false)}</Typography>
+              <Box sx={{mt: 4}}>
+                <CommandChip repo={repo} command="check" commandId={repo.checkCommand?.id} />
+                <CommandChip repo={repo} command="test" commandId={repo.testCommand?.id} />
+              </Box>
+            </Box>
+            <Box>
+                <Link href={repo.owner.githubProfileUrl}>
+                  <Avatar alt={repo.creater.displayName} src={repo.creater.avatarUrl} />
+                  <Typography sx={{fontSize:12, mt:1, color: "#bbbbbb",}}>{repo.creater.displayName}</Typography>
+                </Link>
+            </Box>
+          </Item>
+      ))}
+    </Masonry>
+  </>
   );
 }

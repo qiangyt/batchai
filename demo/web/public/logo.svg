@@ -1,0 +1,22 @@
+<svg width="118" height="40" viewBox="0 0 118 40" xmlns="http://www.w3.org/2000/svg">
+  <!--<rect width="118" height="40" fill="white" />-->
+  <g>
+    <circle cx="9" cy="21" r="8" fill="#4A90E2" />
+    <circle cx="9" cy="21" r="2" fill="#144b2f" />
+
+    <line x1="9" y1="21" x2="13" y2="23" stroke="#144b2f" stroke-width="4"/>
+
+    <circle cx="19" cy="21" r="8" fill="#50E3C2" />
+    <circle cx="19" cy="21" r="2" fill="#144b2f" />
+    <line x1="19" y1="21" x2="23" y2="23" stroke="#144b2f" stroke-width="4"/>
+
+    <circle cx="29" cy="21" r="8" fill="#B8E986" />
+    <circle cx="29" cy="21" r="2" fill="#144b2f" />
+    <line x1="29" y1="21" x2="37" y2="25" stroke="#144b2f" stroke-width="4"/>
+    <circle cx="37" cy="25" r="2" fill="#144b2f" />
+  </g>
+
+  <text x="48" y="28" font-family="Arial, sans-serif" font-size="20" fill="#c0c0c0">
+    BatchAI
+  </text>
+</svg>

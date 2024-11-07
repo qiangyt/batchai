@@ -1,10 +1,10 @@
 import { Kontext, Page } from '../framework';
-import { RepoDetail, RepoBasic, RepoQueryParams } from '../dto';
+import { RepoDetail, RepoBasic, RepoSearchParams } from '../dto';
 
 export interface RepoApi {
 	listAllRepo(x: Kontext): Promise<RepoBasic[]>;
 
-	queryRepo(x: Kontext, params: RepoQueryParams): Promise<Page<RepoBasic>>;
+	searchRepo(x: Kontext, params: RepoSearchParams): Promise<Page<RepoBasic>>;
 
 	getRepoByOwnerAndName(x: Kontext, ownerName: string, name: string): Promise<RepoDetail>;
 

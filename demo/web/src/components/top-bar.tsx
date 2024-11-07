@@ -17,7 +17,7 @@ const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
 export default function TopBar({ anchorId }: Props) {
     return <Box sx={{ flexGrow: 1 }}>
         <AppBar position="fixed">
-            <Container maxWidth="xl">
+            <Container maxWidth="xl" sx={{background: "black"}}>
                 <Toolbar id={anchorId} disableGutters>
                     <Link href="https://github.com/qiangyt/batchai">
                         <GitHubIcon sx={{mr:2, color: 'white'} }/>
@@ -25,7 +25,7 @@ export default function TopBar({ anchorId }: Props) {
                     <Typography variant="h6" component="a" href="/" sx={{ flexGrow: 1 }} noWrap>
                         BatchAI Examples
                         <Box>
-                        <Typography sx={{ fontSize: 10 }} noWrap>
+                        <Typography sx={{ fontSize: 10, color:"lightgray" }} noWrap>
                         Utilizes AI for batch processing of the entire codebase
                         </Typography> </Box>
                     </Typography>               

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RepoBasic, RepoDetail, RepoQueryParams } from '../dto';
+import { RepoBasic, RepoDetail, RepoSearchParams } from '../dto';
 import { DataSource } from 'typeorm';
 import { RepoService } from './repo.service';
 import { CommandService } from './command.service';
@@ -17,8 +17,8 @@ export class RepoFacade implements RepoApi {
 
 	@Transactional({ readOnly: true })
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async queryRepo(x: Kontext, params: RepoQueryParams): Promise<Page<RepoBasic>> {
-		const result = await this.service.query(params);
+	async searchRepo(x: Kontext, params: RepoSearchParams): Promise<Page<RepoBasic>> {
+		const result = await this.service.search(params);
 		return RepoBasic.fromPage(result);
 	}
 

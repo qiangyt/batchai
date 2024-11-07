@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Delete, Query } from '@nestjs/common';
 import { RepoFacade } from '../service';
 import { Kontext, RequestKontext, Page, RequiredRoles, Role } from '../framework';
-import { RepoBasic, RepoDetail, RepoQueryParams } from '../dto';
+import { RepoBasic, RepoDetail, RepoSearchParams } from '../dto';
 import { RepoApi } from '../api';
 
 @Controller('rest/v1/repos')
@@ -15,9 +15,9 @@ export class RepoRest implements RepoApi {
 	}
 
 	@RequiredRoles(Role.None)
-	@Get('query')
-	async queryRepo(@RequestKontext() x: Kontext, @Query() params: RepoQueryParams): Promise<Page<RepoBasic>> {
-		return this.facade.queryRepo(x, params);
+	@Get('search')
+	async searchRepo(@RequestKontext() x: Kontext, @Query() params: RepoSearchParams): Promise<Page<RepoBasic>> {
+		return this.facade.searchRepo(x, params);
 	}
 
 	@RequiredRoles(Role.None)

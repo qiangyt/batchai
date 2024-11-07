@@ -16,8 +16,9 @@ export class RepoBasic extends AuditableDto {
 
   testCommand: CommandBasic;
 
-  repoPath() :string{
-    return `github.com/${this.owner.name}/${this.name}`;
+  repoPath(full=true) :string{
+    const r = `${this.owner.name}/${this.name}`;
+    return full ? `github.com/${r}` : r;
   }
 
   static cast(obj: any): RepoBasic {
@@ -54,14 +55,12 @@ export class RepoDetail extends RepoBasic {
   
 }
 
-export class RepoQueryParams {
+export class RepoSearchParams {
   page: number;
 
   limit: number;
 
-  ownerName: string;
-
-  repoName: string;
+  query: string;
 }
 
 export class RepoCreateReq {

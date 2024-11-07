@@ -3,34 +3,46 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { remoteRepoExists } from '../helper';
 import { Repo } from '../entity';
-import { RepoCreateReq, RepoQueryParams } from '../dto';
+import { RepoCreateReq, RepoSearchParams } from '../dto';
 import { Page, Kontext, User } from '../framework';
 
 @Injectable()
 export class RepoService {
 	constructor(@InjectRepository(Repo) private dao: Repository<Repo>) {}
 
-	async query(params: RepoQueryParams): Promise<Page<Repo>> {
+	async search(params: RepoSearchParams): Promise<Page<Repo>> {
 		params.normalize();
 
-		let q = this.dao
+		let qbuilder = this.dao
 			.createQueryBuilder('repo')
 			.leftJoinAndSelect('repo.commands', 'commands')
 			.leftJoinAndSelect('repo.owner', 'owner')
 			.leftJoinAndSelect('repo.creater', 'creater')
 			.leftJoinAndSelect('repo.updater', 'updater')
-			.skip((params.page - 1) * params.limit)
+			.skip(params.page * params.limit)
 			.take(params.limit)
 			.orderBy('repo.id', 'DESC');
 
-		if (params.ownerName) {
-			q = q.where('repo.owner.name LIKE :ownerName', { ownerName: `${params.ownerName}%` });
-		}
-		if (params.repoName) {
-			q = q.andWhere('repo.name LIKE :name', { name: `${params.repoName}%` });
+		const q = params.query;
+		if (q) {
+			const indexOfSlash = q.indexOf('/');
+			if (indexOfSlash < 0) {
+				qbuilder = qbuilder
+					.where('owner.name LIKE :ownerName', { ownerName: `${q}%` })
+					.orWhere('repo.name LIKE :repoName', { repoName: `${q}%` });
+			} else {
+				const ownerName = q.substring(0, indexOfSlash).trim();
+				if (ownerName) {
+					qbuilder = qbuilder.where('owner.name LIKE :ownerName', { ownerName: `${ownerName}%` });
+				}
+				const repoName = q.substring(indexOfSlash).trim();
+				if (repoName) {
+					qbuilder = qbuilder.andWhere('repo.name LIKE :repoName', { repoName: `${repoName}%` });
+				}
+			}
 		}
 
-		const [reposes, total] = await q.getManyAndCount();
+		const [reposes, total] = await qbuilder.getManyAndCount();
 
 		return new Page<Repo>(params.page, params.limit, reposes, total);
 	}

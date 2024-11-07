@@ -29,17 +29,17 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </head>
-      <body className={cn(
+      <body style={{background:"black"}} className={cn(
         "min-h-screen bg-background font-sans antialiased",
         /*fontSans.className*/
       )}>
       <ErrorBoundary>
         <UIContextProvider>
           <SessionProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
               <CssBaseline />
               <TopBar anchorId='scroll-to-top' />
-              <Paper  variant="outlined" sx={{ mt: 3, mr: 4, ml: 4, mb: 3, padding: 4 }} >{children}</Paper>
+              <Paper  variant="outlined" sx={{ mt: 0, mr: 24, ml: 24, background:"black" }} >{children}</Paper>
               <ScrollTop anchorId='scroll-to-top' />
             </ThemeProvider>
           </SessionProvider>

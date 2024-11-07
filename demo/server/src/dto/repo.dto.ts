@@ -62,11 +62,11 @@ export class RepoDetail extends RepoBasic {
 	}
 }
 
-export class RepoQueryParams {
+export class RepoSearchParams {
 	@IsOptional()
 	@Type(() => Number)
 	@IsInt()
-	@Min(1)
+	@Min(0)
 	page: number;
 
 	@IsOptional()
@@ -77,13 +77,10 @@ export class RepoQueryParams {
 	limit: number;
 
 	@IsOptional()
-	ownerName: string;
-
-	@IsOptional()
-	repoName: string;
+	query: string;
 
 	normalize() {
-		if (!this.page || this.page < 1) this.page = 1;
+		if (!this.page || this.page < 0) this.page = 0;
 
 		if (!this.limit || this.limit < 1) this.limit = 20;
 		else if (this.limit > 100) this.limit = 20;

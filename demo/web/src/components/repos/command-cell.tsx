@@ -63,7 +63,7 @@ export function CommandDisplayLink({ command }: { command: CommandBasic }) {
 export function CommandCreateLink(props: CommandCreateProps) {
     return (
         <NextLink href={{ pathname: '/commands/create', query: { ...props } }} passHref>
-            <Chip label={'Create ' + props.command} variant="outlined" />
+            <Chip sx={{color:"white"}} label={'Create ' + props.command} variant="outlined" />
         </NextLink>
     );
 }

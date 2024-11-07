@@ -24,6 +24,7 @@ export default function GitHubLoginButton() {
       {s.has() ? (
         <>
           <IconButton onClick={handleOpenUserMenu}>
+            <Typography sx={{color: "#c0c0c0", mr:2}}>{u.displayName}</Typography>
             <Avatar alt={u.displayName} src={u.avatarUrl} />
           </IconButton>
           <Menu sx={{ mt: '45px' }} id="menu-appbar" anchorEl={anchorElUser} keepMounted
