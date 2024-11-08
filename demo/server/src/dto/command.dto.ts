@@ -4,7 +4,7 @@ import { RepoBasic } from '.';
 import { CommandRunStatus, CommandStatus } from '../constants';
 import { AuditableDto } from '../framework';
 import { BadRequestException } from '@nestjs/common';
-import { IsNotEmpty } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class CommandBasic extends AuditableDto {
 	command: string;
@@ -42,21 +42,28 @@ export class CommandDetail extends CommandBasic {
 
 	runStatus: CommandRunStatus;
 
-	globalOptions: string[];
-
-	commandOptions: string[];
+	enableSymbolReference: boolean;
+	force: boolean;
+	num: number;
+	lang: string;
+	checkFix: boolean;
+	testLibrary: string[];
+	testUpdate: boolean;
 
 	targetPaths: string[];
-
-	commandLine: string;
 
 	async renderCommand(c: Command): Promise<CommandDetail> {
 		super.render(c);
 		this.repo = RepoBasic.from(await c.repo);
 		this.hasChanges = c.hasChanges;
 		this.runStatus = c.runStatus;
-		this.globalOptions = c.globalOptions;
-		this.commandOptions = c.commandOptions;
+		this.enableSymbolReference = c.enableSymbolReference;
+		this.force = c.force;
+		this.num = c.num;
+		this.lang = c.lang;
+		this.checkFix = c.checkFix;
+		this.testLibrary = c.testLibrary;
+		this.testUpdate = c.testUpdate;
 		this.targetPaths = c.targetPaths;
 		return this;
 	}
@@ -68,59 +75,97 @@ export class CommandDetail extends CommandBasic {
 	}
 }
 
-export class CommandCreateReq {
+export class CommandUpdateReq {
+	@IsBoolean()
+	enableSymbolReference: boolean;
+
+	@IsBoolean()
+	force: boolean;
+
+	@IsInt()
+	num: number;
+
+	@IsString()
+	lang: string;
+
+	@IsBoolean()
+	checkFix: boolean;
+
+	@IsArray()
+	testLibrary: string[];
+
+	@IsBoolean()
+	testUpdate: boolean;
+
+	@IsArray()
+	targetPaths: string[];
+
+	normalize() {
+		if (this.num <= 0) {
+			this.num = 0;
+		}
+		if (this.testLibrary === undefined || this.testLibrary === null) {
+			this.testLibrary = [];
+		}
+		if (this.targetPaths === undefined || this.targetPaths === null) {
+			this.targetPaths = [];
+		}
+	}
+}
+
+interface ParsedRepoPath {
+	ownerName: string;
+	repoName: string;
+}
+
+export class CommandCreateReq extends CommandUpdateReq {
 	@IsNotEmpty()
 	repoPath: string;
 
 	@IsNotEmpty()
 	command: string;
 
-	testLibraries: string[];
-
-	targetPaths: string[];
-
-	commandOptions(): string[] {
-		if (this.command === 'review') {
-			return ['--fix'];
+	normalize() {
+		if (this.command !== 'check' && this.command !== 'test') {
+			throw new BadRequestException(`unsupported command: "${this.command}"`);
 		}
-		if (this.command === 'test') {
-			if (this.testLibraries) {
-				const r: string[] = [];
-				this.testLibraries.forEach((lib) => r.push('--library', lib));
-				return r;
-			}
-		}
-		throw new BadRequestException(`unsupported command: ${this.command}`);
+		super.normalize();
 	}
 
-	parseRepoPath(): { ownerName: string; repoName: string } {
-		let p = this.repoPath.trim();
-		if (p.toLowerCase().startsWith('https://')) {
-			p = p.substring('https://'.length);
-		}
-		if (p.indexOf('@') >= 0) {
-			throw new BadRequestException('do not input credential in the repository path');
-		}
-		if (p.toLowerCase().startsWith('github.com/')) {
-			p = p.substring('github.com/'.length);
-		}
-		if (p.startsWith('/')) {
-			p = p.substring('/'.length);
-		}
-		if (p.endsWith('/')) {
-			p = p.substring(0, p.length - 1);
+	private parsedRepoPath: ParsedRepoPath;
+
+	parseRepoPath(): ParsedRepoPath {
+		if (this.parsedRepoPath === null || this.parsedRepoPath === undefined) {
+			let p = this.repoPath.trim();
+			if (p.toLowerCase().startsWith('https://')) {
+				p = p.substring('https://'.length);
+			}
+			if (p.indexOf('@') >= 0) {
+				throw new BadRequestException('do not input credential in the repository path');
+			}
+			if (p.toLowerCase().startsWith('github.com/')) {
+				p = p.substring('github.com/'.length);
+			}
+			if (p.startsWith('/')) {
+				p = p.substring('/'.length);
+			}
+			if (p.endsWith('/')) {
+				p = p.substring(0, p.length - 1);
+			}
+
+			const elements = p.split('/', 2);
+			if (elements.length != 2) {
+				throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
+			}
+			const ownerName = elements[0];
+			const repoName = elements[1];
+			if (!ownerName || !repoName) {
+				throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
+			}
+
+			this.parsedRepoPath = { ownerName, repoName };
 		}
 
-		const elements = p.split('/', 2);
-		if (elements.length != 2) {
-			throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
-		}
-		const ownerName = elements[0];
-		const repoName = elements[1];
-		if (!ownerName || !repoName) {
-			throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
-		}
-
-		return { ownerName, repoName };
+		return this.parsedRepoPath;
 	}
 }

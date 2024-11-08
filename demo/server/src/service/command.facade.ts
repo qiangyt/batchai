@@ -5,7 +5,7 @@ import { CommandService } from './command.service';
 import { RepoService } from './repo.service';
 import { CommandApi } from '../api';
 import { Kontext, Transactional, UserService } from '../framework';
-import { CommandBasic, CommandDetail, CommandCreateReq } from '../dto';
+import { CommandBasic, CommandDetail, CommandCreateReq, CommandUpdateReq } from '../dto';
 
 @Injectable()
 export class CommandFacade implements CommandApi, OnModuleInit {
@@ -33,6 +33,11 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 		const repo = await this.repoService.resolve(x, owner, repoName);
 
 		return CommandDetail.fromCommand(await this.service.create(x, params, repo));
+	}
+
+	@Transactional()
+	async updateCommand(x: Kontext, id: number, req: CommandUpdateReq): Promise<CommandDetail> {
+		return CommandDetail.fromCommand(await this.service.update(x, id, req));
 	}
 
 	@Transactional({ readOnly: true })

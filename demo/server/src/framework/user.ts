@@ -24,6 +24,7 @@ import {
 	Body,
 	Post,
 	Logger,
+	ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -121,6 +122,12 @@ export class User {
 				return 0;
 			default:
 				return 5;
+		}
+	}
+
+	ensureHasAdminRole() {
+		if (!this.admin) {
+			throw new ForbiddenException();
 		}
 	}
 }

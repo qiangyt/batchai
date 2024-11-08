@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put } from '@nestjs/common';
 import { CommandStatus } from '../constants';
 import { CommandFacade } from '../service';
 import { CommandApi } from '../api';
 import { RequiredRoles, Role, Kontext, RequestKontext } from '../framework';
-import { CommandDetail, CommandBasic, CommandCreateReq } from '../dto';
+import { CommandDetail, CommandBasic, CommandCreateReq, CommandUpdateReq } from '../dto';
 
 @Controller('rest/v1/commands')
 export class CommandRest implements CommandApi {
@@ -59,6 +59,16 @@ export class CommandRest implements CommandApi {
 	@Patch('id/:id/stop')
 	async stopCommand(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandDetail> {
 		return this.facade.stopCommand(x, id);
+	}
+
+	@RequiredRoles(Role.User)
+	@Put('id/:id')
+	async updateCommand(
+		@RequestKontext() x: Kontext,
+		@Param('id') id: number,
+		@Body() params: CommandUpdateReq,
+	): Promise<CommandDetail> {
+		return this.facade.updateCommand(x, id, params);
 	}
 
 	@RequiredRoles(Role.Admin)

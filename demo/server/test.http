@@ -37,7 +37,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6M
 
 {
   "repoPath": "qiangyt/batchai",
-  "command": "review",
+  "command": "check",
   "testLibraries": [
   ],
   "targetPaths": [

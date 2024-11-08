@@ -4,7 +4,7 @@ import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { UserFacade } from './user';
 import { Role, REQUIRED_ROLE } from './role';
-import { ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
@@ -32,9 +32,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		if (ok) {
 			if (requiredRole == Role.Admin) {
 				const user: User = req.user;
-				if (!user.admin) {
-					throw new ForbiddenException();
-				}
+				user.ensureHasAdminRole();
 			}
 		}
 

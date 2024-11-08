@@ -25,7 +25,7 @@ export class RepoBasic extends AuditableDto {
 		if (repo.commands) {
 			repo.commands.forEach((c_) => {
 				const c = CommandBasic.from(c_);
-				if (c.command === 'review') {
+				if (c.command === 'check') {
 					this.checkCommand = c;
 				} else if (c.command === 'test') {
 					this.testCommand = c;

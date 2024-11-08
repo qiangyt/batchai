@@ -1,9 +1,11 @@
 import { CommandStatus } from '../constants';
 import { Kontext } from '../framework';
-import { CommandCreateReq, CommandDetail, CommandBasic } from '../dto';
+import { CommandCreateReq, CommandDetail, CommandBasic, CommandUpdateReq } from '../dto';
 
 export interface CommandApi {
 	createCommand(x: Kontext, req: CommandCreateReq): Promise<CommandDetail>;
+
+	updateCommand(x: Kontext, id: number, req: CommandUpdateReq): Promise<CommandDetail>;
 
 	listAllCommand(x: Kontext): Promise<CommandBasic[]>;
 

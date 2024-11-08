@@ -7,7 +7,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
 import { spawnAsync, removeFileOrDir, GithubRepo, fileExists } from '../helper';
 import { Repo, Command } from '../entity';
-import { CommandCreateReq } from '../dto';
+import { CommandCreateReq, CommandUpdateReq } from '../dto';
 import { Kontext } from '../framework';
 
 @Injectable()
@@ -68,20 +68,89 @@ export class CommandService {
 		return c;
 	}
 
+	async update(x: Kontext, id: number, params: CommandUpdateReq): Promise<Command> {
+		params.normalize();
+
+		let c = await this.load(id);
+		if (c.status === CommandStatus.Running) {
+			throw new ConflictException(`cannot update a running command: ${JSON.stringify(c)}`);
+		}
+
+		const u = x.user;
+
+		if (c.enableSymbolReference !== params.enableSymbolReference) {
+			u.ensureHasAdminRole();
+			c.enableSymbolReference = params.enableSymbolReference;
+		}
+
+		c.force = params.force;
+
+		if (c.num !== params.num) {
+			u.ensureHasAdminRole();
+			c.num = params.num;
+		}
+
+		c.lang = params.lang;
+
+		if (c.checkFix !== params.checkFix) {
+			u.ensureHasAdminRole();
+			c.checkFix = params.checkFix;
+		}
+
+		c.testLibrary = params.testLibrary;
+		c.testUpdate = params.testUpdate;
+		c.targetPaths = params.targetPaths;
+		c.creater = u;
+
+		c = await this.dao.save(c);
+		return c;
+	}
+
 	async create(x: Kontext, params: CommandCreateReq, repo: Repo): Promise<Command> {
+		params.normalize();
+
 		if (await this.dao.existsBy({ repo: { id: repo.id }, command: params.command })) {
 			throw new ConflictException(`repository=${repo.repoUrl()}, command=${params.command}`);
 		}
+
+		const u = x.user;
 
 		let c = new Command();
 		c.repo = Promise.resolve(repo);
 		c.command = params.command;
 		c.status = CommandStatus.Queued;
 		c.runStatus = CommandRunStatus.Begin;
-		c.commandOptions = params.commandOptions();
-		c.globalOptions = ['--num', `${repo.owner.num()}`];
-		c.targetPaths = params.targetPaths ? params.targetPaths : ([] as string[]);
-		c.creater = x.user;
+
+		if (params.enableSymbolReference !== null && params.enableSymbolReference !== undefined) {
+			u.ensureHasAdminRole();
+			c.enableSymbolReference = params.enableSymbolReference;
+		} else {
+			c.enableSymbolReference = false;
+		}
+
+		c.force = params.force;
+
+		if (params.num !== null && params.num !== undefined) {
+			u.ensureHasAdminRole();
+			c.num = params.num;
+		} else {
+			c.num = 0;
+		}
+
+		c.lang = params.lang;
+
+		if (params.checkFix !== null && params.checkFix !== undefined) {
+			u.ensureHasAdminRole();
+			c.checkFix = params.checkFix;
+		} else {
+			c.checkFix = true;
+		}
+
+		c.checkFix = params.checkFix;
+		c.testLibrary = params.testLibrary;
+		c.testUpdate = params.testUpdate;
+		c.targetPaths = params.targetPaths;
+		c.creater = u;
 
 		const repoObj = await this.newRepoObject(c);
 		const fork = repoObj.forkedRepo();
@@ -276,21 +345,20 @@ export class CommandService {
 
 		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.BatchAIExecuted) {
-			const args = [...c.globalOptions, c.command, ...c.commandOptions, workDir, ...c.targetPaths];
-			this.logger.log(`exec begin: command=batchai, args=${JSON.stringify(args)}`);
+			const cmdLine = c.commandLine(workDir);
+			this.logger.log(`exec begin: ${cmdLine}`);
 
 			const code = await spawnAsync(
 				workDir,
 				'batchai',
-				args,
+				c.commandLineArgs(workDir),
 				(stdout) => this.log(logFile, stdout),
 				(stderr) => this.log(logFile, stderr),
 			);
-			this.logger.log(`exec end: exitCode=${code}, command=batchai, args=${JSON.stringify(args)}`);
+			this.logger.log(`exec end: exitCode=${code}, command=${cmdLine}`);
 
 			if (code !== 0) {
-				const cmdLine = `batchai ${[...c.globalOptions, c.command, ...c.commandOptions, workDir, ...c.targetPaths].join(' ')}`;
-				throw new Error(`batchai execution failed: repoDir=${workDir}, command=${cmdLine}`);
+				throw new Error(`batchai execution failed: command=${cmdLine}`);
 			}
 			c = await this.updateRunStatus(c, CommandRunStatus.BatchAIExecuted);
 		}
