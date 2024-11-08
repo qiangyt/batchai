@@ -16,9 +16,23 @@ export class RepoBasic extends AuditableDto {
 
   testCommand: CommandBasic;
 
-  repoPath(full=true) :string{
-    const r = `${this.owner.name}/${this.name}`;
-    return full ? `github.com/${r}` : r;
+  private _repoPath: string;
+
+  command(commandName: string): CommandBasic {
+    switch(commandName) {
+      case 'check': return this.checkCommand;
+      case 'test': return this.testCommand;
+      default: throw new Error(`${commandName} is not supported`);
+    }
+  }
+
+  repoPath(full = true, prefixWithSchema = false): string {
+    if (!this._repoPath) {
+      this._repoPath = prefixWithSchema ? "https://" : "";
+      this._repoPath = this._repoPath + (full ? "github.com" : "");
+      this._repoPath = `${this._repoPath}/${this.owner.name}/${this.name}`;
+    }
+    return this._repoPath;
   }
 
   static with(obj: any): RepoBasic {
@@ -64,5 +78,5 @@ export class RepoSearchParams {
 }
 
 export class RepoCreateReq {
-  path: string;  
+  path: string;
 }

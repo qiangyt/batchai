@@ -3,38 +3,37 @@
 import { RepoBasic } from './repo.dto';
 import { AuditableDto } from './dto';
 import { Page } from './page';
-import { UserBasic } from './user.dto';
 
 
 export enum CommandStatus {
-  Pending = 'Pending',
-  Queued = 'Queued',
-  Running = 'Running',
-  Succeeded = 'Succeeded',
-  Failed = 'Failed',
+	Pending = 'Pending',
+	Queued = 'Queued',
+	Running = 'Running',
+	Succeeded = 'Succeeded',
+	Failed = 'Failed',
 }
 
 export enum CommandRunStatus {
-  Begin = 'Begin',
-  CheckedRemote = 'CheckedRemote',
-  Forked = 'Forked',
-  ClonedOrPulled = 'ClonedOrPulled',
-  CheckedOut = 'CheckedOut',
-  BatchAIExecuted = 'BatchAIExecuted',
-  ChangesAdded = 'ChangesAdded',
-  ChangesCommited = 'ChangesCommited',
-  ChangesPushed = 'ChangesPushed',
-  GetCommitId = 'GetCommitId',
-  //CreatedPR = 'CreatedPR',
-  End = 'End',
+	Begin = 'Begin',
+	CheckedRemote = 'CheckedRemote',
+	Forked = 'Forked',
+	ClonedOrPulled = 'ClonedOrPulled',
+	CheckedOut = 'CheckedOut',
+	BatchAIExecuted = 'BatchAIExecuted',
+	ChangesAdded = 'ChangesAdded',
+	ChangesCommited = 'ChangesCommited',
+	ChangesPushed = 'ChangesPushed',
+	GetCommitId = 'GetCommitId',
+	//CreatedPR = 'CreatedPR',
+	End = 'End',
 }
 
 
 export class CommandBasic extends AuditableDto {
-  command: string;
-  commitId: string;
-  commitUrl: string;
-  status: CommandStatus;
+	command: string;
+	commitId?: string;
+	commitUrl?: string;
+	status?: CommandStatus;
 
 	static with(obj: any): CommandBasic {
 		if (!obj) return obj;
@@ -57,8 +56,27 @@ export class CommandBasic extends AuditableDto {
 }
 
 export class CommandDetail extends CommandBasic {
-  repo: RepoBasic;
+	repo: RepoBasic;
 
+	hasChanges?: boolean;
+
+	runStatus?: CommandRunStatus;
+
+	enableSymbolReference?: boolean;
+
+	force?: boolean;
+
+	num?: number;
+
+	lang?: string;
+
+	checkFix?: boolean;
+
+	testLibrary?: string[];
+
+	testUpdate?: boolean;
+
+	targetPaths?: string[];
 
 	static with(obj: any): CommandDetail {
 		if (!obj) return obj;
@@ -68,29 +86,152 @@ export class CommandDetail extends CommandBasic {
 		return obj;
 	}
 
-  commandArgs():string{
-    const args = [
-      ...this.globalOptions, 
-      this.command, 
-      ...this.commandOptions, 
-      ".", 
-      ...this.targetPaths
-    ];
-    return args.join(' ');
-  }
+	static init(repo: RepoBasic): CommandDetail {
+		const r = new CommandDetail();
+		r.command = 'test';
+		r.repo = repo;
+		r.testLibrary = [];
+		r.targetPaths = ['.'];
+		return r;
+	}
 
-  commandLine():string{
-    return `batchai ${this.commandArgs()}`;
-  }
-  
+	primaryTestLibrary(): string {
+		if (this.testLibrary && this.testLibrary.length > 0) {
+			return this.testLibrary[0];
+		}
+		return null;
+	}
+
+	globalOptions(): string[] {
+		const r = [];
+		if (this.enableSymbolReference) {
+			r.push('--enable-symbol-reference');
+		}
+		if (this.force) {
+			r.push('--force');
+		}
+		if (this.num) {
+			r.push(`--num ${this.num}`);
+		}
+		if (this.lang) {
+			r.push(`--lang ${this.lang}`);
+		}
+		return r;
+	}
+
+	commandOptions(): string[] {
+		const r = [];
+		switch (this.command) {
+			case 'check':
+				{
+					if (this.checkFix) {
+						r.push('--fix');
+					}
+				}
+				break;
+			case 'test':
+				{
+					if (this.testLibrary && this.testLibrary.length) {
+						this.testLibrary.forEach((lib) => r.push('--library', lib));
+					}
+					if (this.checkFix) {
+						r.push('--fix');
+					}
+				}
+				break;
+		}
+		return r;
+	}
+
+	commandLineArgs(workDir: string = '.'): string[] {
+		const r: string[] = [];
+
+		if (this.globalOptions()) {
+			r.push(...this.globalOptions());
+		}
+
+		r.push(this.command);
+
+		if (this.commandOptions()) {
+			r.push(...this.commandOptions());
+		}
+
+		r.push(workDir);
+
+		if (this.targetPaths) {
+			r.push(...this.targetPaths);
+		}
+		return r;
+	}
+
+	commandLine(workDir: string = '.'): string {
+		return `batchai ${this.commandLineArgs(workDir).join(' ')}`;
+	}
 }
 
-export class CommandCreateReq {
-  repoPath?: string;
-  command?: string;
+export class CommandUpdateReq {
+	enableSymbolReference: boolean;
 
-  testLibraries?: string[];
+	force: boolean;
 
-  targetPaths?: string[];
-  
+	num: number;
+
+	lang: string;
+
+	checkFix: boolean;
+
+	testLibrary: string[];
+
+	testUpdate: boolean;
+
+	targetPaths: string[];
+
+}
+
+interface ParsedRepoPath {
+	ownerName: string;
+	repoName: string;
+}
+
+export class CommandCreateReq extends CommandUpdateReq {
+	repoPath?: string;
+	command?: string;
+
+	private parsedRepoPath: ParsedRepoPath;
+
+	parseRepoPath(): ParsedRepoPath {
+		if (this.parsedRepoPath === null || this.parsedRepoPath === undefined) {
+			let p = this.repoPath.trim();
+			if (p.toLowerCase().startsWith('https://')) {
+				p = p.substring('https://'.length);
+			}
+			if (p.indexOf('@') >= 0) {
+				throw new Error('do not input credential in the repository path');
+			}
+			if (p.toLowerCase().startsWith('github.com/')) {
+				p = p.substring('github.com/'.length);
+			}
+			if (p.startsWith('/')) {
+				p = p.substring('/'.length);
+			}
+			if (p.endsWith('/')) {
+				p = p.substring(0, p.length - 1);
+			}
+
+			const elements = p.split('/', 2);
+			if (elements.length != 2) {
+				throw new Error(`invalid repository path: ${p}; example: qiangyt/batchai`);
+			}
+			const ownerName = elements[0];
+			const repoName = elements[1];
+			if (!ownerName || !repoName) {
+				throw new Error(`invalid repository path: ${p}; example: qiangyt/batchai`);
+			}
+
+			this.parsedRepoPath = { ownerName, repoName };
+		}
+
+		return this.parsedRepoPath;
+	}
+
 }
