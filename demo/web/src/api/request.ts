@@ -3,7 +3,7 @@ import { UIContextType } from '@/lib/ui.context';
 import axios from 'axios'
 
 
-const useAxios = (s:SessionState, ui: UIContextType) => {
+const withAxios = (s:SessionState, ui: UIContextType) => {
   const service = axios.create({
     //baseURL: `${process.env.NEXT_PUBLIC_API_SERVER}/rest/v1`,
     baseURL: `/rest/v1`,
@@ -60,4 +60,4 @@ const useAxios = (s:SessionState, ui: UIContextType) => {
   return service;
 };
 
-export default useAxios;
+export default withAxios;

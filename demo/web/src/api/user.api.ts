@@ -1,9 +1,9 @@
 import { UIContextType } from '@/lib/ui.context';
-import useAxios from './request'
+import withAxios from './request'
 import { SessionState, UserBasic, UserDetail } from '@/lib';
 
 export async function ListAllUser(ctx:SessionState, ui: UIContextType): Promise<UserBasic[]> {
-  const r:UserBasic[] = await useAxios(ctx, ui).get('/users');
+  const r:UserBasic[] = await withAxios(ctx, ui).get('/users');
   r.forEach((e) => {
     Object.setPrototypeOf(e, UserBasic.prototype);
   });
@@ -11,7 +11,7 @@ export async function ListAllUser(ctx:SessionState, ui: UIContextType): Promise<
 }
 
 export async function LoadUser(ctx:SessionState, ui: UIContextType, id:number): Promise<UserDetail> {
-  const r:UserDetail = await useAxios(ctx, ui).get(`/users/${id}`);
+  const r:UserDetail = await withAxios(ctx, ui).get(`/users/${id}`);
   Object.setPrototypeOf(r, UserDetail.prototype);
   return r;
 }

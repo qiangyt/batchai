@@ -84,7 +84,7 @@ async function refreshPage(s: SessionState, ui: UIContextType, id: number,
           setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
   ui.setLoading(true);
   try {
-    const c = await commandApi.LoadCommand(s, ui, id);
+    const c = await commandApi.loadCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   } catch (err) {
     ui.setError(err);
@@ -148,12 +148,12 @@ export default function CommandHome({ params }) {
   };
 
   const onReset = async() => {
-    const c = await commandApi.ResetCommand(s, ui, id);
+    const c = await commandApi.resetCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 
   const onResume = async() => {
-    const c = await commandApi.ResumeCommand(s, ui, id);
+    const c = await commandApi.resumeCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 
@@ -163,7 +163,7 @@ export default function CommandHome({ params }) {
   };
 
   const onDelete = async() => {
-    const c = await commandApi.RemoveCommand(s, ui, id);
+    await commandApi.removeCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 

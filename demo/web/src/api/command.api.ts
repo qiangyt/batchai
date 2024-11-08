@@ -1,42 +1,46 @@
 import { UIContextType } from '@/lib/ui.context';
-import useAxios from './request'
-import { SessionState, CommandDetail, CommandCreateReq } from '@/lib';
+import withAxios from './request'
+import { SessionState, CommandDetail, CommandCreateReq, CommandUpdateReq } from '@/lib';
 
 
-export async function CreateCommand(s:SessionState, ui: UIContextType, params: CommandCreateReq): Promise<CommandDetail> {
-  return CommandDetail.cast(await useAxios(s, ui).get('/commands', {params}));
+export async function createCommand(s:SessionState, ui: UIContextType, params: CommandCreateReq): Promise<CommandDetail> {
+  return CommandDetail.with(await withAxios(s, ui).post('/commands', params));
 }
 
-export async function LoadCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await useAxios(s, ui).get(`/commands/id/${id}`);
+export async function loadCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
+  const r:CommandDetail = await withAxios(s, ui).get(`/commands/id/${id}`);
   Object.setPrototypeOf(r, CommandDetail.prototype);
   return r;
 }
 
-export async function LoadCommandLog(s:SessionState, ui: UIContextType, id: number): Promise<string> {
-  return await useAxios(s, ui).get(`/commands/id/${id}/log`);
+export async function loadCommandLog(s:SessionState, ui: UIContextType, id: number): Promise<string> {
+  return await withAxios(s, ui).get(`/commands/id/${id}/log`);
 }
 
-export async function ResetCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await useAxios(s, ui).patch(`/commands/id/${id}/reset`);
+export async function resetCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
+  const r:CommandDetail = await withAxios(s, ui).patch(`/commands/id/${id}/reset`);
   Object.setPrototypeOf(r, CommandDetail.prototype);
   return r;
 }
 
-export async function ResumeCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await useAxios(s, ui).patch(`/commands/id/${id}/resume`);
+export async function resumeCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
+  const r:CommandDetail = await withAxios(s, ui).patch(`/commands/id/${id}/resume`);
   Object.setPrototypeOf(r, CommandDetail.prototype);
   return r;
 }
 
-export async function StopCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await useAxios(s, ui).patch(`/commands/id/${id}/stop`);
+export async function stopCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
+  const r:CommandDetail = await withAxios(s, ui).patch(`/commands/id/${id}/stop`);
   Object.setPrototypeOf(r, CommandDetail.prototype);
   return r;
 }
 
-export async function RemoveCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await useAxios(s, ui).patch(`/commands/id/${id}/remove`);
+export async function updateCommand(s:SessionState, ui: UIContextType, id:number, params: CommandUpdateReq): Promise<CommandDetail> {
+  const r:CommandDetail = await withAxios(s, ui).put(`/commands/id/${id}`, params);
   Object.setPrototypeOf(r, CommandDetail.prototype);
   return r;
+}
+
+export async function removeCommand(s:SessionState, ui: UIContextType, id:number): Promise<void> {
+  withAxios(s, ui).patch(`/commands/id/${id}/remove`);
 }
