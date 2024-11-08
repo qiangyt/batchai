@@ -9,7 +9,7 @@ export class Page<T> {
     readonly total?: number,
   ) {}
 
-  static cast<T> (obj: any): Page<T> {
+  static with<T> (obj: any): Page<T> {
     if (!obj) return obj;
     Object.setPrototypeOf(obj, Page.prototype);
     return obj;

@@ -42,7 +42,7 @@ export class UserBasic {
 
   githubProfileUrl: string;
 
-  static cast(obj: any): UserBasic {
+  static with(obj: any): UserBasic {
     if (!obj) return obj;
     Object.setPrototypeOf(obj, UserBasic.prototype);
     return obj;
@@ -50,12 +50,12 @@ export class UserBasic {
 
   static castMany(users: any[]): UserBasic[] {
     if (!users) return users;
-    return users.map(UserBasic.cast);
+    return users.map(UserBasic.with);
   }
 
   static fromPage(p: any): Page<UserBasic> {
     if (!p) return p;
-    Page.cast(p);
+    Page.with(p);
     UserBasic.castMany(p.elements);
     return p;
   }
@@ -69,11 +69,11 @@ export class UserDetail extends UserBasic {
 
   updater: UserBasic;
 
-  static cast(obj: any): UserDetail {
+  static with(obj: any): UserDetail {
     if (!obj) return obj;
-    UserBasic.cast(obj);
-    UserBasic.cast(obj.creater);
-    UserBasic.cast(obj.updater);
+    UserBasic.with(obj);
+    UserBasic.with(obj.creater);
+    UserBasic.with(obj.updater);
     Object.setPrototypeOf(obj, UserDetail.prototype);
     return obj;
   }

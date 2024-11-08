@@ -36,46 +36,37 @@ export class CommandBasic extends AuditableDto {
   commitUrl: string;
   status: CommandStatus;
 
-  static cast(obj: any): CommandBasic {
-    if (!obj) return obj;
-    AuditableDto.cast(obj);
-    return obj;
-  }
+	static with(obj: any): CommandBasic {
+		if (!obj) return obj;
+		AuditableDto.with(obj);
+		return obj;
+	}
 
-  static castMany(cmds: any[]): CommandBasic[] {
-    if (!cmds) return cmds;
-    return cmds.map(CommandBasic.cast);
-  }
+	static withMany(cmds: any[]): CommandBasic[] {
+		if (!cmds) return cmds;
+		return cmds.map(CommandBasic.with);
+	}
 
-  static fromPage(p: any): Page<CommandBasic> {
-    if (!p) return p;
-    Page.cast(p);
-    CommandBasic.castMany(p.elements);
-    return p;
-  }
+	static withPage(p: any): Page<CommandBasic> {
+		if (!p) return p;
+		Page.with(p);
+		CommandBasic.withMany(p.elements);
+		return p;
+	}
 
 }
 
 export class CommandDetail extends CommandBasic {
   repo: RepoBasic;
 
-  hasChanges: boolean;
 
-  runStatus: CommandRunStatus;
-
-  globalOptions: string[];
-
-  commandOptions: string[];
-
-  targetPaths: string[];
-
-  static cast(obj: any): CommandDetail {
-    if (!obj) return obj;
-    CommandBasic.cast(obj);
-    RepoBasic.cast(obj.repo);
-    Object.setPrototypeOf(obj, CommandDetail.prototype);
-    return obj;
-  }
+	static with(obj: any): CommandDetail {
+		if (!obj) return obj;
+		CommandBasic.with(obj);
+		RepoBasic.with(obj.repo);
+		Object.setPrototypeOf(obj, CommandDetail.prototype);
+		return obj;
+	}
 
   commandArgs():string{
     const args = [

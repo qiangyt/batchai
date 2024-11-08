@@ -13,11 +13,11 @@ export abstract class AuditableDto {
 
   updater: UserBasic;
   
-  static cast(obj: any) {
+  static with(obj: any) {
     if (!obj) return;
     Object.setPrototypeOf(obj, AuditableDto.prototype);
-    UserBasic.cast(obj.creater);
-    UserBasic.cast(obj.updater);
+    UserBasic.with(obj.creater);
+    UserBasic.with(obj.updater);
   }
   
 }
