@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Masonry from '@mui/lab/Masonry';
 import Image from 'next/image';
-import { RepoBasic, useSession, Page, RepoSearchParams, SessionState, CommandBasic } from '@/lib';
+import { RepoBasic, useSession, Page, RepoSearchParams, SessionState, CommandBasic, CommandDetail } from '@/lib';
 import React, { useEffect, useState } from 'react';
 import * as repoApi from '@/api/repo.api';
 import { useRouter } from 'next/navigation';
@@ -54,12 +54,12 @@ export default function RepoList() {
     searchRepo(s, ui, setPage);
   }, [s, ui]);
 
-  const onNewCommand = () => {
-    router.push('repos/create');
-  }
-
   const handleSearch = async (query: string) => {
     await searchRepo(s, null, setPage, { page: 0, limit: page.limit, query });
+  };
+
+  const onCommandCreated = (newCommand: CommandDetail) => {
+    searchRepo(s, ui, setPage);
   };
 
   return (<>
@@ -82,8 +82,8 @@ export default function RepoList() {
             <Link href={repo.repoUrl}><Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}</Typography></Link>
               <Typography variant="h5" sx={{color: 'white'}}>{repo.repoPath(false)}</Typography>
               <Box sx={{mt: 4}}>
-                <CommandChip key="check" repo={repo} commandName="check"/>
-                <CommandChip key="test" repo={repo} commandName="test"/>
+                <CommandChip key="check" repo={repo} commandName="check" onCommandCreated={onCommandCreated}/>
+                <CommandChip key="test" repo={repo} commandName="test" onCommandCreated={onCommandCreated}/>
               </Box>
             </Box>
             <Box>

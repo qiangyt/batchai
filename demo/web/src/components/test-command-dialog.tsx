@@ -19,9 +19,10 @@ interface TestCommandDialogProps {
   data: CommandDetail;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  onSubmited: (command: CommandDetail) => void;
 }
 
-export default function TestCommandDialog({ repo, data, open, setOpen }: TestCommandDialogProps) {
+export default function TestCommandDialog({ repo, data, open, setOpen, onSubmited }: TestCommandDialogProps) {
   const s = useSession().state;
   const ui = useUIContext();
   const [_data, setData] = useState(data);
@@ -48,8 +49,9 @@ export default function TestCommandDialog({ repo, data, open, setOpen }: TestCom
     params.repoPath = repo;
     params.command = 'test';
 
-    alert(JSON.stringify(params, null, 4));
-    await commandApi.createCommand(s, ui, params);
+    const cmd = await commandApi.createCommand(s, ui, params);
+    onSubmited(cmd);    
+    setOpen(false);
   };
 
   return (

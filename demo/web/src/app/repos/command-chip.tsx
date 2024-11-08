@@ -8,18 +8,11 @@ import CheckCommandDialog from "@/components/check-command-dialog";
 
 interface CommandChipProps {
   repo: RepoBasic;
-  commandName: string;
+  commandName: string;  
+  onCommandCreated: (command: CommandDetail) => void;
 }
 
-function CommandDialog({commandName, repo, data, open, setOpen}:{commandName:string, repo: string, data: CommandDetail, open: boolean, setOpen: Dispatch<SetStateAction<boolean>>}) {
-  switch (commandName) {
-    case 'check': return <CheckCommandDialog repo={repo} data={data} open={open} setOpen={setOpen}/>;
-    case 'test': return <TestCommandDialog repo={repo} data={data} open={open} setOpen={setOpen} />;
-    default: throw new Error(`${commandName} is not supported`);
-  } 
-}
-
-export function CommandChip({ repo, commandName }: CommandChipProps) {
+export function CommandChip({ repo, commandName, onCommandCreated }: CommandChipProps) {
   const [openDialog, setOpenDialog] = useState(false);
 
   const cmd = repo.command(commandName);
@@ -40,8 +33,8 @@ export function CommandChip({ repo, commandName }: CommandChipProps) {
   const data = CommandDetail.init(repo);
   let dlg;
   switch (commandName) {
-    case 'check': dlg = <CheckCommandDialog repo={repo.repoUrl} data={data} open={openDialog} setOpen={setOpenDialog}/>; break;
-    case 'test': dlg = <TestCommandDialog repo={repo.repoUrl} data={data} open={openDialog} setOpen={setOpenDialog} />; break;
+    case 'check': dlg = <CheckCommandDialog repo={repo.repoUrl} data={data} open={openDialog} setOpen={setOpenDialog} onSubmited={onCommandCreated}/>; break;
+    case 'test': dlg = <TestCommandDialog repo={repo.repoUrl} data={data} open={openDialog} setOpen={setOpenDialog} onSubmited={onCommandCreated} />; break;
     default: throw new Error(`${commandName} is not supported`);
   } 
 

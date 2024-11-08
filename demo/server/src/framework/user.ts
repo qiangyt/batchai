@@ -183,6 +183,12 @@ export class UserBasic {
 
 	updatedAt: Date;
 
+	ensureHasAdminRole() {
+		if (!this.admin) {
+			throw new ForbiddenException();
+		}
+	}
+
 	render(u: User): UserBasic {
 		this.id = u.id;
 		this.name = u.name;

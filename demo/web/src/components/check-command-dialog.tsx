@@ -4,22 +4,26 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { CommandDetail, otEvent } from '@/lib';
+import { CommandCreateReq, CommandDetail, otEvent, useSession, useUIContext } from '@/lib';
 import { Dispatch, MouseEvent, SetStateAction, useState } from 'react';
 import LangSelect from './lang-select';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
+import * as commandApi from '@/api/command.api';
 
 interface CheckCommandDialogProps {
   repo: string;
   data: CommandDetail;
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  onSubmited: (command: CommandDetail) => void;
 }
 
-export default function CheckCommandDialog({ repo, data, open, setOpen }: CheckCommandDialogProps) {
+export default function CheckCommandDialog({ repo, data, open, setOpen, onSubmited }: CheckCommandDialogProps) {
+  const s = useSession().state;
+  const ui = useUIContext();
   const [_data, setData] = useState(data);
 
   const onClose = (e: MouseEvent) => {
@@ -31,9 +35,17 @@ export default function CheckCommandDialog({ repo, data, open, setOpen }: CheckC
     setData(CommandDetail.with({..._data, lang: newValue}));
   };
 
-  const onSubmit = (e: MouseEvent) => {    
+  const onSubmit = async (e: MouseEvent) => {    
     otEvent(e);
-    alert(JSON.stringify(_data, null, 4));
+
+    const params = new CommandCreateReq();
+    params.lang = _data.lang;
+    params.repoPath = repo;
+    params.command = 'check';
+
+    const cmd = await commandApi.createCommand(s, ui, params);
+    onSubmited(cmd);    
+    setOpen(false);
   };
 
   return (

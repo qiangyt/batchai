@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import ReactAnsi from 'react-ansi'; 
+import ReactAnsi from 'react-ansi';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -79,10 +79,10 @@ const steps: Step[] = [
   },
 ];
 
-async function refreshPage(s: SessionState, ui: UIContextType, id: number, 
-          setCommand:React.Dispatch<React.SetStateAction<CommandDetail>>,
-          setLog: React.Dispatch<React.SetStateAction<string>>,
-          setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
+async function refreshPage(s: SessionState, ui: UIContextType, id: number,
+  setCommand: React.Dispatch<React.SetStateAction<CommandDetail>>,
+  setLog: React.Dispatch<React.SetStateAction<string>>,
+  setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
   ui.setLoading(true);
   try {
     const c = await commandApi.loadCommand(s, ui, id);
@@ -94,10 +94,10 @@ async function refreshPage(s: SessionState, ui: UIContextType, id: number,
   };
 }
 
-async function refreshCommand(s: SessionState, ui: UIContextType, c: CommandDetail, 
-          setCommand:React.Dispatch<React.SetStateAction<CommandDetail>>,
-          setLog: React.Dispatch<React.SetStateAction<string>>,
-          setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
+async function refreshCommand(s: SessionState, ui: UIContextType, c: CommandDetail,
+  setCommand: React.Dispatch<React.SetStateAction<CommandDetail>>,
+  setLog: React.Dispatch<React.SetStateAction<string>>,
+  setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
   ui.setLoading(true);
   try {
     setActiveStep(steps.findIndex(x => x.status === c.runStatus));
@@ -114,7 +114,7 @@ async function refreshCommand(s: SessionState, ui: UIContextType, c: CommandDeta
 }
 
 export default function CommandHome({ params }) {
-  const router = useRouter();  
+  const router = useRouter();
   const [command, setCommand] = useState<CommandDetail>(null);
   const status = command?.status || '';
   const [log, setLog] = useState<string>("...");
@@ -145,26 +145,26 @@ export default function CommandHome({ params }) {
     refreshPage(s, ui, id, setCommand, setLog, setActiveStep);
   }, [s, ui, id]);
 
-  const onRefresh = async() => {
+  const onRefresh = async () => {
     refreshPage(s, ui, id, setCommand, setLog, setActiveStep);
   };
 
-  const onReset = async() => {
+  const onReset = async () => {
     const c = await commandApi.resetCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 
-  const onResume = async() => {
+  const onResume = async () => {
     const c = await commandApi.resumeCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 
-  const onStop = async() => {
+  const onStop = async () => {
     const c = await commandApi.stopCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 
-  const onDelete = async() => {
+  const onDelete = async () => {
     await commandApi.removeCommand(s, ui, id);
     router.push('/repos');
   };
@@ -182,7 +182,7 @@ export default function CommandHome({ params }) {
               <Typography variant="body2">Changes:</Typography>
               <Link sx={{ ml: 2 }} href={command?.commitId ? command.commitUrl : '#'}>{command?.commitId ? command.commitUrl : 'N/A'}</Link>
             </>
-          :
+            :
             <Typography variant="body2">No changes</Typography>
           }
         </Box>
@@ -192,19 +192,19 @@ export default function CommandHome({ params }) {
 
       <Toolbar sx={{ mb: 2 }}>
         <ToolbarIcon label='Refresh' enabled={true} onClick={onRefresh}>
-          <RefreshIcon sx={{color:'#B8E986'}}/>
+          <RefreshIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Reset' enabled={status!==CommandStatus.Running} onClick={onReset}>
-          <ResetIcon sx={{color:'#B8E986'}}/>
+        <ToolbarIcon label='Reset' enabled={status !== CommandStatus.Running} onClick={onReset}>
+          <ResetIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Stop' enabled={status===CommandStatus.Running} onClick={onStop}>
-          <StopIcon sx={{color:'#B8E986'}}/>
+        <ToolbarIcon label='Stop' enabled={status === CommandStatus.Running} onClick={onStop}>
+          <StopIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Resume' enabled={status===CommandStatus.Pending || status===CommandStatus.Failed} onClick={onResume}>
-          <ResumeIcon sx={{color:'#B8E986'}}/>
+        <ToolbarIcon label='Resume' enabled={status === CommandStatus.Pending || status === CommandStatus.Failed} onClick={onResume}>
+          <ResumeIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Delete' enabled={status!==CommandStatus.Running} onClick={onDelete}>
-          <DeleteIcon sx={{color:'#B8E986'}}/>
+        <ToolbarIcon label='Delete' enabled={status !== CommandStatus.Running} onClick={onDelete}>
+          <DeleteIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
       </Toolbar>
 
@@ -229,15 +229,15 @@ export default function CommandHome({ params }) {
             <ContentCopyIcon />
           </IconButton>
         </div>
-          <ReactAnsi log={log} logStyle={{fontSize: 12}}/>
+        <ReactAnsi log={log} logStyle={{ fontSize: 12 }} />
       </Box>
 
-      <Drawer anchor='right' open={showProgress} onClose={toggleProgress(false)}      >
+      <Drawer anchor='right' open={showProgress} onClose={toggleProgress(false)}>
         <Stepper sx={{ margin: 4 }} activeStep={activeStep} orientation="vertical">
           {steps.map((step, index) => {
             return (
               <Step key={step.status} completed={index <= activeStep && (!step.needChanges || (step.needChanges && command?.hasChanges))}>
-                <StepLabel error={index === (activeStep + 1) && status==CommandStatus.Failed}>{step.label}</StepLabel>
+                <StepLabel error={index === (activeStep + 1) && status == CommandStatus.Failed}>{step.label}</StepLabel>
               </Step>
             );
           })}
