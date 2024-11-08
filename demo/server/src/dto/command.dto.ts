@@ -4,7 +4,7 @@ import { RepoBasic } from '.';
 import { CommandRunStatus, CommandStatus } from '../constants';
 import { AuditableDto } from '../framework';
 import { BadRequestException } from '@nestjs/common';
-import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CommandBasic extends AuditableDto {
 	command: string;
@@ -77,27 +77,35 @@ export class CommandDetail extends CommandBasic {
 
 export class CommandUpdateReq {
 	@IsBoolean()
-	enableSymbolReference: boolean;
+	@IsOptional()
+	enableSymbolReference?: boolean;
 
 	@IsBoolean()
+	@IsOptional()
 	force: boolean;
 
 	@IsInt()
+	@IsOptional()
 	num: number;
 
 	@IsString()
+	@IsOptional()
 	lang: string;
 
 	@IsBoolean()
+	@IsOptional()
 	checkFix: boolean;
 
 	@IsArray()
+	@IsOptional()
 	testLibrary: string[];
 
 	@IsBoolean()
+	@IsOptional()
 	testUpdate: boolean;
 
 	@IsArray()
+	@IsOptional()
 	targetPaths: string[];
 
 	normalize() {

@@ -2,7 +2,7 @@ import { Page, UserBasic, AuditableDto } from '../framework';
 import { Repo } from '../entity';
 import { CommandBasic } from './command.dto';
 import { BadRequestException } from '@nestjs/common';
-import { IsInt, IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class RepoBasic extends AuditableDto {
@@ -77,6 +77,7 @@ export class RepoSearchParams {
 	limit: number;
 
 	@IsOptional()
+	@IsString()
 	query: string;
 
 	normalize() {
@@ -89,6 +90,7 @@ export class RepoSearchParams {
 
 export class RepoCreateReq {
 	@IsNotEmpty()
+	@IsString()
 	path: string;
 
 	parsePath(): { ownerName: string; name: string } {

@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import path from 'path';
 import { mkdirp } from 'mkdirp';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Page } from './page';
 import {
 	ConflictException,
@@ -134,18 +134,27 @@ export class User {
 
 export class UserCreateReq {
 	@IsNotEmpty()
+	@IsString()
 	name: string;
 
+	@IsOptional()
+	@IsString()
 	displayName?: string;
 
+	@IsOptional()
+	@IsString()
 	avatarUrl?: string;
 
+	@IsNotEmpty()
+	@IsString()
 	grantLevel: GrantLevel;
 
 	@IsEmail()
+	@IsOptional()
 	email?: string;
 
-	@IsNotEmpty()
+	@IsOptional()
+	@IsString()
 	password?: string;
 }
 
@@ -225,9 +234,11 @@ export class UserDetail extends UserBasic {
 
 export class SignInReq {
 	@IsNotEmpty()
+	@IsString()
 	username: string;
 
 	@IsNotEmpty()
+	@IsString()
 	password: string;
 }
 
