@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import ReactAnsi from 'react-ansi'; 
 import Box from '@mui/material/Box';
@@ -102,7 +103,7 @@ async function refreshCommand(s: SessionState, ui: UIContextType, c: CommandDeta
     setActiveStep(steps.findIndex(x => x.status === c.runStatus));
     setCommand(c);
 
-    const log = await commandApi.LoadCommandLog(s, ui, c.id);
+    const log = await commandApi.loadCommandLog(s, ui, c.id);
     //setLog(log.replace(/\n/g, '<br/>') || "...");
     setLog(log);
   } catch (err) {
@@ -113,6 +114,7 @@ async function refreshCommand(s: SessionState, ui: UIContextType, c: CommandDeta
 }
 
 export default function CommandHome({ params }) {
+  const router = useRouter();  
   const [command, setCommand] = useState<CommandDetail>(null);
   const status = command?.status || '';
   const [log, setLog] = useState<string>("...");
@@ -158,18 +160,18 @@ export default function CommandHome({ params }) {
   };
 
   const onStop = async() => {
-    const c = await commandApi.StopCommand(s, ui, id);
+    const c = await commandApi.stopCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 
   const onDelete = async() => {
     await commandApi.removeCommand(s, ui, id);
-    refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
+    router.push('/repos');
   };
 
   return (
     <>
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 2, color: 'white' }}>
         <Typography variant="body2">{command?.command}</Typography><Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
         <Typography variant="body2">{status}</Typography>
         <Button onClick={toggleProgress(true)}>Detailed progress</Button>
@@ -190,19 +192,19 @@ export default function CommandHome({ params }) {
 
       <Toolbar sx={{ mb: 2 }}>
         <ToolbarIcon label='Refresh' enabled={true} onClick={onRefresh}>
-          <RefreshIcon/>
+          <RefreshIcon sx={{color:'#B8E986'}}/>
         </ToolbarIcon>
         <ToolbarIcon label='Reset' enabled={status!==CommandStatus.Running} onClick={onReset}>
-          <ResetIcon/>
+          <ResetIcon sx={{color:'#B8E986'}}/>
         </ToolbarIcon>
         <ToolbarIcon label='Stop' enabled={status===CommandStatus.Running} onClick={onStop}>
-          <StopIcon/>
+          <StopIcon sx={{color:'#B8E986'}}/>
         </ToolbarIcon>
         <ToolbarIcon label='Resume' enabled={status===CommandStatus.Pending || status===CommandStatus.Failed} onClick={onResume}>
-          <ResumeIcon/>
+          <ResumeIcon sx={{color:'#B8E986'}}/>
         </ToolbarIcon>
         <ToolbarIcon label='Delete' enabled={status!==CommandStatus.Running} onClick={onDelete}>
-          <DeleteIcon/>
+          <DeleteIcon sx={{color:'#B8E986'}}/>
         </ToolbarIcon>
       </Toolbar>
 
@@ -217,9 +219,9 @@ export default function CommandHome({ params }) {
         >
           <div style={{ paddingLeft: 50 }}>
             $ <span style={{ color: '#80ff80' }}>batchai</span>
-            &nbsp;&nbsp;{command?.globalOptions.join(' ')}
+            &nbsp;&nbsp;{command?.globalOptions().join(' ')}
             <span style={{ color: '#80ff80' }}>&nbsp;&nbsp;{command?.command}</span>
-            &nbsp;&nbsp;{command?.commandOptions}
+            &nbsp;&nbsp;{command?.commandOptions().join(' ')}
             &nbsp;&nbsp;.
             &nbsp;&nbsp;{command?.targetPaths.join(' ')}
           </div>

@@ -86,7 +86,7 @@ export default function RepoList() {
             <TableRow key={repo.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}                >
               <TableCell component="th" scope="row"><Link href={repo.repoUrl}>{repo.repoPath()}</Link></TableCell>
               <TableCell>
-                <CommandCell repoPath={repo.repoPath()} commandText='review' command={repo.checkCommand} />
+                <CommandCell repoPath={repo.repoPath()} commandText='check' command={repo.checkCommand} />
               </TableCell>
               <TableCell>
                 <CommandCell repoPath={repo.repoPath()} commandText='test' command={repo.testCommand} />

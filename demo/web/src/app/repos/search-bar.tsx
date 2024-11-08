@@ -32,7 +32,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       fullWidth
       startAdornment={
         <InputAdornment position="start">
-          <SearchIcon fontSize="large" sx={{color: "#333333"}}/>
+          <SearchIcon fontSize="large"/>
         </InputAdornment>
       }
       sx={{
@@ -40,22 +40,27 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         height: '48px',
         '& .MuiOutlinedInput-notchedOutline': {
           borderRadius: '999px',
-        },
-        '.MuiOutlinedInput-notchedOutline': {
           borderColor: '#333333',
         },
         '&:hover .MuiOutlinedInput-notchedOutline': {
           borderColor: '#4A90E2',
+          transition: 'border-color 0.3s ease',
         },
         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
           borderColor: '#4A90E2',
         },
-        '& input::placeholder': {
-          color: '#666666',
-          opacity: 1,
-        },
         '& input': {
           color: 'white',
+        },
+        '& .MuiSvgIcon-root': {
+          color: '#333333',
+          transition: 'color 0.3s ease',
+        },
+        '&:hover .MuiSvgIcon-root': {
+          color: '#4A90E2',
+        },
+        '&.Mui-focused .MuiSvgIcon-root': {
+          color: '#4A90E2',
         },
         paddingLeft: 1.5,
         paddingRight: 1.5,
