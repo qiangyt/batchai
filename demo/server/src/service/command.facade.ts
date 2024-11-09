@@ -65,9 +65,9 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 	}
 
 	@Transactional()
-	async resetCommand(x: Kontext, id: number): Promise<CommandDetail> {
+	async restartCommand(x: Kontext, id: number): Promise<CommandDetail> {
 		const c = await this.service.load(id);
-		return CommandDetail.fromCommand(await this.service.reset(x, c));
+		return CommandDetail.fromCommand(await this.service.restart(x, c));
 	}
 
 	@Transactional()

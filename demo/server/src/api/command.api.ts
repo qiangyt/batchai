@@ -15,7 +15,7 @@ export interface CommandApi {
 
 	loadCommandLog(x: Kontext, id: number): Promise<string>;
 
-	resetCommand(x: Kontext, id: number): Promise<CommandDetail>;
+	restartCommand(x: Kontext, id: number): Promise<CommandDetail>;
 
 	resumeCommand(x: Kontext, id: number): Promise<CommandDetail>;
 

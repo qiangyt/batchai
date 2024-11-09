@@ -244,9 +244,9 @@ export class CommandService {
 		return this.dao.save(c);
 	}
 
-	async reset(x: Kontext, c: Command): Promise<Command> {
+	async restart(x: Kontext, c: Command): Promise<Command> {
 		if (c.status === CommandStatus.Running) {
-			throw new ConflictException(`cannot reset a running command: ${JSON.stringify(c)}`);
+			throw new ConflictException(`cannot restart a running command: ${JSON.stringify(c)}`);
 		}
 
 		const repoObj = await this.newRepoObject(c);

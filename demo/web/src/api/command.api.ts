@@ -17,8 +17,8 @@ export async function loadCommandLog(s:SessionState, ui: UIContextType, id: numb
   return await withAxios(s, ui).get(`/commands/id/${id}/log`);
 }
 
-export async function resetCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await withAxios(s, ui).patch(`/commands/id/${id}/reset`);
+export async function restartCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
+  const r:CommandDetail = await withAxios(s, ui).patch(`/commands/id/${id}/restart`);
   Object.setPrototypeOf(r, CommandDetail.prototype);
   return r;
 }

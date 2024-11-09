@@ -149,8 +149,8 @@ export default function CommandHome({ params }) {
     refreshPage(s, ui, id, setCommand, setLog, setActiveStep);
   };
 
-  const onReset = async () => {
-    const c = await commandApi.resetCommand(s, ui, id);
+  const onRestart = async () => {
+    const c = await commandApi.restartCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 
@@ -194,7 +194,7 @@ export default function CommandHome({ params }) {
         <ToolbarIcon label='Refresh' enabled={true} onClick={onRefresh}>
           <RefreshIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Reset' enabled={status !== CommandStatus.Running} onClick={onReset}>
+        <ToolbarIcon label='Restart' enabled={status !== CommandStatus.Running} onClick={onRestart}>
           <ResetIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
         <ToolbarIcon label='Stop' enabled={status === CommandStatus.Running} onClick={onStop}>

@@ -44,9 +44,9 @@ export class CommandRest implements CommandApi {
 	}
 
 	@RequiredRoles(Role.User)
-	@Patch('id/:id/reset')
-	async resetCommand(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandDetail> {
-		return this.facade.resetCommand(x, id);
+	@Patch('id/:id/restart')
+	async restartCommand(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandDetail> {
+		return this.facade.restartCommand(x, id);
 	}
 
 	@RequiredRoles(Role.User)
