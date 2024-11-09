@@ -234,7 +234,7 @@ export default function CommandHome({ params }) {
             <ContentCopyIcon />
           </IconButton>
         </div>
-        <ReactAnsi log={log} logStyle={{ fontSize: 12 }} />
+        <ReactAnsi log={log} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
       </Box>
 
       <Drawer anchor='right' open={showProgress} onClose={toggleProgress(false)}>

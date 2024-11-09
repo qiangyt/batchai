@@ -143,7 +143,7 @@ export class CommandService {
 			u.ensureHasAdminRole();
 			c.checkFix = params.checkFix;
 		} else {
-			c.checkFix = true;
+			c.checkFix = params.command === 'check';
 		}
 
 		c.testLibrary = params.testLibrary;
