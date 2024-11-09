@@ -39,7 +39,7 @@ export default function ToolbarIcon({ enabled, children, label, onClick }: Toolb
                 {children}
             </Button>
         </Tooltip>
-        <Typography variant="caption" color={enabled ? "gray" : "white"}>{label}</Typography>
+        <Typography variant="caption" color={enabled ? "white" : "gray"}>{label}</Typography>
     </Stack>
     )
 }
