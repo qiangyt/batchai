@@ -42,5 +42,5 @@ export async function updateCommand(s:SessionState, ui: UIContextType, id:number
 }
 
 export async function removeCommand(s:SessionState, ui: UIContextType, id:number): Promise<void> {
-  withAxios(s, ui).patch(`/commands/id/${id}/remove`);
+  withAxios(s, ui).delete(`/commands/id/${id}`);
 }
