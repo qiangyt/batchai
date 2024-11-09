@@ -209,7 +209,7 @@ export default function CommandHome({ params }) {
           <ResumeIcon sx={{ color: enableResume ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
         <ToolbarIcon label='Delete' enabled={enableDelete} onClick={onDelete}>
-          <DeleteIcon sx={{ color: enableDelete ? '#B8E986' : 'gray' }} />
+          <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
         </ToolbarIcon>
       </Toolbar>
 
