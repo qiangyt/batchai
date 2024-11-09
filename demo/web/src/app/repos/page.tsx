@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Masonry from '@mui/lab/Masonry';
 import Image from 'next/image';
-import { RepoBasic, useSession, Page, RepoSearchParams, SessionState, CommandBasic, CommandDetail } from '@/lib';
+import { RepoBasic, useSession, Page, RepoSearchParams, SessionState, CommandBasic, CommandDetail, otEvent, ParsedRepoPath } from '@/lib';
 import React, { useEffect, useState } from 'react';
 import * as repoApi from '@/api/repo.api';
 import { useRouter } from 'next/navigation';
@@ -18,11 +18,12 @@ import Typography from '@mui/material/Typography';
 import { CommandChip } from './command-chip';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
+import TextField from '@mui/material/TextField';
 
 async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dispatch<React.SetStateAction<Page<RepoBasic>>>, params?: RepoSearchParams) {
   if (ui) ui.setLoading(true);
   try {
-    const p = await repoApi.SearchRepo(s, ui, params);
+    const p = await repoApi.searchRepo(s, ui, params);
     setPage(p);
   } catch (err) {
     if (ui) ui.setError(err);
@@ -40,12 +41,14 @@ const Item = styled(Paper)(({ theme }) => ({
   '&:hover': {
     backgroundColor: "#4A90E2",
   },
+  color: 'white',
 }));
 
 
 
 export default function RepoList() {
   const [page, setPage] = useState<Page<RepoBasic>>({ total: 0, page: 0, limit: 100, elements: [] });
+  const [newRepoPath, setNewRepoPath] = useState("");
   const s = useSession().state;
   const ui = useUIContext();
   const router = useRouter();
@@ -54,7 +57,7 @@ export default function RepoList() {
     searchRepo(s, ui, setPage);
   }, [s, ui]);
 
-  const handleSearch = async (query: string) => {
+  const onSearch = async (query: string) => {
     await searchRepo(s, null, setPage, { page: 0, limit: page.limit, query });
   };
 
@@ -62,19 +65,44 @@ export default function RepoList() {
     await searchRepo(s, ui, setPage);
   };
 
+  const onAddRepo = async (e) => {
+    otEvent(e);
+    if (newRepoPath) {
+      const parsed = ParsedRepoPath.parse(newRepoPath);
+      if (parsed) {
+        await repoApi.createRepo(s, ui, {path: newRepoPath});
+      }
+    }
+  };
+
+  const onKeyDownNewRepo = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onAddRepo(e);
+    }
+  };
+
+  const onChangeNewRepoPath = (e) => {
+    otEvent(e);
+    setNewRepoPath(e.target.value);
+  };
+
   return (<>
     <Box display="flex" flexDirection="column" alignItems="center">
       <Image src={"logo.svg"} alt="batchai" width={348} height={120}/>
       <Typography sx={{ fontSize: 18, color: 'white' }} noWrap>SEARCH REPOSITORY</Typography>
-      <Box sx={{ width: '63.8%' }}><SearchBar onSearch={handleSearch} /></Box>      
+      <Box sx={{ width: '63.8%' }}><SearchBar onSearch={onSearch} /></Box>      
       <Typography sx={{ fontSize: 14 }} color="gray">{page.total} REPOSITORIES</Typography>
     </Box>
 
     <Masonry columns={3} spacing={2} sx={{mt:6}}>
       <Item key='add'>
-        <Fab color="primary" aria-label="add">
-          <AddIcon />
-        </Fab>
+        <Fab color="primary" aria-label="add" onClick={onAddRepo}><AddIcon /></Fab>
+        <TextField autoFocus required sx={{mt:2.3}} size="small"  id="newRepoPath" label="Repository Path:" fullWidth variant='outlined'
+              onKeyDown={onKeyDownNewRepo} value={newRepoPath} onChange={onChangeNewRepoPath}
+              slotProps={{
+                input: {sx: {color: 'white', '& .MuiOutlinedInput-notchedOutline': {borderColor: 'gray'}}},
+                inputLabel: {sx: {color: 'gray'}}
+              }}/>
       </Item>
       {page.elements.map((repo) => (
           <Item key={repo.id} sx={{display: 'flex',justifyContent: 'space-between'}}>

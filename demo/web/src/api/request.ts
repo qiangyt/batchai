@@ -7,7 +7,7 @@ const withAxios = (s:SessionState, ui: UIContextType) => {
   const service = axios.create({
     //baseURL: `${process.env.NEXT_PUBLIC_API_SERVER}/rest/v1`,
     baseURL: `/rest/v1`,
-    timeout: 2 * 1000,
+    timeout: 6 * 1000,
     responseType: 'json',
     maxContentLength: 1024 * 1024,
     maxRedirects: 0,
@@ -27,9 +27,7 @@ const withAxios = (s:SessionState, ui: UIContextType) => {
       return config
     },
     (error) => {
-      // Do something with request error
-      //ui.setError(error)
-      Promise.reject(error)
+      return Promise.reject(error)
     }
   )
 
@@ -39,21 +37,28 @@ const withAxios = (s:SessionState, ui: UIContextType) => {
     },
     (error) => {
       const errResp = error.response;
-      if (errResp && errResp.status === 401) {
-        //if (errResp.config.url.endsWith('/rest/signin')) {
-        //  console.log('用户名或密码有误')//TODO: ElMessage.error('用户名或密码有误')
-        //} else {
-        //  console.log('请登录')//ElMessage.error('请登录')
-        //}
-        // 重定向到登录页面
-        //const router = useRouter()
-        //router.push({ name: 'SignIn' })
-        s.redirect();
-        return Promise.resolve(null);
-      }// else {
-        //ui.setError(error);
-      //}
-      return Promise.reject(error)
+      if (errResp) {
+        if (errResp.status === 401) {
+          //if (errResp.config.url.endsWith('/rest/signin')) {
+          //  console.log('用户名或密码有误')//TODO: ElMessage.error('用户名或密码有误')
+          //} else {
+          //  console.log('请登录')//ElMessage.error('请登录')
+          //}
+          // 重定向到登录页面
+          //const router = useRouter()
+          //router.push({ name: 'SignIn' })
+          s.redirect();
+          return Promise.resolve(null);
+        }
+        const errData = errResp.data;
+        if (errData.message && errData.error) {
+          const desc = `${errData.error}: ${errData.message}`;
+          alert(desc);//ui.setError(desc);
+          return Promise.reject(desc);
+        }
+      }
+      
+      return Promise.reject(error);
     }
   )
 

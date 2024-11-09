@@ -1,7 +1,9 @@
 import { Kontext, Page } from '../framework';
-import { RepoDetail, RepoBasic, RepoSearchParams } from '../dto';
+import { RepoDetail, RepoBasic, RepoSearchParams, RepoCreateReq } from '../dto';
 
 export interface RepoApi {
+	createRepo(x: Kontext, params: RepoCreateReq): Promise<RepoDetail>;
+
 	listAllRepo(x: Kontext): Promise<RepoBasic[]>;
 
 	searchRepo(x: Kontext, params: RepoSearchParams): Promise<Page<RepoBasic>>;

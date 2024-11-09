@@ -1,7 +1,7 @@
-import { Controller, Get, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Query, HttpStatus, HttpCode, Post, Body } from '@nestjs/common';
 import { RepoFacade } from '../service';
 import { Kontext, RequestKontext, Page, RequiredRoles, Role } from '../framework';
-import { RepoBasic, RepoDetail, RepoSearchParams } from '../dto';
+import { RepoBasic, RepoCreateReq, RepoDetail, RepoSearchParams } from '../dto';
 import { RepoApi } from '../api';
 
 @Controller('rest/v1/repos')
@@ -40,5 +40,12 @@ export class RepoRest implements RepoApi {
 	@Delete('id/:id')
 	async removeRepo(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<void> {
 		return this.facade.removeRepo(x, id);
+	}
+
+	@RequiredRoles(Role.User)
+	@HttpCode(HttpStatus.CREATED)
+	@Post()
+	async createRepo(@RequestKontext() x: Kontext, @Body() params: RepoCreateReq): Promise<RepoDetail> {
+		return this.facade.createRepo(x, params);
 	}
 }

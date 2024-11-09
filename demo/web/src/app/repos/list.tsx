@@ -27,7 +27,7 @@ import Box from '@mui/material/Box';
 async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dispatch<React.SetStateAction<Page<RepoBasic>>>, params?: RepoSearchParams) {
   if (ui) ui.setLoading(true);
   try {
-    const p = await repoApi.SearchRepo(s, ui, params);
+    const p = await repoApi.searchRepo(s, ui, params);
     setPage(p);
   } catch (err) {
     if (ui) ui.setError(err);

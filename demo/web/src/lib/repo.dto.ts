@@ -45,15 +45,15 @@ export class RepoBasic extends AuditableDto {
     return obj;
   }
 
-  static castMany(repos: any[]): RepoBasic[] {
+  static withMany(repos: any[]): RepoBasic[] {
     if (!repos) return repos;
     return repos.map(RepoBasic.with);
   }
 
-  static fromPage(p: any): Page<RepoBasic> {
+  static withPage(p: any): Page<RepoBasic> {
     if (!p) return p;
     Page.with(p);
-    RepoBasic.castMany(p.elements);
+    RepoBasic.withMany(p.elements);
     return p;
   }
 

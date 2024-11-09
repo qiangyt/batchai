@@ -1,18 +1,18 @@
 import { UIContextType } from '@/lib/ui.context';
 import withAxios from './request'
-import { SessionState, RepoBasic, Page, RepoDetail, RepoSearchParams } from '@/lib';
+import { SessionState, RepoBasic, Page, RepoDetail, RepoSearchParams, RepoCreateReq } from '@/lib';
 
 
-export async function SearchRepo(ctx:SessionState, ui: UIContextType, params?: RepoSearchParams): Promise<Page<RepoBasic>> {
-  const p:(Page<RepoBasic>) = await withAxios(ctx, ui).get('/repos/search', { params });
-  p.elements.forEach((e) => {
-    Object.setPrototypeOf(e, RepoBasic.prototype);
-  });
-  return p;
+export async function searchRepo(s:SessionState, ui: UIContextType, params?: RepoSearchParams): Promise<Page<RepoBasic>> {
+  const p:(Page<RepoBasic>) = await withAxios(s, ui).get('/repos/search', { params });
+  return RepoBasic.withPage(p);
 }
 
-export async function LoadRepo(ctx:SessionState, ui: UIContextType, id:number): Promise<RepoDetail> {
-  const r:RepoDetail = await withAxios(ctx, ui).get(`/repos/id/${id}`);
-  Object.setPrototypeOf(r, RepoDetail.prototype);
-  return r;
+export async function loadRepo(s:SessionState, ui: UIContextType, id:number): Promise<RepoDetail> {
+  return RepoDetail.with(await withAxios(s, ui).get(`/repos/id/${id}`));
 }
+
+export async function createRepo(s: SessionState, ui: UIContextType, params: RepoCreateReq): Promise<RepoDetail> {
+  return RepoDetail.with(await withAxios(s, ui).post(`/repos`, params));
+}
+

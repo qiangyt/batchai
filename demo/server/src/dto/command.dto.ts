@@ -121,9 +121,42 @@ export class CommandUpdateReq {
 	}
 }
 
-interface ParsedRepoPath {
-	ownerName: string;
-	repoName: string;
+export class ParsedRepoPath {
+	constructor(
+		public ownerName: string,
+		public repoName: string,
+	) {}
+
+	static parse(path: string): ParsedRepoPath {
+		let p = path.trim();
+		if (p.toLowerCase().startsWith('https://')) {
+			p = p.substring('https://'.length);
+		}
+		if (p.indexOf('@') >= 0) {
+			throw new BadRequestException('do not input credential in the repository path');
+		}
+		if (p.toLowerCase().startsWith('github.com/')) {
+			p = p.substring('github.com/'.length);
+		}
+		if (p.startsWith('/')) {
+			p = p.substring('/'.length);
+		}
+		if (p.endsWith('/')) {
+			p = p.substring(0, p.length - 1);
+		}
+
+		const elements = p.split('/', 2);
+		if (elements.length != 2) {
+			throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
+		}
+		const ownerName = elements[0];
+		const repoName = elements[1];
+		if (!ownerName || !repoName) {
+			throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
+		}
+
+		return new ParsedRepoPath(ownerName, repoName);
+	}
 }
 
 export class CommandCreateReq extends CommandUpdateReq {
@@ -144,34 +177,7 @@ export class CommandCreateReq extends CommandUpdateReq {
 
 	parseRepoPath(): ParsedRepoPath {
 		if (this.parsedRepoPath === null || this.parsedRepoPath === undefined) {
-			let p = this.repoPath.trim();
-			if (p.toLowerCase().startsWith('https://')) {
-				p = p.substring('https://'.length);
-			}
-			if (p.indexOf('@') >= 0) {
-				throw new BadRequestException('do not input credential in the repository path');
-			}
-			if (p.toLowerCase().startsWith('github.com/')) {
-				p = p.substring('github.com/'.length);
-			}
-			if (p.startsWith('/')) {
-				p = p.substring('/'.length);
-			}
-			if (p.endsWith('/')) {
-				p = p.substring(0, p.length - 1);
-			}
-
-			const elements = p.split('/', 2);
-			if (elements.length != 2) {
-				throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
-			}
-			const ownerName = elements[0];
-			const repoName = elements[1];
-			if (!ownerName || !repoName) {
-				throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
-			}
-
-			this.parsedRepoPath = { ownerName, repoName };
+			this.parsedRepoPath = ParsedRepoPath.parse(this.repoPath);
 		}
 
 		return this.parsedRepoPath;

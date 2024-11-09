@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RepoBasic, RepoDetail, RepoSearchParams } from '../dto';
+import { RepoBasic, RepoCreateReq, RepoDetail, RepoSearchParams } from '../dto';
 import { DataSource } from 'typeorm';
 import { RepoService } from './repo.service';
 import { CommandService } from './command.service';
@@ -47,5 +47,13 @@ export class RepoFacade implements RepoApi {
 	async removeRepo(x: Kontext, id: number): Promise<void> {
 		const repo = await this.service.load(id);
 		return this.service.remove(repo);
+	}
+
+	@Transactional()
+	async createRepo(x: Kontext, params: RepoCreateReq): Promise<RepoDetail> {
+		const { ownerName } = params.parsePath();
+		const owner = await this.userService.resolve(x, ownerName);
+		const repo = await this.service.create(x, params, owner);
+		return RepoDetail.from(repo);
 	}
 }

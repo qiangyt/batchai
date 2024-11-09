@@ -1,7 +1,6 @@
 import { Page, UserBasic, AuditableDto } from '../framework';
 import { Repo } from '../entity';
-import { CommandBasic } from './command.dto';
-import { BadRequestException } from '@nestjs/common';
+import { CommandBasic, ParsedRepoPath } from './command.dto';
 import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -93,34 +92,13 @@ export class RepoCreateReq {
 	@IsString()
 	path: string;
 
-	parsePath(): { ownerName: string; name: string } {
-		let p = this.path.trim();
-		if (p.toLowerCase().startsWith('https://')) {
-			p = p.substring('https://'.length);
-		}
-		if (p.indexOf('@') >= 0) {
-			throw new BadRequestException('do not input credential in the repository path');
-		}
-		if (p.toLowerCase().startsWith('github.com/')) {
-			p = p.substring('github.com/'.length);
-		}
-		if (p.startsWith('/')) {
-			p = p.substring('/'.length);
-		}
-		if (p.endsWith('/')) {
-			p = p.substring(0, p.length - 1);
+	private parsedRepoPath: ParsedRepoPath;
+
+	parsePath(): ParsedRepoPath {
+		if (this.parsedRepoPath === null || this.parsedRepoPath === undefined) {
+			this.parsedRepoPath = ParsedRepoPath.parse(this.path);
 		}
 
-		const elements = p.split('/', 2);
-		if (elements.length != 2) {
-			throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
-		}
-		const ownerName = elements[0];
-		const name = elements[1];
-		if (!ownerName || !name) {
-			throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
-		}
-
-		return { ownerName, name };
+		return this.parsedRepoPath;
 	}
 }

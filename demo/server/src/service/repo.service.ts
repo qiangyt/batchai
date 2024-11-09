@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { remoteRepoExists } from '../helper';
@@ -55,18 +55,18 @@ export class RepoService {
 	}
 
 	async create(x: Kontext, req: RepoCreateReq, owner: User): Promise<Repo> {
-		const { ownerName, name: name } = req.parsePath();
-		if (!(await remoteRepoExists(ownerName, name))) {
-			throw new Error(`repository not found: owner=${ownerName}, name=${name}`);
+		const { ownerName, repoName } = req.parsePath();
+		if (await this.dao.existsBy({ owner: { id: owner.id }, name: repoName })) {
+			throw new ConflictException(`repository=${req.path}}`);
 		}
 
-		if (await this.dao.existsBy({ owner: { id: owner.id }, name: name })) {
-			throw new ConflictException(`repository=${req.path}}`);
+		if (!(await remoteRepoExists(ownerName, repoName))) {
+			throw new BadRequestException(`invalid github repository: owner=${ownerName}, name=${repoName}`);
 		}
 
 		const r = new Repo();
 		r.owner = owner;
-		r.name = name;
+		r.name = repoName;
 		r.creater = x.user;
 
 		return await this.dao.save(r);
@@ -79,7 +79,7 @@ export class RepoService {
 		}
 
 		if (!(await remoteRepoExists(owner.name, repoName))) {
-			throw new Error(`repository not found: ${r.repoUrl()}`);
+			throw new Error(`invalid github repository: ${r.repoUrl()}`);
 		}
 
 		r = new Repo();

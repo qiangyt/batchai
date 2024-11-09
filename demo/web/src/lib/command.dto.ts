@@ -188,50 +188,45 @@ export class CommandUpdateReq {
 
 }
 
-interface ParsedRepoPath {
-	ownerName: string;
-	repoName: string;
-}
-
 export class CommandCreateReq extends CommandUpdateReq {
 	repoPath?: string;
 	command?: string;
+}
 
-	private parsedRepoPath: ParsedRepoPath;
+export class ParsedRepoPath {
+	constructor(
+		public ownerName: string,
+		public repoName: string,
+	) {}
 
-	parseRepoPath(): ParsedRepoPath {
-		if (this.parsedRepoPath === null || this.parsedRepoPath === undefined) {
-			let p = this.repoPath.trim();
-			if (p.toLowerCase().startsWith('https://')) {
-				p = p.substring('https://'.length);
-			}
-			if (p.indexOf('@') >= 0) {
-				throw new Error('do not input credential in the repository path');
-			}
-			if (p.toLowerCase().startsWith('github.com/')) {
-				p = p.substring('github.com/'.length);
-			}
-			if (p.startsWith('/')) {
-				p = p.substring('/'.length);
-			}
-			if (p.endsWith('/')) {
-				p = p.substring(0, p.length - 1);
-			}
-
-			const elements = p.split('/', 2);
-			if (elements.length != 2) {
-				throw new Error(`invalid repository path: ${p}; example: qiangyt/batchai`);
-			}
-			const ownerName = elements[0];
-			const repoName = elements[1];
-			if (!ownerName || !repoName) {
-				throw new Error(`invalid repository path: ${p}; example: qiangyt/batchai`);
-			}
-
-			this.parsedRepoPath = { ownerName, repoName };
+	static parse(path: string): ParsedRepoPath {
+		let p = path.trim();
+		if (p.toLowerCase().startsWith('https://')) {
+			p = p.substring('https://'.length);
+		}
+		if (p.indexOf('@') >= 0) {
+			throw new Error('do not input credential in the repository path');
+		}
+		if (p.toLowerCase().startsWith('github.com/')) {
+			p = p.substring('github.com/'.length);
+		}
+		if (p.startsWith('/')) {
+			p = p.substring('/'.length);
+		}
+		if (p.endsWith('/')) {
+			p = p.substring(0, p.length - 1);
 		}
 
-		return this.parsedRepoPath;
-	}
+		const elements = p.split('/', 2);
+		if (elements.length != 2) {
+			return null;
+		}
+		const ownerName = elements[0];
+		const repoName = elements[1];
+		if (!ownerName || !repoName) {
+			return null;
+		}
 
+		return new ParsedRepoPath(ownerName, repoName);
+	}
 }
