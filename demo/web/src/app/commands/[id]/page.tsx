@@ -169,6 +169,11 @@ export default function CommandHome({ params }) {
     router.push('/repos');
   };
 
+  const enableRestart = (status !== CommandStatus.Running);
+  const enableStop = (status === CommandStatus.Running);
+  const enableResume = (status === CommandStatus.Pending || status === CommandStatus.Failed);
+  const enableDelete = (status !== CommandStatus.Running);
+
   return (
     <>
       <Box sx={{ mb: 2, color: 'white' }}>
@@ -194,17 +199,17 @@ export default function CommandHome({ params }) {
         <ToolbarIcon label='Refresh' enabled={true} onClick={onRefresh}>
           <RefreshIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Restart' enabled={status !== CommandStatus.Running} onClick={onRestart}>
-          <ResetIcon sx={{ color: '#B8E986' }} />
+        <ToolbarIcon label='Restart' enabled={enableRestart} onClick={onRestart}>
+          <ResetIcon sx={{ color: enableRestart ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Stop' enabled={status === CommandStatus.Running} onClick={onStop}>
-          <StopIcon sx={{ color: '#B8E986' }} />
+        <ToolbarIcon label='Stop' enabled={enableStop} onClick={onStop}>
+          <StopIcon sx={{ color: enableStop ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Resume' enabled={status === CommandStatus.Pending || status === CommandStatus.Failed} onClick={onResume}>
-          <ResumeIcon sx={{ color: '#B8E986' }} />
+        <ToolbarIcon label='Resume' enabled={enableResume} onClick={onResume}>
+          <ResumeIcon sx={{ color: enableResume ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Delete' enabled={status !== CommandStatus.Running} onClick={onDelete}>
-          <DeleteIcon sx={{ color: '#B8E986' }} />
+        <ToolbarIcon label='Delete' enabled={enableDelete} onClick={onDelete}>
+          <DeleteIcon sx={{ color: enableDelete ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
       </Toolbar>
 
