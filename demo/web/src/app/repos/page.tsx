@@ -58,8 +58,8 @@ export default function RepoList() {
     await searchRepo(s, null, setPage, { page: 0, limit: page.limit, query });
   };
 
-  const onCommandCreated = (newCommand: CommandDetail) => {
-    searchRepo(s, ui, setPage);
+  const onCommandCreated = async (newCommand: CommandDetail) => {
+    await searchRepo(s, ui, setPage);
   };
 
   return (<>

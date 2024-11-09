@@ -23,9 +23,8 @@ GET http://localhost:4080/rest/v1/users/id/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTcyOTU5OTU0MCwiZXhwIjoxNzMzMTk5NTQwfQ.CTBZRCN9k9HWE2nRXTei4pRLzYd1BFO1ps29UctuVL4
 
 ###
-DELETE http://localhost:4080/rest/v1/commands/id/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTcyOTU5OTU0MCwiZXhwIjoxNzMzMTk5NTQwfQ.CTBZRCN9k9HWE2nRXTei4pRLzYd1BFO1ps29UctuVL4
-
+DELETE http://localhost:4080/rest/v1/commands/id/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMTA4OTgxNiwiZXhwIjoxNzM0Njg5ODE2fQ.ZElSJgD3lwjrnw8eeVXMvGJulC9841FCIQRdfoAYxOs
 ###
 PATCH http://localhost:4080/rest/v1/commands/id/1/reset
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTcyOTU5OTU0MCwiZXhwIjoxNzMzMTk5NTQwfQ.CTBZRCN9k9HWE2nRXTei4pRLzYd1BFO1ps29UctuVL4

@@ -20,7 +20,7 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
     const id = cmd.id;
     return (
       <NextLink href={{ pathname: `/commands/${id}`, query: { id } }} passHref>
-        <Chip sx={{ color: "white" }} label={`batchai ${commandName}`} variant="outlined" />
+        <Chip sx={{ color: "#50E3C2", borderColor: "#50E3C2" }} label={`batchai ${commandName}`} variant="outlined" />
       </NextLink>
     )
   }
@@ -41,7 +41,7 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
   return (
     <>
       {dlg}
-      <Chip component="a" sx={{ color: "white" }} label={`batchai ${commandName}`} variant="outlined" onClick={onClickCreate} />
+      <Chip component="a" sx={{ color: "white", borderColor: "white" }} label={`batchai ${commandName}`} variant="outlined" onClick={onClickCreate} />
     </>
   )
 }

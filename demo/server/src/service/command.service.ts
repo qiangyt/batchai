@@ -146,7 +146,6 @@ export class CommandService {
 			c.checkFix = true;
 		}
 
-		c.checkFix = params.checkFix;
 		c.testLibrary = params.testLibrary;
 		c.testUpdate = params.testUpdate;
 		c.targetPaths = params.targetPaths;
@@ -283,7 +282,12 @@ export class CommandService {
 		if (c.status === CommandStatus.Running) {
 			throw new ConflictException(`cannot remove a ${c.status} command`);
 		}
-		await Promise.all([this.dao.remove(c), this.dao.remove(c)]);
+
+		const repoObj = await this.newRepoObject(c);
+		const fork = repoObj.forkedRepo();
+		const logFile = await c.logFile();
+
+		await Promise.all([this.dao.remove(c), removeFileOrDir(fork.repoDir()), removeFileOrDir(logFile)]);
 	}
 
 	private async log(logFile: string, message: string): Promise<void> {
