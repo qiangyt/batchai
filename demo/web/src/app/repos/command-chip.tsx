@@ -41,7 +41,7 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
   return (
     <>
       {dlg}
-      <Chip component="a" sx={{ color: "white", borderColor: "white" }} label={`batchai ${commandName}`} variant="outlined" onClick={onClickCreate} />
+      <Chip component="a" sx={{ color: "white", borderColor: "gray" }} label={`batchai ${commandName}`} variant="outlined" onClick={onClickCreate} />
     </>
   )
 }

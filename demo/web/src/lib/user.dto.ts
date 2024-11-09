@@ -48,15 +48,15 @@ export class UserBasic {
     return obj;
   }
 
-  static castMany(users: any[]): UserBasic[] {
+  static withMany(users: any[]): UserBasic[] {
     if (!users) return users;
     return users.map(UserBasic.with);
   }
 
-  static fromPage(p: any): Page<UserBasic> {
+  static withPage(p: any): Page<UserBasic> {
     if (!p) return p;
     Page.with(p);
-    UserBasic.castMany(p.elements);
+    UserBasic.withMany(p.elements);
     return p;
   }
   

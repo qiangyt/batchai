@@ -16,3 +16,6 @@ export async function createRepo(s: SessionState, ui: UIContextType, params: Rep
   return RepoDetail.with(await withAxios(s, ui).post(`/repos`, params));
 }
 
+export async function removeRepo(s:SessionState, ui: UIContextType, id:number): Promise<void> {
+  return withAxios(s, ui).delete(`/repos/id/${id}`);
+}

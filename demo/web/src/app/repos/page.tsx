@@ -19,6 +19,7 @@ import { CommandChip } from './command-chip';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 
 async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dispatch<React.SetStateAction<Page<RepoBasic>>>, params?: RepoSearchParams) {
   if (ui) ui.setLoading(true);
@@ -71,6 +72,7 @@ export default function RepoList() {
       const parsed = ParsedRepoPath.parse(newRepoPath);
       if (parsed) {
         await repoApi.createRepo(s, ui, {path: newRepoPath});
+        await searchRepo(s, ui, setPage);
       }
     }
   };
@@ -85,6 +87,12 @@ export default function RepoList() {
     otEvent(e);
     setNewRepoPath(e.target.value);
   };
+
+  const onDeleteRepo = async(e, id:number) => {
+    otEvent(e);
+    await repoApi.removeRepo(s, ui, id);
+    await searchRepo(s, ui, setPage);
+  }
 
   return (<>
     <Box display="flex" flexDirection="column" alignItems="center">
@@ -107,7 +115,11 @@ export default function RepoList() {
       {page.elements.map((repo) => (
           <Item key={repo.id} sx={{display: 'flex',justifyContent: 'space-between'}}>
             <Box>
-            <Link href={repo.repoUrl}><Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}</Typography></Link>
+              <Link href={repo.repoUrl}>
+                <Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}
+                  <DeleteIcon sx={{ ml: 1, color: 'gray' }} onClick={(e) => onDeleteRepo(e, repo.id)}/>
+                </Typography>
+              </Link>
               <Typography variant="h5" sx={{color: 'white'}}>{repo.repoPath(false)}</Typography>
               <Box sx={{mt: 4}}>
                 <CommandChip key="check" repo={repo} commandName="check" onCommandCreated={onCommandCreated}/>

@@ -46,6 +46,7 @@ export class RepoFacade implements RepoApi {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async removeRepo(x: Kontext, id: number): Promise<void> {
 		const repo = await this.service.load(id);
+		await Promise.all(repo.commands.map((c) => this.commandService.remove(c)));
 		return this.service.remove(repo);
 	}
 

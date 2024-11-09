@@ -8,9 +8,7 @@ export async function createCommand(s:SessionState, ui: UIContextType, params: C
 }
 
 export async function loadCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await withAxios(s, ui).get(`/commands/id/${id}`);
-  Object.setPrototypeOf(r, CommandDetail.prototype);
-  return r;
+  return CommandDetail.with(await withAxios(s, ui).get(`/commands/id/${id}`));
 }
 
 export async function loadCommandLog(s:SessionState, ui: UIContextType, id: number): Promise<string> {
@@ -18,29 +16,21 @@ export async function loadCommandLog(s:SessionState, ui: UIContextType, id: numb
 }
 
 export async function restartCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await withAxios(s, ui).patch(`/commands/id/${id}/restart`);
-  Object.setPrototypeOf(r, CommandDetail.prototype);
-  return r;
+  return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/restart`));
 }
 
 export async function resumeCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await withAxios(s, ui).patch(`/commands/id/${id}/resume`);
-  Object.setPrototypeOf(r, CommandDetail.prototype);
-  return r;
+  return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/resume`));
 }
 
 export async function stopCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  const r:CommandDetail = await withAxios(s, ui).patch(`/commands/id/${id}/stop`);
-  Object.setPrototypeOf(r, CommandDetail.prototype);
-  return r;
+  return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/stop`));
 }
 
 export async function updateCommand(s:SessionState, ui: UIContextType, id:number, params: CommandUpdateReq): Promise<CommandDetail> {
-  const r:CommandDetail = await withAxios(s, ui).put(`/commands/id/${id}`, params);
-  Object.setPrototypeOf(r, CommandDetail.prototype);
-  return r;
+  return CommandDetail.with(await withAxios(s, ui).put(`/commands/id/${id}`, params));
 }
 
 export async function removeCommand(s:SessionState, ui: UIContextType, id:number): Promise<void> {
-  withAxios(s, ui).delete(`/commands/id/${id}`);
+  return withAxios(s, ui).delete(`/commands/id/${id}`);
 }
