@@ -19,7 +19,7 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
     const id = cmd.id;
     return (
       <NextLink href={{ pathname: `/commands/${id}`, query: { id } }} passHref>
-        <Chip sx={{ color: "#50E3C2", borderColor: "#50E3C2" }} label={`batchai ${commandName}`} variant="outlined" />
+        <Chip variant="filled" color="info" label={`batchai ${commandName}`} />
       </NextLink>
     )
   }

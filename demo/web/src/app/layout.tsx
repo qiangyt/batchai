@@ -10,7 +10,7 @@ import '@fontsource/roboto/700.css';
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { SessionProvider } from '@/lib/session';
-import { cn } from "@/lib/utils"
+import { cn, otEvent } from "@/lib/utils"
 import "./globals.css";
 import TopBar from "@/components/top-bar";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -19,11 +19,13 @@ import Paper from "@mui/material/Paper";
 import { UIContextProvider } from "@/lib/ui.context";
 import ErrorBoundary from "@/components/error";
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -39,7 +41,9 @@ export default function RootLayout({
             <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
               <CssBaseline />
               <TopBar anchorId='scroll-to-top' />
-              <Paper  variant="outlined" sx={{ mt: 0, mr: 24, ml: 24, background:"black" }} >{children}</Paper>
+              <Paper  variant="outlined" sx={{ mt: 3, mr: 24, ml: 24, background:"black" }} >
+                {children}
+              </Paper>
               <ScrollTop anchorId='scroll-to-top' />
             </ThemeProvider>
           </SessionProvider>

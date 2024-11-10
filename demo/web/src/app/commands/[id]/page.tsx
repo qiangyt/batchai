@@ -186,22 +186,30 @@ export default function CommandHome({ params }) {
   const enableDelete = (status !== CommandStatus.Running);
   const enableEdit = (status !== CommandStatus.Running);
   
+  const title = command?.isTest() ? 'Generate Unit Test' : 'Scan General Issues';
+  
   return (
     <>
-      <Box sx={{ mb: 2, color: 'white' }}>
-        <Typography variant="body2">{command?.command}</Typography><Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
-        <Typography variant="body2">{status}</Typography>
-        <Button onClick={toggleProgress(true)}>Detailed progress</Button>
+      <Box sx={{ mt: 6, mb: 2, color: 'white' }}>
+        <Typography variant="body2" color="lightgray">{title}</Typography>
+        <Box sx={{mt: 2, fontFamily: 'arial', }}>
+          <span style={{ color: "gray", fontSize: 12, marginRight: 8}}>for</span>
+          <Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
+          <Link sx={{ ml: 2 }} color='info' href={command?.repo.repoUrl}>( {command?.repo.repoUrl} )</Link>
+          
+          <Typography sx={{mt: 2}} variant="body2">{status}</Typography>
+          <Button color='info' onClick={toggleProgress(true)}>Detailed progress</Button>
 
-        <Box sx={{ mt: 1, display: 'flex', flexDirection: 'row' }}>
-          {command?.hasChanges ?
-            <>
-              <Typography variant="body2">Changes:</Typography>
-              <Link sx={{ ml: 2 }} href={command?.commitId ? command.commitUrl : '#'}>{command?.commitId ? command.commitUrl : 'N/A'}</Link>
-            </>
-            :
-            <Typography variant="body2">No changes</Typography>
-          }
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'row' }}>
+            {command?.hasChanges ?
+              <>
+                <Typography variant="body2">Changes:</Typography>
+                <Link sx={{ ml: 2 }} href={command?.commitId ? command.commitUrl : '#'}>{command?.commitId ? command.commitUrl : 'N/A'}</Link>
+              </>
+              :
+              <Typography variant="body2">No changes</Typography>
+            }
+          </Box>
         </Box>
       </Box>
 
