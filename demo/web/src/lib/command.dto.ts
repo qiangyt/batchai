@@ -173,6 +173,8 @@ export class CommandEditData {
 
 	testLibrary: string;
 
+	targetPaths: string[];
+
 	commandName: string;
 
 	repo: RepoBasic;
@@ -198,6 +200,7 @@ export class CommandEditData {
 		r.num = command.num;
 		r.lang = command.lang;
 		r.testLibrary = command.primaryTestLibrary();
+		r.targetPaths = command.targetPaths || [];
 		r.commandName = command.command;
 		r.repo = command.repo;
 
@@ -207,6 +210,7 @@ export class CommandEditData {
 	static forCreate(commandName: string, repo: RepoBasic): CommandEditData {
 		const r = new CommandEditData();
 
+		r.targetPaths = [];
 		r.commandName = commandName;
 		r.repo = repo;
 
@@ -240,6 +244,7 @@ export class CommandUpdateReq {
 	build(data: CommandEditData) {
 		this.lang = data.lang;
 		this.num = data.num;
+		this.targetPaths = data.targetPaths;
 		if (data.isTest()) {
 			if (data.testLibrary)
 				this.testLibrary = [data.testLibrary];
