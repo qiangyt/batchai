@@ -12,8 +12,8 @@ import MuiLink from "@mui/material/Link";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NextLink from "next/link";
-import HomeIcon from '@mui/icons-material/Home';
-import { usePathname, useRouter } from "next/navigation";
+import HomeIcon from '@mui/icons-material/HomeOutlined';
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Props {

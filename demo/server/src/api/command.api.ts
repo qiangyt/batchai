@@ -1,6 +1,6 @@
 import { CommandStatus } from '../constants';
 import { Kontext } from '../framework';
-import { CommandCreateReq, CommandDetail, CommandBasic, CommandUpdateReq } from '../dto';
+import { CommandCreateReq, CommandDetail, CommandBasic, CommandUpdateReq, ListAvaiableTargetPathsParams } from '../dto';
 
 export interface CommandApi {
 	createCommand(x: Kontext, req: CommandCreateReq): Promise<CommandDetail>;
@@ -22,4 +22,6 @@ export interface CommandApi {
 	stopCommand(x: Kontext, id: number): Promise<CommandDetail>;
 
 	removeCommand(x: Kontext, id: number): Promise<void>;
+
+	listAvaiableTargetPaths(x: Kontext, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]>;
 }

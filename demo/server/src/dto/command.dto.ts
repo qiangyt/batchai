@@ -173,3 +173,17 @@ export class CommandCreateReq extends CommandUpdateReq {
 		super.normalize();
 	}
 }
+
+export class ListAvaiableTargetPathsParams {
+	@IsOptional()
+	@IsString()
+	path: string;
+
+	normalize() {
+		if (this.path) {
+			if (this.path.startsWith('/')) {
+				this.path = this.path.substring(1);
+			}
+		}
+	}
+}

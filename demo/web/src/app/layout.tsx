@@ -10,7 +10,7 @@ import '@fontsource/roboto/700.css';
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { SessionProvider } from '@/lib/session';
-import { cn, otEvent } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import "./globals.css";
 import TopBar from "@/components/top-bar";
 import CssBaseline from "@mui/material/CssBaseline";

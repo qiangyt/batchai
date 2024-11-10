@@ -13,13 +13,9 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import * as commandApi from '@/api/command.api';
 import TextField from '@mui/material/TextField';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import IconButton from '@mui/material/IconButton';
 import Draggable from 'react-draggable';
 import Paper, { PaperProps } from '@mui/material/Paper';
-import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+import TargetPathInput from './target-path-input';
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -32,8 +28,6 @@ function PaperComponent(props: PaperProps) {
   );
 }
 
-
-
 interface CommandDialogProps {
   data: CommandEditData;
   open: boolean;
@@ -45,29 +39,10 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
   const s = useSession().state;
   const ui = useUIContext();
   const [data, setData] = useState(_data);
-  const [targetPath, setTargetPath] = useState('');
   const title = data.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
-  
-  const onKeyTargetPath = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleAddTargetPath();
-    }
-  };
 
-  const handleTargetPathChange = (event) => {
-    otEvent(event);
-    setTargetPath(event.target.value);
-  };
-
-  const handleAddTargetPath = () => {
-    if (targetPath.trim()) {
-      setData(CommandEditData.with({...data, targetPaths: [targetPath, ...data.targetPaths]}));
-      setTargetPath(''); // 清空输入框
-    }
-  };
-
-  const handleDeleteTargetPath = (index) => {
-    setData(CommandEditData.with({...data, targetPaths: data.targetPaths.filter((_, i) => i !== index)}));
+  const onTargetPathsChange = (targetPaths:string[]) => {
+    setData(CommandEditData.with({...data, targetPaths}));
   };
 
   const onClose = (e: MouseEvent) => {
@@ -115,35 +90,16 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
         <p/><span style={{ fontSize: 12, marginRight: 8}}>for</span>
       <Link href={data.repo.repoUrl} sx={{ color: 'white', fontSize: 24 }}>{data.repo.repoUrl}</Link></DialogTitle>
       <DialogContent>          
-        <Box sx={{width: "66%", mt: 5}}><LangSelect value={data.lang} onChange={onChangeLang} /></Box>
-        <TextField size='small' sx={{width: "66%", mt: 3}} label="Number of file to process" type="number" placeholder="Type a number…" value={data.num} onChange={onChangeNum} 
+        <Box sx={{width: "64%", mt: 5}}><LangSelect value={data.lang} onChange={onChangeLang} /></Box>
+        <TextField size='small' sx={{width: "64%", mt: 3}} label="Number of file to process" type="number" placeholder="Type a number…" value={data.num} onChange={onChangeNum} 
           slotProps={{
             inputLabel: {
               shrink: true,
             },
           }} />
-        {data.isTest() && <Box sx={{width: "66%", mt: 3}}><TestLibrarySelect value={data.testLibrary} onChange={onChangeTestLibrary}/></Box>}
+        {data.isTest() && <Box sx={{width: "64%", mt: 3}}><TestLibrarySelect value={data.testLibrary} onChange={onChangeTestLibrary}/></Box>}
           
-        <Box sx={{mt: 3, border: 0.5, borderColor: 'lightgray', borderRadius: 1, padding: 1}}>
-          <TextField label="Target Path" variant="outlined" size='small' placeholder='relative folder/file path' fullWidth value={targetPath} onChange={handleTargetPathChange} onKeyDown={onKeyTargetPath}/>
-          <Button variant="contained" color="inherit" onClick={handleAddTargetPath} sx={{ mt: 1, mb: 1 }}>
-            Add Target Path
-          </Button>
-
-          { data.targetPaths && data.targetPaths.length > 0 &&
-            <List style={{maxHeight: 200, overflowY: 'auto', border: '0.5px solid #ddd'}}>
-              {data.targetPaths.map((item, index) => (
-                <ListItem key={index} divider sx={{maxHeight: 28}} secondaryAction={
-                  <IconButton edge="end" onClick={() => handleDeleteTargetPath(index)}>
-                    <DeleteIcon />
-                  </IconButton>
-                }>
-                  <ListItemText primary={item} />
-                </ListItem>
-              ))}
-            </List>
-          }
-        </Box>
+        <TargetPathInput id={data.id} targetPaths={data.targetPaths} onChange={onTargetPathsChange}/>
 
       </DialogContent>
       <DialogActions>

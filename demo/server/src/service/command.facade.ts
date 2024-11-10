@@ -5,7 +5,7 @@ import { CommandService } from './command.service';
 import { RepoService } from './repo.service';
 import { CommandApi } from '../api';
 import { Kontext, Transactional, UserService } from '../framework';
-import { CommandBasic, CommandDetail, CommandCreateReq, CommandUpdateReq } from '../dto';
+import { CommandBasic, CommandDetail, CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams } from '../dto';
 
 @Injectable()
 export class CommandFacade implements CommandApi, OnModuleInit {
@@ -60,6 +60,12 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async loadCommandLog(x: Kontext, id: number): Promise<string> {
 		return this.service.loadLog(id);
+	}
+
+	@Transactional({ readOnly: true })
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async listAvaiableTargetPaths(x: Kontext, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
+		return this.service.listAvaiableTargetPaths(id, params);
 	}
 
 	@Transactional()
