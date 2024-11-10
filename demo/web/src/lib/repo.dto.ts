@@ -29,8 +29,8 @@ export class RepoBasic extends AuditableDto {
   repoPath(full = true, prefixWithSchema = false): string {
     if (!this._repoPath) {
       this._repoPath = prefixWithSchema ? "https://" : "";
-      this._repoPath = this._repoPath + (full ? "github.com" : "");
-      this._repoPath = `${this._repoPath}/${this.owner.name}/${this.name}`;
+      this._repoPath = this._repoPath + (full ? "github.com/" : "");
+      this._repoPath = `${this._repoPath}${this.owner.name}/${this.name}`;
     }
     return this._repoPath;
   }

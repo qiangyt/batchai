@@ -113,7 +113,7 @@ export default function RepoList() {
               }}/>
       </Item>
       {page.elements.map((repo) => (
-          <Item key={repo.id} sx={{display: 'flex',justifyContent: 'space-between'}}>
+          <Item key={repo.id} sx={{display: 'flex', justifyContent: 'space-between'}}>
             <Box>
               <Link href={repo.repoUrl}>
                 <Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}

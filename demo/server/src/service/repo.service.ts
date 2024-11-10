@@ -35,7 +35,7 @@ export class RepoService {
 				if (ownerName) {
 					qbuilder = qbuilder.where('owner.name LIKE :ownerName', { ownerName: `${ownerName}%` });
 				}
-				const repoName = q.substring(indexOfSlash).trim();
+				const repoName = q.substring(indexOfSlash + 1).trim();
 				if (repoName) {
 					qbuilder = qbuilder.andWhere('repo.name LIKE :repoName', { repoName: `${repoName}%` });
 				}
@@ -65,24 +65,6 @@ export class RepoService {
 		}
 
 		const r = new Repo();
-		r.owner = owner;
-		r.name = repoName;
-		r.creater = x.user;
-
-		return await this.dao.save(r);
-	}
-
-	async resolve(x: Kontext, owner: User, repoName: string): Promise<Repo> {
-		let r = await this.getByOwnerAndName(owner.name, repoName);
-		if (r) {
-			return r;
-		}
-
-		if (!(await remoteRepoExists(owner.name, repoName))) {
-			throw new Error(`invalid github repository: ${r.repoUrl()}`);
-		}
-
-		r = new Repo();
 		r.owner = owner;
 		r.name = repoName;
 		r.creater = x.user;

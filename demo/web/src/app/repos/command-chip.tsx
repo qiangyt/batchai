@@ -1,8 +1,8 @@
 import { RepoBasic } from "@/lib/repo.dto";
 import NextLink from 'next/link'
 import Chip from '@mui/material/Chip';
-import { useState, MouseEvent, SetStateAction, Dispatch } from "react";
-import { CommandDetail, otEvent, useUIContext, useSession } from "@/lib";
+import { useState, MouseEvent } from "react";
+import { CommandDetail, otEvent, CommandEditData } from "@/lib";
 import CommandDialog from "@/components/command-dialog";
 
 interface CommandChipProps {
@@ -29,17 +29,11 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
     setOpenDialog(true);    
   };
 
-  const data = CommandDetail.init(repo, commandName);
-  let dlg;
-  switch (commandName) {
-    case 'check': dlg = <CommandDialog repo={repo.repoUrl} data={data} open={openDialog} setOpen={setOpenDialog} onSubmited={onCommandCreated}/>; break;
-    case 'test': dlg = <CommandDialog repo={repo.repoUrl} data={data} open={openDialog} setOpen={setOpenDialog} onSubmited={onCommandCreated} />; break;
-    default: throw new Error(`${commandName} is not supported`);
-  } 
+  const data = CommandEditData.forCreate(commandName, repo);
 
   return (
     <>
-      {dlg}
+      <CommandDialog data={data} open={openDialog} setOpen={setOpenDialog} onSubmited={onCommandCreated} />
       <Chip component="a" sx={{ color: "white", borderColor: "gray" }} label={`batchai ${commandName}`} variant="outlined" onClick={onClickCreate} />
     </>
   )

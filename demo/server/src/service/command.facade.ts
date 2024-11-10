@@ -28,9 +28,7 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 
 	@Transactional()
 	async createCommand(x: Kontext, params: CommandCreateReq): Promise<CommandDetail> {
-		const { ownerName, repoName } = params.parseRepoPath();
-		const owner = await this.userService.resolve(x, ownerName);
-		const repo = await this.repoService.resolve(x, owner, repoName);
+		const repo = await this.repoService.load(params.repoId);
 
 		return CommandDetail.fromCommand(await this.service.create(x, params, repo));
 	}

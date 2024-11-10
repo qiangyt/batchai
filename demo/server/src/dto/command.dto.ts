@@ -160,8 +160,8 @@ export class ParsedRepoPath {
 }
 
 export class CommandCreateReq extends CommandUpdateReq {
-	@IsNotEmpty()
-	repoPath: string;
+	@IsInt()
+	repoId: number;
 
 	@IsNotEmpty()
 	command: string;
@@ -171,15 +171,5 @@ export class CommandCreateReq extends CommandUpdateReq {
 			throw new BadRequestException(`unsupported command: "${this.command}"`);
 		}
 		super.normalize();
-	}
-
-	private parsedRepoPath: ParsedRepoPath;
-
-	parseRepoPath(): ParsedRepoPath {
-		if (this.parsedRepoPath === null || this.parsedRepoPath === undefined) {
-			this.parsedRepoPath = ParsedRepoPath.parse(this.repoPath);
-		}
-
-		return this.parsedRepoPath;
 	}
 }

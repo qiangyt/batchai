@@ -86,15 +86,6 @@ export class CommandDetail extends CommandBasic {
 		return obj;
 	}
 
-	static init(repo: RepoBasic, command: string): CommandDetail {
-		const r = new CommandDetail();
-		r.command = command;
-		r.repo = repo;
-		r.testLibrary = [];
-		r.targetPaths = ['.'];
-		return r;
-	}
-
 	primaryTestLibrary(): string {
 		if (this.testLibrary && this.testLibrary.length > 0) {
 			return this.testLibrary[0];
@@ -169,6 +160,56 @@ export class CommandDetail extends CommandBasic {
 	}
 }
 
+export class CommandEditData {
+	id: number;
+
+	num: number;
+
+	lang: string;
+
+	testLibrary: string;
+
+	commandName: string;
+
+	repo: RepoBasic;
+
+	isTest(): boolean {
+		return this.commandName === 'test'
+	}
+
+	isUpdate(): boolean {
+		return this.id ? true : false
+	}
+
+	static with(obj: any): CommandEditData {
+		if (!obj) return obj;
+		Object.setPrototypeOf(obj, CommandEditData.prototype);
+		return obj;
+	}
+
+	static forUpdate(command: CommandDetail): CommandEditData {
+		const r = new CommandEditData();
+
+		r.id = command.id;
+		r.num = command.num;
+		r.lang = command.lang;
+		r.testLibrary = command.primaryTestLibrary();
+		r.commandName = command.command;
+		r.repo = command.repo;
+
+		return r;
+	}
+
+	static forCreate(commandName: string, repo: RepoBasic): CommandEditData {
+		const r = new CommandEditData();
+
+		r.commandName = commandName;
+		r.repo = repo;
+
+		return r;
+	}
+}
+
 export class CommandUpdateReq {
 	enableSymbolReference: boolean;
 
@@ -186,11 +227,34 @@ export class CommandUpdateReq {
 
 	targetPaths: string[];
 
+	static create(data: CommandEditData): CommandUpdateReq{
+		const r = new CommandUpdateReq();
+		r.build(data);
+		return r;
+	}
+
+	build(data: CommandEditData) {
+		this.lang = data.lang;
+		this.num = data.num;
+		if (data.isTest()) {
+			if (data.testLibrary)
+				this.testLibrary = [data.testLibrary];
+		}
+	}
+
 }
 
 export class CommandCreateReq extends CommandUpdateReq {
-	repoPath?: string;
-	command?: string;
+	repoId: number;
+	command: string;
+
+	static create(data: CommandEditData): CommandCreateReq{
+		const r = new CommandCreateReq();
+		r.build(data);
+		r.repoId = data.repo.id;
+		r.command = data.commandName;
+		return r;
+	}
 }
 
 export class ParsedRepoPath {

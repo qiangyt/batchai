@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-import { CommandDetail, CommandRunStatus, CommandStatus, SessionState, useSession } from "@/lib";
+import { CommandDetail, CommandEditData, CommandRunStatus, CommandStatus, SessionState, useSession } from "@/lib";
 import * as commandApi from '@/api/command.api';
 import { UIContextType, useUIContext } from '@/lib/ui.context';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -24,6 +24,8 @@ import ResumeIcon from '@mui/icons-material/NavigateNextOutlined';
 import ToolbarIcon from '@/components/toolbar.button';
 import ResetIcon from '@mui/icons-material/UndoOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import EditIcon from '@mui/icons-material/EditOutlined';
+import CommandDialog from '@/components/command-dialog';
 
 interface Step {
   status: CommandRunStatus;
@@ -116,6 +118,7 @@ async function refreshCommand(s: SessionState, ui: UIContextType, c: CommandDeta
 export default function CommandHome({ params }) {
   const router = useRouter();
   const [command, setCommand] = useState<CommandDetail>(null);
+  const [openCommandDialog, setOpenCommandDialog] = useState(false);
   const status = command?.status || '';
   const [log, setLog] = useState<string>("...");
   const repo = command?.repo;
@@ -169,11 +172,20 @@ export default function CommandHome({ params }) {
     router.push('/repos');
   };
 
+  const onClickEditIcon = () => {
+    setOpenCommandDialog(true);
+  };
+
+  const onCommandUpdated = (newCommand: CommandDetail) => {
+    setCommand(newCommand);
+  };
+
   const enableRestart = (status !== CommandStatus.Running);
   const enableStop = (status === CommandStatus.Running);
   const enableResume = (status === CommandStatus.Pending || status === CommandStatus.Failed);
   const enableDelete = (status !== CommandStatus.Running);
-
+  const enableEdit = (status !== CommandStatus.Running);
+  
   return (
     <>
       <Box sx={{ mb: 2, color: 'white' }}>
@@ -208,9 +220,12 @@ export default function CommandHome({ params }) {
         <ToolbarIcon label='Resume' enabled={enableResume} onClick={onResume}>
           <ResumeIcon sx={{ color: enableResume ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
+        <ToolbarIcon label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
+          <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />
+        </ToolbarIcon>
         <ToolbarIcon label='Delete' enabled={enableDelete} onClick={onDelete}>
           <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
-        </ToolbarIcon>
+        </ToolbarIcon>        
       </Toolbar>
 
       <Box sx={{ mb: 2 }}>
@@ -248,6 +263,8 @@ export default function CommandHome({ params }) {
           })}
         </Stepper>
       </Drawer>
+        
+      {command && <CommandDialog data={CommandEditData.forUpdate(command)} open={openCommandDialog} setOpen={setOpenCommandDialog} onSubmited={onCommandUpdated} />}
     </>
   );
 }
