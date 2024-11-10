@@ -107,10 +107,10 @@ export class Command extends AuditableEntity {
 				options.push('--force');
 			}
 			if (this.num) {
-				options.push(`--num ${this.num}`);
+				options.push('--num', `${this.num}`);
 			}
 			if (this.lang) {
-				options.push(`--lang ${this.lang}`);
+				options.push('--lang', `${this.lang}`);
 			}
 			this._globalOptions = options;
 		}
@@ -143,7 +143,7 @@ export class Command extends AuditableEntity {
 			}
 			this._commandOptions = options;
 		}
-		return this._globalOptions;
+		return this._commandOptions;
 	}
 
 	private _commandLineArgs: string[];
