@@ -186,7 +186,7 @@ export default function CommandHome({ params }) {
   const enableDelete = (status !== CommandStatus.Running);
   const enableEdit = (status !== CommandStatus.Running);
   
-  const title = command?.isTest() ? 'Generate Unit Test' : 'Scan General Issues';
+  const title = command?.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
   
   return (
     <>

@@ -35,6 +35,10 @@ export class CommandBasic extends AuditableDto {
 	commitUrl?: string;
 	status?: CommandStatus;
 
+	isTest(): boolean {
+		return this.command === 'test'
+	}
+
 	static with(obj: any): CommandBasic {
 		if (!obj) return obj;
 		AuditableDto.with(obj);

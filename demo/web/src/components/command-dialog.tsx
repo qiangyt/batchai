@@ -13,6 +13,22 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import * as commandApi from '@/api/command.api';
 import TextField from '@mui/material/TextField';
+import Draggable from 'react-draggable';
+import Paper, { PaperProps } from '@mui/material/Paper';
+
+
+function PaperComponent(props: PaperProps) {
+  return (
+    <Draggable
+      handle="#draggable-dialog-title"
+      cancel={'[class*="MuiDialogContent-root"]'}
+    >
+      <Paper {...props} />
+    </Draggable>
+  );
+}
+
+
 
 interface CommandDialogProps {
   data: CommandEditData;
@@ -25,7 +41,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
   const s = useSession().state;
   const ui = useUIContext();
   const [data, setData] = useState(_data);
-  const title = data.isTest() ? 'Generate Unit Test' : 'Scan General Issues';
+  const title = data.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
   
   const onClose = (e: MouseEvent) => {
     otEvent(e);
@@ -66,11 +82,11 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
   };
 
   return (
-    <Dialog open={open} fullWidth={true} onClose={onClose} PaperProps={{ component: 'form', onSubmit, }}>
-      <DialogTitle sx={{backgroundColor: 'lightgray'}}>
-        {title}
-        <p/><span style={{ fontSize: 12, marginLeft: 14, marginRight: 8}}>for</span>
-      <Link href={data.repo.repoUrl}>{data.repo.repoUrl}</Link></DialogTitle>
+    <Dialog open={open} fullWidth={true} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
+      <DialogTitle sx={{ backgroundColor: '#808080', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
+      <span style={{ fontSize: 15}}>{title}</span>
+        <p/><span style={{ fontSize: 12, marginRight: 8}}>for</span>
+      <Link href={data.repo.repoUrl} sx={{ color: 'white', fontSize: 24 }}>{data.repo.repoUrl}</Link></DialogTitle>
       <DialogContent>          
         <Box sx={{width: "66%", mt: 5}}><LangSelect value={data.lang} onChange={onChangeLang} /></Box>
         <TextField size='small' sx={{mt: 3}} label="Number of file to process" type="number" placeholder="Type a number…" value={data.num} onChange={onChangeNum} 

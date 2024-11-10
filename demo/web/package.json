@@ -33,6 +33,7 @@
     "react": "^18",
     "react-ansi": "^3.0.3",
     "react-dom": "^18",
+    "react-draggable": "^4.4.6",
     "react-hook-form": "^7.52.1",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.4.0",
