@@ -151,11 +151,12 @@ export class CommandService {
 		c.targetPaths = params.targetPaths;
 		c.creater = u;
 
+		c = await this.dao.save(c);
+
 		const repoObj = await this.newRepoObject(c);
 		const fork = repoObj.forkedRepo();
 		await removeFileOrDir(fork.repoDir());
 
-		c = await this.dao.save(c);
 		c = await this.enqueue(x, c);
 
 		return c;
