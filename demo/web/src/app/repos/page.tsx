@@ -104,7 +104,7 @@ export default function RepoList() {
 
     <Masonry columns={3} spacing={2} sx={{mt:6}}>
       <Item key='add'>
-        <Fab color="primary" aria-label="add" onClick={onAddRepo}><AddIcon /></Fab>
+        <Fab variant="extended" color="primary" aria-label="add" onClick={onAddRepo}><AddIcon />Your Github</Fab>
         <TextField autoFocus required sx={{mt:2.3}} size="small"  id="newRepoPath" label="Repository Path:" fullWidth variant='outlined'
               onKeyDown={onKeyDownNewRepo} value={newRepoPath} onChange={onChangeNewRepoPath}
               slotProps={{

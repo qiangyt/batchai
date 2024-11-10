@@ -86,9 +86,9 @@ export class CommandDetail extends CommandBasic {
 		return obj;
 	}
 
-	static init(repo: RepoBasic): CommandDetail {
+	static init(repo: RepoBasic, command: string): CommandDetail {
 		const r = new CommandDetail();
-		r.command = 'test';
+		r.command = command;
 		r.repo = repo;
 		r.testLibrary = [];
 		r.targetPaths = ['.'];
