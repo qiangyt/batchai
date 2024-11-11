@@ -35,7 +35,7 @@ import { DataSource } from 'typeorm';
 import { Kontext, RequestKontext } from './kontext';
 import { RequiredRoles, Role } from './role';
 import { Profile } from 'passport-github2';
-import { REPO_DIR } from '../constants';
+import { REPO_ARCHIVE_DIR, REPO_DIR } from '../constants';
 import { Octokit } from '@octokit/rest';
 
 export enum GrantLevel {
@@ -110,6 +110,12 @@ export class User {
 			this.dirPath = p;
 		}
 		return this.dirPath;
+	}
+
+	async archiveDir(): Promise<string> {
+		const p = path.join(REPO_ARCHIVE_DIR, this.name);
+		await mkdirp(p);
+		return p;
 	}
 
 	num(): number {

@@ -2,7 +2,7 @@ import { Entity, Column, ManyToOne, JoinColumn, Unique, OneToMany } from 'typeor
 import { User, AuditableEntity } from '../framework';
 import path from 'path';
 import { mkdirp } from 'mkdirp';
-import { JOB_LOG_DIR } from '../constants';
+import { JOB_LOG_ARCHIVE_DIR, JOB_LOG_DIR } from '../constants';
 import { Command } from './command.entity';
 
 @Entity()
@@ -28,12 +28,18 @@ export class Repo extends AuditableEntity {
 
 	async logDir(): Promise<string> {
 		if (!this.logDirPath) {
-			const p = path.join(JOB_LOG_DIR, this.name, this.name);
+			const p = path.join(JOB_LOG_DIR, this.owner.name, this.name);
 			await mkdirp(p);
 
 			this.logDirPath = p;
 		}
 		return this.logDirPath;
+	}
+
+	async logArchiveDir(): Promise<string> {
+		const p = path.join(JOB_LOG_ARCHIVE_DIR, this.owner.name, this.name);
+		await mkdirp(p);
+		return p;
 	}
 
 	async repoDir(): Promise<string> {
@@ -42,6 +48,13 @@ export class Repo extends AuditableEntity {
 			this.repoDirPath = path.join(ownerDir, this.name);
 		}
 		return this.repoDirPath;
+	}
+
+	async repoArchiveDir(ts: string): Promise<string> {
+		const ownerArchiveDir = await this.owner.archiveDir();
+		const repoArchiveDirParent = path.join(ownerArchiveDir, this.name);
+		await mkdirp(repoArchiveDirParent);
+		return path.join(repoArchiveDirParent, ts);
 	}
 
 	private repoGitDirPath: string;

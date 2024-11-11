@@ -13,6 +13,19 @@ export async function removeFileOrDir(p: string): Promise<void> {
 	});
 }
 
+export async function renameFileOrDir(oldPath: string, newPath: string): Promise<void> {
+	try {
+		await fs.stat(oldPath);
+	} catch (error) {
+		if (error.code === 'ENOENT') {
+			return;
+		}
+		throw error;
+	}
+
+	return fs.rename(oldPath, newPath);
+}
+
 export async function dirExists(p: string): Promise<boolean> {
 	try {
 		return (await fs.stat(p)).isDirectory();

@@ -5,7 +5,7 @@ import { CommandStatus, CommandRunStatus } from '../constants';
 import { promises as fs } from 'fs';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
-import { spawnAsync, removeFileOrDir, GithubRepo, fileExists, dirExists, listPathsWithPrefix } from '../helper';
+import { spawnAsync, GithubRepo, fileExists, dirExists, listPathsWithPrefix, renameFileOrDir } from '../helper';
 import { Repo, Command } from '../entity';
 import { CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams } from '../dto';
 import { Kontext } from '../framework';
@@ -152,10 +152,7 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
-
-		const repoObj = await this.newRepoObject(c);
-		const fork = repoObj.forkedRepo();
-		await removeFileOrDir(fork.repoDir());
+		await this.archiveArtifacts(c);
 
 		c = await this.enqueue(x, c);
 
@@ -263,12 +260,7 @@ export class CommandService {
 			throw new ConflictException(`cannot restart a running command: ${JSON.stringify(c)}`);
 		}
 
-		const repoObj = await this.newRepoObject(c);
-		const fork = repoObj.forkedRepo();
-		await removeFileOrDir(fork.repoDir());
-
-		const logFile = await c.logFile();
-		await removeFileOrDir(logFile);
+		await this.archiveArtifacts(c);
 
 		c.hasChanges = false;
 		c.status = CommandStatus.Queued;
@@ -298,11 +290,32 @@ export class CommandService {
 			throw new ConflictException(`cannot remove a ${c.status} command`);
 		}
 
-		const repoObj = await this.newRepoObject(c);
-		const fork = repoObj.forkedRepo();
-		const logFile = await c.logFile();
+		await this.archiveArtifacts(c);
+		await this.dao.remove(c);
+	}
 
-		await Promise.all([this.dao.remove(c), removeFileOrDir(fork.repoDir()), removeFileOrDir(logFile)]);
+	async archiveArtifacts(c: Command): Promise<void> {
+		const date = new Date();
+
+		const y = date.getFullYear();
+		const mon = String(date.getMonth() + 1).padStart(2, '0');
+		const d = String(date.getDate()).padStart(2, '0');
+		const h = String(date.getHours()).padStart(2, '0');
+		const min = String(date.getMinutes()).padStart(2, '0');
+		const ms = String(date.getMilliseconds()).padStart(3, '0');
+
+		const ts = `${y}_${mon}${d}_${h}${min}_${ms}`;
+
+		const repoObj = await this.newRepoObject(c);
+		const forkedRepoDir = repoObj.forkedRepo().repoDir();
+
+		const [logFile, logArchiveFile, repoArchiveDir] = await Promise.all([
+			c.logFile(),
+			c.logArchiveFile(ts),
+			(await c.repo).repoArchiveDir(ts),
+		]);
+
+		await Promise.all([renameFileOrDir(forkedRepoDir, repoArchiveDir), renameFileOrDir(logFile, logArchiveFile)]);
 	}
 
 	private async log(logFile: string, message: string): Promise<void> {

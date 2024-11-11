@@ -65,6 +65,11 @@ export class Command extends AuditableEntity {
 		return this._logFile;
 	}
 
+	async logArchiveFile(ts: string): Promise<string> {
+		const p = await (await this.repo).logArchiveDir();
+		return path.join(p, `${this.id}.${ts}.log`);
+	}
+
 	nextRunStatus(): CommandRunStatus {
 		switch (this.runStatus) {
 			case CommandRunStatus.Begin:
