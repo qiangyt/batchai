@@ -74,7 +74,7 @@ export default function TargetPathInput({ id, targetPaths, onChange }: TargetPat
     onChange(targetPaths.filter((_, i) => i !== index));
   };
 
-  return <Box sx={{ mt: 3, border: 0.5, borderColor: 'lightgray', borderRadius: 1, padding: 1 }}>
+  return <Box sx={{ mt: 2, border: 0.5, borderColor: 'lightgray', borderRadius: 1, padding: 1 }}>
     <Autocomplete size='small' freeSolo fullWidth onKeyDown={onKeyDown}
         options={availableTargetPaths} value={targetPath} 
         onInputChange={onTargetPathInputChange} onChange={onTargetPathChange}

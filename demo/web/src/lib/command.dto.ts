@@ -179,6 +179,8 @@ export class CommandEditData {
 
 	repo: RepoBasic;
 
+	executeItRightNow: boolean;
+
 	isTest(): boolean {
 		return this.commandName === 'test'
 	}
@@ -193,16 +195,17 @@ export class CommandEditData {
 		return obj;
 	}
 
-	static forUpdate(command: CommandDetail): CommandEditData {
+	static forUpdate(c: CommandDetail): CommandEditData {
 		const r = new CommandEditData();
 
-		r.id = command.id;
-		r.num = command.num;
-		r.lang = command.lang;
-		r.testLibrary = command.primaryTestLibrary();
-		r.targetPaths = command.targetPaths || [];
-		r.commandName = command.command;
-		r.repo = command.repo;
+		r.id = c.id;
+		r.num = c.num;
+		r.lang = c.lang;
+		r.testLibrary = c.primaryTestLibrary();
+		r.targetPaths = c.targetPaths || [];
+		r.commandName = c.command;
+		r.repo = c.repo;
+		r.executeItRightNow = (c.status !== CommandStatus.Running && c.status !== CommandStatus.Queued);
 
 		return r;
 	}
@@ -213,6 +216,7 @@ export class CommandEditData {
 		r.targetPaths = [];
 		r.commandName = commandName;
 		r.repo = repo;
+		r.executeItRightNow = true;
 
 		return r;
 	}
@@ -235,6 +239,8 @@ export class CommandUpdateReq {
 
 	targetPaths: string[];
 
+	executeItRightNow: boolean;
+
 	static create(data: CommandEditData): CommandUpdateReq{
 		const r = new CommandUpdateReq();
 		r.build(data);
@@ -244,10 +250,12 @@ export class CommandUpdateReq {
 	build(data: CommandEditData) {
 		this.lang = data.lang;
 		this.num = data.num;
+		this.executeItRightNow = data.executeItRightNow;
 		this.targetPaths = data.targetPaths;
 		if (data.isTest()) {
-			if (data.testLibrary)
+			if (data.testLibrary) {
 				this.testLibrary = [data.testLibrary];
+			}
 		}
 	}
 

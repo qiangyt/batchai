@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { CommandCreateReq, CommandDetail, CommandEditData, CommandUpdateReq, otEvent, useSession, useUIContext } from '@/lib';
-import { Dispatch, MouseEvent, SetStateAction, useState } from 'react';
+import { ChangeEvent, Dispatch, MouseEvent, SetStateAction, useState } from 'react';
 import LangSelect from './lang-select';
 import TestLibrarySelect from './test-library-select';
 import Link from '@mui/material/Link';
@@ -16,6 +16,8 @@ import TextField from '@mui/material/TextField';
 import Draggable from 'react-draggable';
 import Paper, { PaperProps } from '@mui/material/Paper';
 import TargetPathInput from './target-path-input';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -58,7 +60,12 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
     setData(CommandEditData.with({...data, lang: newLang}));
   };
 
-  const onChangeNum = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeExecuteItRightNow = (e:ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    otEvent(e);
+    setData(CommandEditData.with({...data, executeItRightNow: checked}));
+  };
+
+  const onChangeNum = (e: ChangeEvent<HTMLInputElement>) => {
     otEvent(e);
     const newNum = parseInt(e.target.value, 10);
     if (isNaN(newNum)) {
@@ -84,7 +91,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
   };
 
   return (
-    <Dialog open={open} fullWidth={true} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
+    <Dialog open={open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
       <DialogTitle sx={{ backgroundColor: '#808080', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
       <span style={{ fontSize: 15}}>{title}</span>
         <p/><span style={{ fontSize: 12, marginRight: 8}}>for</span>
@@ -98,7 +105,9 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
             },
           }} />
         {data.isTest() && <Box sx={{width: "64%", mt: 3}}><TestLibrarySelect value={data.testLibrary} onChange={onChangeTestLibrary}/></Box>}
-          
+        
+        <FormControlLabel sx={{mt: 1}} control={<Checkbox size='small' checked={data.executeItRightNow} onChange={onChangeExecuteItRightNow}/>} label="Executes it right now"/>
+        
         <TargetPathInput id={data.id} targetPaths={data.targetPaths} onChange={onTargetPathsChange}/>
 
       </DialogContent>

@@ -108,6 +108,10 @@ export class CommandUpdateReq {
 	@IsOptional()
 	targetPaths: string[];
 
+	@IsBoolean()
+	@IsOptional()
+	executeItRightNow: boolean;
+
 	normalize() {
 		if (this.num <= 0) {
 			this.num = 0;
@@ -117,6 +121,9 @@ export class CommandUpdateReq {
 		}
 		if (this.targetPaths === undefined || this.targetPaths === null) {
 			this.targetPaths = [];
+		}
+		if (this.executeItRightNow === undefined || this.executeItRightNow === null) {
+			this.executeItRightNow = true;
 		}
 	}
 }

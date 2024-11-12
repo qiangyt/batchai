@@ -103,6 +103,13 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
+
+		if (params.executeItRightNow) {
+			if (c.status !== CommandStatus.Running && c.status !== CommandStatus.Queued) {
+				c = await this.enqueue(x, c);
+			}
+		}
+
 		return c;
 	}
 
@@ -118,7 +125,7 @@ export class CommandService {
 		let c = new Command();
 		c.repo = Promise.resolve(repo);
 		c.command = params.command;
-		c.status = CommandStatus.Queued;
+		c.status = CommandStatus.Pending;
 		c.runStatus = CommandRunStatus.Begin;
 
 		if (params.enableSymbolReference !== null && params.enableSymbolReference !== undefined) {
@@ -131,7 +138,7 @@ export class CommandService {
 		c.force = params.force;
 
 		if (params.num !== null && params.num !== undefined) {
-			u.ensureHasAdminRole();
+			//u.ensureHasAdminRole();
 			c.num = params.num;
 		} else {
 			c.num = 0;
@@ -154,7 +161,9 @@ export class CommandService {
 		c = await this.dao.save(c);
 		await this.archiveArtifacts(c);
 
-		c = await this.enqueue(x, c);
+		if (params.executeItRightNow) {
+			c = await this.enqueue(x, c);
+		}
 
 		return c;
 	}
@@ -263,7 +272,7 @@ export class CommandService {
 		await this.archiveArtifacts(c);
 
 		c.hasChanges = false;
-		c.status = CommandStatus.Queued;
+		c.status = CommandStatus.Pending;
 		c.runStatus = CommandRunStatus.Begin;
 		c.updater = x?.user;
 		await this.dao.save(c);
