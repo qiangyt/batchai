@@ -6,47 +6,32 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import React, { createContext, useContext, useState, ReactNode, useMemo, useEffect } from 'react';
+import { ConfirmDialog, ConfirmDialogMessage, ConfirmDialogProps } from '../components/confirm-dialog';
 
 export interface UIContextType {
   setLoading: (value: boolean) => void;
   setError: (value) => void;
-}
-
-interface GlobalUIComponentsProps {
-  loading: boolean;
-  error: any;
-  setError: (value) => void;
-}
-
-export function GlobalUIComponents(props:GlobalUIComponentsProps) {  
-  const handleClose = () => props.setError(null);
-  return (
-    <>
-      {props.loading && (
-        <Box
-          sx={{
-            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1300,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255, 255, 255, 0.7)'
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      )}
-      <Snackbar open={!!props.error} autoHideDuration={4000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-          {'' + props.error}
-        </Alert>
-      </Snackbar>
-    </>
-  )
+  
+  confirm: (message: ConfirmDialogMessage, onConfirmed: () => void) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIContextProvider = ({ children }: { children: ReactNode }) => {
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const value = useMemo(() => ({setLoading, setError}), [setLoading, setError]);
+
+  const [confirmDialogProps, setConfirmDialogProps] = useState<ConfirmDialogProps>(null);
+  const handleCloseError = () => setError(null);
+
+  const value = useMemo(() => {
+    const confirm = (message: ConfirmDialogMessage, onConfirmed: () => void) => {
+      setConfirmDialogProps({...message, open: true, onConfirmed, closeFunc: () => setConfirmDialogProps(null)});
+    };
+    return { setLoading, setError, confirm };
+  }, []);
+
 
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
@@ -73,7 +58,25 @@ export const UIContextProvider = ({ children }: { children: ReactNode }) => {
       <UIContext.Provider value={value}>
         {children}
       </UIContext.Provider>
-      <GlobalUIComponents loading={loading} error={error} setError={setError} />
+
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1300,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255, 255, 255, 0.7)'
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
+
+      <Snackbar open={!!error} autoHideDuration={4000} onClose={handleCloseError}>
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {'' + error}
+        </Alert>
+      </Snackbar>
+
+      <ConfirmDialog {...confirmDialogProps} />
     </>
   );
 };

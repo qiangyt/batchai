@@ -52,7 +52,6 @@ export default function RepoList() {
   const [newRepoPath, setNewRepoPath] = useState("");
   const s = useSession().state;
   const ui = useUIContext();
-  const router = useRouter();
 
   const addNewRepoRef = useRef(null);
 
@@ -96,10 +95,20 @@ export default function RepoList() {
     setNewRepoPath(e.target.value);
   };
 
-  const onDeleteRepo = async(e, id:number) => {
+  const onDeleteRepo = async(e, repo:RepoBasic) => {
     otEvent(e);
-    await repoApi.removeRepo(s, ui, id);
-    await searchRepo(s, ui, setPage);
+
+    ui.confirm(
+      {
+        action: 'delete', 
+        subject: `${repo.owner.name}/${repo.name}`, 
+        subjectType: 'repository'
+      }, 
+      async() => {
+        await repoApi.removeRepo(s, ui, repo.id);
+        await searchRepo(s, ui, setPage);
+      }
+    );    
   }
 
   return (<>
@@ -125,7 +134,7 @@ export default function RepoList() {
             <Box>
               <Link href={repo.repoUrl}>
                 <Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}
-                  <DeleteIcon sx={{ ml: 1, color: 'gray' }} onClick={(e) => onDeleteRepo(e, repo.id)}/>
+                  <DeleteIcon sx={{ ml: 1, color: 'gray' }} onClick={(e) => onDeleteRepo(e, repo)}/>
                 </Typography>
               </Link>
               <Typography variant="h5" sx={{color: 'white'}}>{repo.repoPath(false)}</Typography>

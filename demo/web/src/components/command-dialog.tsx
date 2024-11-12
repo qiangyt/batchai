@@ -92,7 +92,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
 
   return (
     <Dialog open={open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
-      <DialogTitle sx={{ backgroundColor: '#808080', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
+      <DialogTitle sx={{ backgroundColor: '#0085BF', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
       <span style={{ fontSize: 15}}>{title}</span>
         <p/><span style={{ fontSize: 12, marginRight: 8}}>for</span>
       <Link href={data.repo.repoUrl} sx={{ color: 'white', fontSize: 24 }}>{data.repo.repoUrl}</Link></DialogTitle>

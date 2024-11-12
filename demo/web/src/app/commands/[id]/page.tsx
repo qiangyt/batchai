@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -168,8 +168,17 @@ export default function CommandHome({ params }) {
   };
 
   const onDelete = async () => {
-    await commandApi.removeCommand(s, ui, id);
-    router.push('/repos');
+    ui.confirm(
+      {
+        action: 'delete', 
+        subject: `${owner.name}/${repo.name} ${command.command}`, 
+        subjectType: 'command'
+      }, 
+      async() => {
+        await commandApi.removeCommand(s, ui, id);
+        router.push('/repos');
+      }
+    );
   };
 
   const onClickEditIcon = () => {
@@ -216,22 +225,22 @@ export default function CommandHome({ params }) {
       <Divider sx={{ mb: 2 }} />
 
       <Toolbar sx={{ mb: 2 }}>
-        <ToolbarIcon label='Refresh' enabled={true} onClick={onRefresh}>
+        <ToolbarIcon key='Refresh' label='Refresh' enabled={true} onClick={onRefresh}>
           <RefreshIcon sx={{ color: '#B8E986' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Restart' enabled={enableRestart} onClick={onRestart}>
+        <ToolbarIcon key='Restart' label='Restart' enabled={enableRestart} onClick={onRestart}>
           <ResetIcon sx={{ color: enableRestart ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Stop' enabled={enableStop} onClick={onStop}>
+        <ToolbarIcon key='Stop' label='Stop' enabled={enableStop} onClick={onStop}>
           <StopIcon sx={{ color: enableStop ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Resume' enabled={enableResume} onClick={onResume}>
+        <ToolbarIcon key='Resume' label='Resume' enabled={enableResume} onClick={onResume}>
           <ResumeIcon sx={{ color: enableResume ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
+        <ToolbarIcon key='Edit' label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
           <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
-        <ToolbarIcon label='Delete' enabled={enableDelete} onClick={onDelete}>
+        <ToolbarIcon key='Delete' label='Delete' enabled={enableDelete} onClick={onDelete}>
           <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
         </ToolbarIcon>        
       </Toolbar>
