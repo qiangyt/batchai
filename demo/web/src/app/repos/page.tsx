@@ -7,7 +7,7 @@ import Paper from '@mui/material/Paper';
 import Masonry from '@mui/lab/Masonry';
 import Image from 'next/image';
 import { RepoBasic, useSession, Page, RepoSearchParams, SessionState, CommandBasic, CommandDetail, otEvent, ParsedRepoPath } from '@/lib';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as repoApi from '@/api/repo.api';
 import { useRouter } from 'next/navigation';
 import Avatar from '@mui/material/Avatar';
@@ -53,6 +53,14 @@ export default function RepoList() {
   const s = useSession().state;
   const ui = useUIContext();
   const router = useRouter();
+
+  const addNewRepoRef = useRef(null);
+
+  useEffect(() => {
+    if (addNewRepoRef.current) {
+      addNewRepoRef.current.focus();
+    }
+  }, []);
 
   useEffect(() => {
     searchRepo(s, ui, setPage);
@@ -103,15 +111,15 @@ export default function RepoList() {
     </Box>
 
     <Masonry columns={3} spacing={2} sx={{mt:6}}>
-      <Item key='add'>
+      <Paper key='add' style={{padding: 30, backgroundColor: 'transparent', color: 'white'}}>
         <Fab variant="extended" color="primary" aria-label="add" onClick={onAddRepo}><AddIcon />Your Github</Fab>
-        <TextField autoFocus required sx={{mt:2.3}} size="small"  id="newRepoPath" label="Repository Path:" fullWidth variant='outlined'
+        <TextField inputRef={addNewRepoRef} required sx={{mt:2.3}} size="small"  id="newRepoPath" label="Repository Path:" fullWidth variant='outlined'
               onKeyDown={onKeyDownNewRepo} value={newRepoPath} onChange={onChangeNewRepoPath}
               slotProps={{
                 input: {sx: {color: 'white', '& .MuiOutlinedInput-notchedOutline': {borderColor: 'gray'}}},
                 inputLabel: {sx: {color: 'gray'}}
               }}/>
-      </Item>
+      </Paper>
       {page.elements.map((repo) => (
           <Item key={repo.id} sx={{display: 'flex', justifyContent: 'space-between'}}>
             <Box>
