@@ -32,8 +32,8 @@ export default function TopBar({ anchorId }: Props) {
     }, [pathname]);
 
     return <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="fixed">
-            <Container maxWidth="xl" sx={{ background: "black" }}>
+        <AppBar position="fixed" sx={{ backgroundColor: "black" }}>
+            <Container maxWidth="xl" >
                 <Toolbar id={anchorId} disableGutters>
                     <MuiLink href="https://github.com/qiangyt/batchai">
                         <GitHubIcon sx={{ mr: 2, color: 'white' }} />
