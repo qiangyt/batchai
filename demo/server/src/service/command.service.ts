@@ -138,7 +138,6 @@ export class CommandService {
 		c.force = params.force;
 
 		if (params.num !== null && params.num !== undefined) {
-			//u.ensureHasAdminRole();
 			c.num = params.num;
 		} else {
 			c.num = 0;
@@ -159,7 +158,6 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
-		await this.archiveArtifacts(c);
 
 		if (params.executeItRightNow) {
 			c = await this.enqueue(x, c);
@@ -255,8 +253,6 @@ export class CommandService {
 			throw new ConflictException(`cannot restart a running command: ${JSON.stringify(c)}`);
 		}
 
-		await this.archiveArtifacts(c);
-
 		c.hasChanges = false;
 		c.status = CommandStatus.Pending;
 		c.runStatus = CommandRunStatus.Begin;
@@ -301,16 +297,9 @@ export class CommandService {
 
 		const ts = `${y}_${mon}${d}_${h}${min}_${ms}`;
 
-		const repoObj = await this.newRepoObject(c);
-		const forkedRepoDir = repoObj.forkedRepo().repoDir();
+		const [logFile, logArchiveFile] = await Promise.all([c.logFile(), c.logArchiveFile(ts)]);
 
-		const [logFile, logArchiveFile, repoArchiveDir] = await Promise.all([
-			c.logFile(),
-			c.logArchiveFile(ts),
-			(await c.repo).repoArchiveDir(ts),
-		]);
-
-		await Promise.all([renameFileOrDir(forkedRepoDir, repoArchiveDir), renameFileOrDir(logFile, logArchiveFile)]);
+		await renameFileOrDir(logFile, logArchiveFile);
 	}
 
 	private async log(logFile: string, message: string): Promise<void> {
@@ -340,33 +329,12 @@ export class CommandService {
 	private async doRun(c: Command, logFile: string) {
 		const repoObj = await this.newRepoObject(c);
 
-		if (c.status !== CommandStatus.Running) return;
-		if (c.nextRunStatus() === CommandRunStatus.CheckedRemote) {
-			await repoObj.checkRemote();
-			c = await this.updateRunStatus(c, CommandRunStatus.CheckedRemote);
-		}
-
-		if (c.status !== CommandStatus.Running) return;
-		let fork;
-		if (c.nextRunStatus() === CommandRunStatus.Forked) {
-			fork = await repoObj.fork();
-			c = await this.updateRunStatus(c, CommandRunStatus.Forked);
-		} else {
-			fork = repoObj.forkedRepo();
-			await fork.checkRemote();
-		}
-
+		const fork = repoObj.forkedRepo();
 		const workDir = fork.repoDir();
 
 		if (c.status !== CommandStatus.Running) return;
-		if (c.nextRunStatus() === CommandRunStatus.ClonedOrPulled) {
-			await fork.cloneOrPull();
-			c = await this.updateRunStatus(c, CommandRunStatus.ClonedOrPulled);
-		}
-
-		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.CheckedOut) {
-			await fork.checkout(`batchai/${c.command}`);
+			await fork.checkout(`batchai/${c.command}`, true);
 			c = await this.updateRunStatus(c, CommandRunStatus.CheckedOut);
 		}
 

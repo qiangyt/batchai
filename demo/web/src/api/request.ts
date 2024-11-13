@@ -7,7 +7,7 @@ const withAxios = (s:SessionState, ui: UIContextType) => {
   const service = axios.create({
     //baseURL: `${process.env.NEXT_PUBLIC_API_SERVER}/rest/v1`,
     baseURL: `/rest/v1`,
-    timeout: 6 * 1000,
+    timeout: 60 * 1000,
     responseType: 'json',
     maxContentLength: 1024 * 1024,
     maxRedirects: 0,

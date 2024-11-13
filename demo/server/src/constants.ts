@@ -10,9 +10,6 @@ export enum CommandStatus {
 
 export enum CommandRunStatus {
 	Begin = 'Begin',
-	CheckedRemote = 'CheckedRemote',
-	Forked = 'Forked',
-	ClonedOrPulled = 'ClonedOrPulled',
 	CheckedOut = 'CheckedOut',
 	BatchAIExecuted = 'BatchAIExecuted',
 	ChangesAdded = 'ChangesAdded',

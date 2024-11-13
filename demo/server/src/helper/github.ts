@@ -29,10 +29,10 @@ export async function remoteRepoExists(owner: string, repo: string): Promise<boo
 }
 
 export class GithubRepo {
-	private url: string;
+	private _url: string;
 	readonly ownerDir: string;
 	private _repoDir: string;
-	private branch: string;
+	private _branch: string;
 
 	constructor(
 		private log: (output: string) => void,
@@ -42,9 +42,17 @@ export class GithubRepo {
 		private readonly ssh: boolean,
 		private readonly forkedFrom?: GithubRepo,
 	) {
-		this.url = this.ssh ? `git@github.com:${owner}/${name}.git` : `https://github.com/${owner}/${name}`;
+		this._url = this.ssh ? `git@github.com:${owner}/${name}.git` : `https://github.com/${owner}/${name}`;
 		this.ownerDir = path.join(baseDir, owner);
 		this._repoDir = path.join(this.ownerDir, name);
+	}
+
+	url(): string {
+		return this._url;
+	}
+
+	branch(): string {
+		return this._branch;
 	}
 
 	repoDir(): string {
@@ -54,7 +62,7 @@ export class GithubRepo {
 	async checkRemote(): Promise<boolean> {
 		try {
 			const r = await getOctokit().repos.get({ owner: this.owner, repo: this.name });
-			this.branch = r.data.default_branch;
+			this._branch = r.data.default_branch;
 			return true;
 		} catch (error: any) {
 			if (error.status === 404) {
@@ -65,11 +73,11 @@ export class GithubRepo {
 	}
 
 	async clone(depth: number = 1): Promise<void> {
-		this.log(`Cloning ${this.url}...`);
+		this.log(`Cloning ${this._url}...`);
 
 		await mkdirp(this.ownerDir);
 
-		const args = ['clone', '--depth', `${depth}`, this.url];
+		const args = ['clone', '--depth', `${depth}`, this._url];
 		const code = await spawnAsync(this.ownerDir, 'git', args, this.log, this.log);
 		const msg = `exitCode=${code}, command line="${['git', ...args].join(' ')}"`;
 		this.log(`git clone end: ${msg}`);
@@ -106,7 +114,7 @@ export class GithubRepo {
 			await getOctokit().rest.repos.getBranch({
 				owner: this.owner,
 				repo: this.name,
-				branch: this.branch,
+				branch: this._branch,
 			});
 		} catch (err) {
 			if (err.status === 404) {
@@ -126,11 +134,11 @@ export class GithubRepo {
 		const code = await spawnAsync(
 			this._repoDir,
 			'git',
-			['push', 'origin', '--delete', this.branch],
+			['push', 'origin', '--delete', this._branch],
 			this.log,
 			this.log,
 		);
-		const msg = `exitCode=${code}, command line="git push origin --delete ${this.branch}"}`;
+		const msg = `exitCode=${code}, command line="git push origin --delete ${this._branch}"}`;
 		this.log(`git push end: ${msg}`);
 		if (code !== 0) {
 			throw new Error(`git push failed: ${msg}`);
@@ -144,11 +152,11 @@ export class GithubRepo {
 		const code = await spawnAsync(
 			this._repoDir,
 			'git',
-			['push', '--set-upstream', 'origin', this.branch],
+			['push', '--set-upstream', 'origin', this._branch],
 			this.log,
 			this.log,
 		);
-		const msg = `exitCode=${code}, command line="git push --set-upstream origin ${this.branch}"`;
+		const msg = `exitCode=${code}, command line="git push --set-upstream origin ${this._branch}"`;
 		this.log(`git push end: ${msg}`);
 		if (code !== 0) {
 			throw new Error(`git push failed: ${msg}`);
@@ -198,7 +206,7 @@ export class GithubRepo {
 		await getOctokit().repos.update({ owner: this.owner, repo: this.name, name: newName });
 
 		this.name = newName;
-		this.url = this.ssh
+		this._url = this.ssh
 			? `gi;t@github.com:${this.owner}/${newName}.git`
 			: `https://github.com/${this.owner}/${newName}`;
 		this._repoDir = path.join(this.ownerDir, newName);
@@ -206,7 +214,17 @@ export class GithubRepo {
 		this.log(`Successfully renamed ${this.owner}/${newName} to ${this.owner}/${newName}`);
 	}
 
-	async checkout(newBranch: string): Promise<void> {
+	async checkout(newBranch: string, cleanAnyway: boolean): Promise<void> {
+		if (cleanAnyway) {
+			this.log(`Clean up in ${this._repoDir}...`);
+			const code = await spawnAsync(this._repoDir, 'git', ['clean', '-fd'], this.log, this.log);
+			const msg = `exitCode=${code}, command line="git clean -fd"`;
+			this.log(`git clean end: ${msg}`);
+			if (code !== 0) {
+				throw new Error(`git clean failed: ${msg}`);
+			}
+		}
+
 		this.log(`Check out in ${this._repoDir}...`);
 
 		try {
@@ -228,7 +246,7 @@ export class GithubRepo {
 				throw new Error(`git checkout failed: ${msg}`);
 			}
 
-			this.branch = newBranch;
+			this._branch = newBranch;
 			console.log(`Checked out to branch '${newBranch}'.`);
 		} catch (err) {
 			this.log(`Branch '${newBranch}' does not exist (err=${err}). Creating and checking out...`);
@@ -240,7 +258,7 @@ export class GithubRepo {
 				throw new Error(`git checkout failed: ${msg}`);
 			}
 
-			this.branch = newBranch;
+			this._branch = newBranch;
 			this.log(`Created and checked out to new branch '${newBranch}'.`);
 		}
 	}
@@ -303,8 +321,8 @@ export class GithubRepo {
 			owner: this.owner,
 			repo: this.name,
 			title,
-			head: `${this.branch}`, //head: `${this.owner}:${this.branch}`,
-			base: this.forkedFrom.branch,
+			head: `${this._branch}`, //head: `${this.owner}:${this.branch}`,
+			base: this.forkedFrom._branch,
 			body: desc,
 		});
 

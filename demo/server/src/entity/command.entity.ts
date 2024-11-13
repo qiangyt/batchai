@@ -73,12 +73,6 @@ export class Command extends AuditableEntity {
 	nextRunStatus(): CommandRunStatus {
 		switch (this.runStatus) {
 			case CommandRunStatus.Begin:
-				return CommandRunStatus.CheckedRemote;
-			case CommandRunStatus.CheckedRemote:
-				return CommandRunStatus.Forked;
-			case CommandRunStatus.Forked:
-				return CommandRunStatus.ClonedOrPulled;
-			case CommandRunStatus.ClonedOrPulled:
 				return CommandRunStatus.CheckedOut;
 			case CommandRunStatus.CheckedOut:
 				return CommandRunStatus.BatchAIExecuted;

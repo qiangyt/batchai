@@ -39,18 +39,6 @@ const steps: Step[] = [
     label: "Begin",
     needChanges: false
   }, {
-    status: CommandRunStatus.CheckedRemote,
-    label: "Check the remote repository",
-    needChanges: false
-  }, {
-    status: CommandRunStatus.Forked,
-    label: "Fork it",
-    needChanges: false
-  }, {
-    status: CommandRunStatus.ClonedOrPulled,
-    label: "`git clone/pull`",
-    needChanges: false
-  }, {
     status: CommandRunStatus.CheckedOut,
     label: "`git checkout -b feature/batchai`",
     needChanges: false
