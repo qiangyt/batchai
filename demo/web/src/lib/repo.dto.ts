@@ -16,6 +16,8 @@ export class RepoBasic extends AuditableDto {
 
   testCommand: CommandBasic;
 
+  artifactArchiveFile: string;
+
   private _repoPath: string;
 
   command(commandName: string): CommandBasic {

@@ -1,8 +1,22 @@
-import { Controller, Get, Param, Delete, Query, HttpStatus, HttpCode, Post, Body } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	Param,
+	Delete,
+	Query,
+	HttpStatus,
+	HttpCode,
+	Post,
+	Body,
+	Res,
+	NotFoundException,
+} from '@nestjs/common';
+import { Response } from 'express';
 import { RepoFacade } from '../service';
 import { Kontext, RequestKontext, Page, RequiredRoles, Role } from '../framework';
 import { ListAvaiableTargetPathsParams, RepoBasic, RepoCreateReq, RepoDetail, RepoSearchParams } from '../dto';
 import { RepoApi } from '../api';
+import { fileExists } from 'src/helper';
 
 @Controller('rest/v1/repos')
 export class RepoRest implements RepoApi {
@@ -57,5 +71,15 @@ export class RepoRest implements RepoApi {
 		@Query() params: ListAvaiableTargetPathsParams,
 	): Promise<string[]> {
 		return this.facade.listAvaiableTargetPaths(x, id, params);
+	}
+
+	@RequiredRoles(Role.None)
+	@Get('id/:id/artifact')
+	async downloadArtifact(@RequestKontext() x: Kontext, @Param('id') id: number, @Res() res: Response) {
+		const zipFilePath = (await this.facade.loadRepo(x, id)).artifactArchiveFile;
+		if (!(await fileExists(zipFilePath))) {
+			throw new NotFoundException('no zip file found');
+		}
+		res.download(zipFilePath);
 	}
 }

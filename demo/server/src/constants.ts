@@ -15,6 +15,7 @@ export enum CommandRunStatus {
 	ChangesAdded = 'ChangesAdded',
 	ChangesCommited = 'ChangesCommited',
 	ChangesPushed = 'ChangesPushed',
+	ChangesArchived = 'ChangesArchived',
 	GetCommitId = 'GetCommitId',
 	//CreatedPR = 'CreatedPR',
 	End = 'End',

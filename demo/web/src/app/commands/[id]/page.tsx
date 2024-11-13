@@ -9,6 +9,7 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import { CommandDetail, CommandEditData, CommandRunStatus, CommandStatus, SessionState, useSession } from "@/lib";
 import * as commandApi from '@/api/command.api';
+import * as repoApi from '@/api/repo.api';
 import { UIContextType, useUIContext } from '@/lib/ui.context';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Typography from '@mui/material/Typography';
@@ -20,7 +21,8 @@ import RefreshIcon from '@mui/icons-material/RefreshOutlined';
 import Link from '@mui/material/Link';
 import Toolbar from '@mui/material/Toolbar';
 import StopIcon from '@mui/icons-material/StopOutlined';
-import ResumeIcon from '@mui/icons-material/NavigateNextOutlined';
+//import ResumeIcon from '@mui/icons-material/NavigateNextOutlined';
+import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
 import ToolbarIcon from '@/components/toolbar.button';
 import ResetIcon from '@mui/icons-material/UndoOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
@@ -57,6 +59,10 @@ const steps: Step[] = [
   }, {
     status: CommandRunStatus.ChangesPushed,
     label: "`git push`",
+    needChanges: true
+  }, {
+    status: CommandRunStatus.ChangesArchived,
+    label: "Archives the artifact",
     needChanges: true
   }, {
     status: CommandRunStatus.GetCommitId,
@@ -176,6 +182,7 @@ export default function CommandHome({ params }) {
   const enableStop = (status === CommandStatus.Running);
   const enableDelete = (status !== CommandStatus.Running);
   const enableEdit = (status !== CommandStatus.Running);
+  const enableDownload = (status === CommandStatus.Succeeded);
   
   const title = command?.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
   
@@ -188,7 +195,12 @@ export default function CommandHome({ params }) {
           <Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
           <Link sx={{ ml: 2 }} color='info' href={command?.repo.repoUrl}>( {command?.repo.repoUrl} )</Link>
           
-          <Typography sx={{mt: 2}} variant="body2">{status}</Typography>
+          <Typography sx={{mt: 2}} variant="body2">
+            {status} 
+            <Link href={`/rest/v1/repos/id/${repo?.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: enableDownload ? '#4A90E2' : 'gray' }}>
+              <DownloadIcon sx={{ ml: 2, color: enableDownload ? '#4A90E2' : 'gray' }} />
+            </Link>
+          </Typography>
           <Button color='info' onClick={toggleProgress(true)}>Detailed progress</Button>
 
           <Box sx={{ mt: 2, display: 'flex', flexDirection: 'row' }}>

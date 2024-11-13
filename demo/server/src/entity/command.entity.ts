@@ -83,6 +83,8 @@ export class Command extends AuditableEntity {
 			case CommandRunStatus.ChangesCommited:
 				return CommandRunStatus.ChangesPushed;
 			case CommandRunStatus.ChangesPushed:
+				return CommandRunStatus.ChangesArchived;
+			case CommandRunStatus.ChangesArchived:
 				return CommandRunStatus.GetCommitId;
 			case CommandRunStatus.GetCommitId:
 			//  return CommandRunStatus.CreatedPR;

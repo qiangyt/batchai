@@ -23,3 +23,7 @@ export async function removeRepo(s:SessionState, ui: UIContextType, id:number): 
 export async function listAvaiableTargetPaths(s:SessionState, ui: UIContextType, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
   return withAxios(s, ui).get(`/repos/id/${id}/available_paths`, { params });
 }
+
+export async function doesRepoDirExists(s:SessionState, ui: UIContextType, id: number): Promise<boolean> {
+  return withAxios(s, ui).get(`/repos/id/${id}/dir/exists`);
+}

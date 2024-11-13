@@ -9,6 +9,7 @@ import { spawnAsync, GithubRepo, fileExists, renameFileOrDir } from '../helper';
 import { Repo, Command } from '../entity';
 import { CommandCreateReq, CommandUpdateReq } from '../dto';
 import { Kontext } from '../framework';
+import AdmZip from 'adm-zip';
 
 @Injectable()
 export class CommandService {
@@ -327,6 +328,7 @@ export class CommandService {
 	}
 
 	private async doRun(c: Command, logFile: string) {
+		const repo = await c.repo;
 		const repoObj = await this.newRepoObject(c);
 
 		const fork = repoObj.forkedRepo();
@@ -380,11 +382,26 @@ export class CommandService {
 			}
 
 			if (c.status !== CommandStatus.Running) return;
+			if (c.nextRunStatus() === CommandRunStatus.ChangesArchived) {
+				const zip = new AdmZip();
+				zip.addLocalFolder(workDir);
+				zip.writeZip(repo.artifactArchiveFile());
+
+				c = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
+			}
+
+			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.GetCommitId) {
 				c.commitId = await fork.getLastCommitId();
 				c.runStatus = CommandRunStatus.GetCommitId;
 				c = await this.dao.save(c);
 			}
+		} else {
+			const zip = new AdmZip();
+			zip.addLocalFolder(workDir);
+			zip.writeZip(repo.artifactArchiveFile());
+
+			c = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
 		}
 
 		// if (c.status !== CommandStatus.Running) return;

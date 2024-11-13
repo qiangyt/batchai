@@ -15,12 +15,16 @@ export class RepoBasic extends AuditableDto {
 
 	testCommand: CommandBasic;
 
+	artifactArchiveFile: string;
+
 	render(repo: Repo): RepoBasic {
 		super.render(repo);
 
 		this.owner = UserBasic.from(repo.owner);
 		this.name = repo.name;
 		this.repoUrl = repo.repoUrl();
+		this.artifactArchiveFile = repo.artifactArchiveFile();
+
 		if (repo.commands) {
 			repo.commands.forEach((c_) => {
 				const c = CommandBasic.from(c_);

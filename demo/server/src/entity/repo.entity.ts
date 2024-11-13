@@ -1,9 +1,10 @@
 import { Entity, Column, ManyToOne, JoinColumn, Unique, OneToMany } from 'typeorm';
 import { User, AuditableEntity } from '../framework';
-import path from 'path';
-import { mkdirp } from 'mkdirp';
 import { JOB_LOG_ARCHIVE_DIR, JOB_LOG_DIR } from '../constants';
 import { Command } from './command.entity';
+import path from 'path';
+import { mkdirp } from 'mkdirp';
+import { GithubRepo } from 'src/helper';
 
 @Entity()
 @Unique(['owner', 'name'])
@@ -17,8 +18,6 @@ export class Repo extends AuditableEntity {
 
 	@Column({ name: 'name' })
 	name: string;
-
-	private repoDirPath: string;
 
 	private logDirPath: string;
 
@@ -42,14 +41,6 @@ export class Repo extends AuditableEntity {
 		return p;
 	}
 
-	async repoDir(): Promise<string> {
-		if (!this.repoDirPath) {
-			const ownerDir = await this.owner.dir();
-			this.repoDirPath = path.join(ownerDir, this.name);
-		}
-		return this.repoDirPath;
-	}
-
 	async repoArchiveDir(ts: string): Promise<string> {
 		const ownerArchiveDir = await this.owner.archiveDir();
 		const repoArchiveDirParent = path.join(ownerArchiveDir, this.name);
@@ -57,13 +48,22 @@ export class Repo extends AuditableEntity {
 		return path.join(repoArchiveDirParent, ts);
 	}
 
-	private repoGitDirPath: string;
+	forkedRepoObject(log: (output: string) => void): GithubRepo {
+		const repoObj = this.repoObject(log);
+		return repoObj.forkedRepo();
+	}
 
-	async repoGitDir(): Promise<string> {
-		if (!this.repoGitDirPath) {
-			const repoDir = await this.repoDir();
-			this.repoGitDirPath = path.join(repoDir, '.git');
-		}
-		return this.repoGitDirPath;
+	forkedRepoDir(log: (output: string) => void): string {
+		const fork = this.forkedRepoObject(log);
+		return fork.repoDir();
+	}
+
+	artifactArchiveFile(): string {
+		const artifactDir = this.forkedRepoDir(null);
+		return path.join(path.dirname(artifactDir), `${this.owner.name}_${this.name}.zip`);
+	}
+
+	repoObject(log: (output: string) => void): GithubRepo {
+		return new GithubRepo(log, '/data/batchai-examples/repo', this.owner.name, this.name, false);
 	}
 }

@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { RepoBasic, useSession, Page, RepoSearchParams, SessionState, CommandBasic, CommandDetail, otEvent, ParsedRepoPath } from '@/lib';
 import React, { useEffect, useRef, useState } from 'react';
 import * as repoApi from '@/api/repo.api';
-import { useRouter } from 'next/navigation';
+import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
 import Avatar from '@mui/material/Avatar';
 import { UIContextType, useUIContext } from '@/lib/ui.context';
 import SearchBar from './search-bar';
@@ -137,7 +137,12 @@ export default function RepoList() {
                   <DeleteIcon sx={{ ml: 1, color: 'gray' }} onClick={(e) => onDeleteRepo(e, repo)}/>
                 </Typography>
               </Link>
-              <Typography variant="h5" sx={{color: 'white'}}>{repo.repoPath(false)}</Typography>
+              <Typography variant="h5" sx={{color: 'white'}}>
+                {repo.repoPath(false)}
+                <Link href={`/rest/v1/repos/id/${repo.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#B8E986' }}>
+                  <DownloadIcon sx={{ ml: 2, color: '#4A90E2'}} />
+                </Link>
+              </Typography>
               <Box sx={{mt: 4}}>
                 <CommandChip key="check" repo={repo} commandName="check" onCommandCreated={onCommandCreated}/>
                 <CommandChip key="test" repo={repo} commandName="test" onCommandCreated={onCommandCreated}/>

@@ -5,7 +5,7 @@ import { dirExists, GithubRepo, listPathsWithPrefix, remoteRepoExists, renameFil
 import { Repo } from '../entity';
 import { ListAvaiableTargetPathsParams, RepoCreateReq, RepoSearchParams } from '../dto';
 import { Page, Kontext, User } from '../framework';
-
+import moment from 'moment';
 @Injectable()
 export class RepoService {
 	private readonly logger = new Logger(RepoService.name);
@@ -74,7 +74,7 @@ export class RepoService {
 		r = await this.dao.save(r);
 
 		// check remote repository then clone/pull it
-		const repoObj = await this.newRepoObject(r);
+		const repoObj = this.newRepoObject(r);
 		this.logger.log(`remote repository ${r.repoUrl()} is ok`);
 
 		let fork = repoObj.forkedRepo();
@@ -96,14 +96,8 @@ export class RepoService {
 		return r;
 	}
 
-	private async newRepoObject(repo: Repo): Promise<GithubRepo> {
-		return new GithubRepo(
-			(output) => this.logger.log(output),
-			`/data/batchai-examples/repo`,
-			repo.owner.name,
-			repo.name,
-			false,
-		);
+	private newRepoObject(repo: Repo): GithubRepo {
+		return repo.repoObject((output) => this.logger.log(output));
 	}
 
 	listAll(): Promise<Repo[]> {
@@ -128,19 +122,9 @@ export class RepoService {
 	}
 
 	async archiveArtifacts(repo: Repo): Promise<void> {
-		const date = new Date();
+		const ts = moment().format('YYYY_MM_DD_HH_mm_ss');
 
-		const y = date.getFullYear();
-		const mon = String(date.getMonth() + 1).padStart(2, '0');
-		const d = String(date.getDate()).padStart(2, '0');
-		const h = String(date.getHours()).padStart(2, '0');
-		const min = String(date.getMinutes()).padStart(2, '0');
-		const ms = String(date.getMilliseconds()).padStart(3, '0');
-
-		const ts = `${y}_${mon}${d}_${h}${min}_${ms}`;
-
-		const repoObj = await this.newRepoObject(repo);
-		const forkedRepoDir = repoObj.forkedRepo().repoDir();
+		const forkedRepoDir = repo.forkedRepoObject(null).repoDir();
 
 		const repoArchiveDir = await repo.repoArchiveDir(ts);
 		await renameFileOrDir(forkedRepoDir, repoArchiveDir);
@@ -150,9 +134,7 @@ export class RepoService {
 		params.normalize();
 
 		const r = await this.load(id);
-		const repoObj = await this.newRepoObject(r);
-		const fork = repoObj.forkedRepo();
-		const repoDir = fork.repoDir();
+		const repoDir = r.forkedRepoDir(null);
 		if (!(await dirExists(repoDir))) {
 			return [];
 		}
