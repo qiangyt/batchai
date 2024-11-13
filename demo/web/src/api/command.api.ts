@@ -19,10 +19,6 @@ export async function restartCommand(s:SessionState, ui: UIContextType, id:numbe
   return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/restart`));
 }
 
-export async function resumeCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
-  return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/resume`));
-}
-
 export async function stopCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
   return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/stop`));
 }

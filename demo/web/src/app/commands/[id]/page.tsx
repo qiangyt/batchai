@@ -40,7 +40,7 @@ const steps: Step[] = [
     needChanges: false
   }, {
     status: CommandRunStatus.CheckedOut,
-    label: "`git checkout -b feature/batchai`",
+    label: "`git checkout -b batchai/...`",
     needChanges: false
   }, {
     status: CommandRunStatus.BatchAIExecuted,
@@ -145,11 +145,6 @@ export default function CommandHome({ params }) {
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
   };
 
-  const onResume = async () => {
-    const c = await commandApi.resumeCommand(s, ui, id);
-    refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
-  };
-
   const onStop = async () => {
     const c = await commandApi.stopCommand(s, ui, id);
     refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
@@ -179,7 +174,6 @@ export default function CommandHome({ params }) {
 
   const enableRestart = (status !== CommandStatus.Running);
   const enableStop = (status === CommandStatus.Running);
-  const enableResume = (status === CommandStatus.Pending || status === CommandStatus.Failed);
   const enableDelete = (status !== CommandStatus.Running);
   const enableEdit = (status !== CommandStatus.Running);
   
@@ -221,9 +215,6 @@ export default function CommandHome({ params }) {
         </ToolbarIcon>
         <ToolbarIcon key='Stop' label='Stop' enabled={enableStop} onClick={onStop}>
           <StopIcon sx={{ color: enableStop ? '#B8E986' : 'gray' }} />
-        </ToolbarIcon>
-        <ToolbarIcon key='Resume' label='Resume' enabled={enableResume} onClick={onResume}>
-          <ResumeIcon sx={{ color: enableResume ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
         <ToolbarIcon key='Edit' label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
           <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />
