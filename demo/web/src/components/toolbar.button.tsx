@@ -16,6 +16,7 @@ export default function ToolbarIcon({ enabled, children, label, onClick }: Toolb
     const ui = useUIContext();
 
     const asyncOnClick = async() => {
+        ui.setLoading(true);
         try {
            onClick();
          } catch (error) {

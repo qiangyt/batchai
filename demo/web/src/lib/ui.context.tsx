@@ -7,6 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import React, { createContext, useContext, useState, ReactNode, useMemo, useEffect } from 'react';
 import { ConfirmDialog, ConfirmDialogMessage, ConfirmDialogProps } from '../components/confirm-dialog';
+import Backdrop from '@mui/material/Backdrop';
 
 export interface UIContextType {
   setLoading: (value: boolean) => void;
@@ -60,14 +61,9 @@ export const UIContextProvider = ({ children }: { children: ReactNode }) => {
       </UIContext.Provider>
 
       {loading && (
-        <Box
-          sx={{
-            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1300,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255, 255, 255, 0.7)'
-          }}
-        >
-          <CircularProgress />
-        </Box>
+        <Backdrop sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })} open={true}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
       )}
 
       <Snackbar open={!!error} autoHideDuration={4000} onClose={handleCloseError}>

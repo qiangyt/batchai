@@ -78,7 +78,14 @@ export default function RepoList() {
     if (newRepoPath) {
       const parsed = ParsedRepoPath.parse(newRepoPath);
       if (parsed) {
+        ui.setLoading(true);
+        try {
         await repoApi.createRepo(s, ui, {path: newRepoPath});
+        } catch (err) {
+          ui.setError(err);
+        } finally {
+          ui.setLoading(false);
+        }
         await searchRepo(s, ui, setPage);
       }
     }
@@ -105,7 +112,15 @@ export default function RepoList() {
         subjectType: 'repository'
       }, 
       async() => {
+        ui.setLoading(true);
+        try {
         await repoApi.removeRepo(s, ui, repo.id);
+        } catch (err) {
+          ui.setError(err);
+        } finally {
+          ui.setLoading(false);
+        }
+
         await searchRepo(s, ui, setPage);
       }
     );    
