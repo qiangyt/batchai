@@ -102,3 +102,17 @@ export class RepoCreateReq {
 		return this.parsedRepoPath;
 	}
 }
+
+export class ListAvaiableTargetPathsParams {
+	@IsOptional()
+	@IsString()
+	path: string;
+
+	normalize() {
+		if (this.path) {
+			if (this.path.startsWith('/')) {
+				this.path = this.path.substring(1);
+			}
+		}
+	}
+}

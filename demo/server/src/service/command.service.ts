@@ -5,9 +5,9 @@ import { CommandStatus, CommandRunStatus } from '../constants';
 import { promises as fs } from 'fs';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
-import { spawnAsync, GithubRepo, fileExists, dirExists, listPathsWithPrefix, renameFileOrDir } from '../helper';
+import { spawnAsync, GithubRepo, fileExists, renameFileOrDir } from '../helper';
 import { Repo, Command } from '../entity';
-import { CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams } from '../dto';
+import { CommandCreateReq, CommandUpdateReq } from '../dto';
 import { Kontext } from '../framework';
 
 @Injectable()
@@ -202,20 +202,6 @@ export class CommandService {
 			return await fs.readFile(logFile, 'utf-8');
 		}
 		return '';
-	}
-
-	async listAvaiableTargetPaths(id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
-		params.normalize();
-
-		const c = await this.load(id);
-		const repoObj = await this.newRepoObject(c);
-		const fork = repoObj.forkedRepo();
-		const repoDir = fork.repoDir();
-		if (!(await dirExists(repoDir))) {
-			return [];
-		}
-
-		return listPathsWithPrefix(repoDir, params.path);
 	}
 
 	//@Interval('Commands', 5 * 1000)

@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put } from '@nestjs/common';
 import { CommandStatus } from '../constants';
 import { CommandFacade } from '../service';
 import { CommandApi } from '../api';
 import { RequiredRoles, Role, Kontext, RequestKontext } from '../framework';
-import { CommandDetail, CommandBasic, CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams } from '../dto';
+import { CommandDetail, CommandBasic, CommandCreateReq, CommandUpdateReq } from '../dto';
 
 @Controller('rest/v1/commands')
 export class CommandRest implements CommandApi {
@@ -41,16 +41,6 @@ export class CommandRest implements CommandApi {
 	@Get('id/:id/log')
 	loadCommandLog(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<string> {
 		return this.facade.loadCommandLog(x, id);
-	}
-
-	@RequiredRoles(Role.User)
-	@Get('id/:id/available_paths')
-	listAvaiableTargetPaths(
-		@RequestKontext() x: Kontext,
-		@Param('id') id: number,
-		@Query() params: ListAvaiableTargetPathsParams,
-	): Promise<string[]> {
-		return this.facade.listAvaiableTargetPaths(x, id, params);
 	}
 
 	@RequiredRoles(Role.User)

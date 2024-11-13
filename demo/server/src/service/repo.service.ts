@@ -1,9 +1,9 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { remoteRepoExists } from '../helper';
+import { dirExists, GithubRepo, listPathsWithPrefix, remoteRepoExists, renameFileOrDir } from '../helper';
 import { Repo } from '../entity';
-import { RepoCreateReq, RepoSearchParams } from '../dto';
+import { ListAvaiableTargetPathsParams, RepoCreateReq, RepoSearchParams } from '../dto';
 import { Page, Kontext, User } from '../framework';
 
 @Injectable()
@@ -90,5 +90,19 @@ export class RepoService {
 
 	async remove(repo: Repo): Promise<void> {
 		await this.dao.remove(repo);
+	}
+
+	async listAvaiableTargetPaths(id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
+		params.normalize();
+
+		const r = await this.load(id);
+		const repoObj = await this.newRepoObject(r);
+		const fork = repoObj.forkedRepo();
+		const repoDir = fork.repoDir();
+		if (!(await dirExists(repoDir))) {
+			return [];
+		}
+
+		return listPathsWithPrefix(repoDir, params.path);
 	}
 }

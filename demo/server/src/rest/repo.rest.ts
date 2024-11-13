@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Delete, Query, HttpStatus, HttpCode, Post, Body } from '@nestjs/common';
 import { RepoFacade } from '../service';
 import { Kontext, RequestKontext, Page, RequiredRoles, Role } from '../framework';
-import { RepoBasic, RepoCreateReq, RepoDetail, RepoSearchParams } from '../dto';
+import { ListAvaiableTargetPathsParams, RepoBasic, RepoCreateReq, RepoDetail, RepoSearchParams } from '../dto';
 import { RepoApi } from '../api';
 
 @Controller('rest/v1/repos')
@@ -47,5 +47,15 @@ export class RepoRest implements RepoApi {
 	@Post()
 	async createRepo(@RequestKontext() x: Kontext, @Body() params: RepoCreateReq): Promise<RepoDetail> {
 		return this.facade.createRepo(x, params);
+	}
+
+	@RequiredRoles(Role.User)
+	@Get('id/:id/available_paths')
+	listAvaiableTargetPaths(
+		@RequestKontext() x: Kontext,
+		@Param('id') id: number,
+		@Query() params: ListAvaiableTargetPathsParams,
+	): Promise<string[]> {
+		return this.facade.listAvaiableTargetPaths(x, id, params);
 	}
 }

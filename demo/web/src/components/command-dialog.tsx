@@ -108,7 +108,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
         
         <FormControlLabel sx={{mt: 1}} control={<Checkbox size='small' checked={data.executeItRightNow} onChange={onChangeExecuteItRightNow}/>} label="Executes it right now"/>
         
-        <TargetPathInput id={data.id} targetPaths={data.targetPaths} onChange={onTargetPathsChange}/>
+        <TargetPathInput commandId={data.id} repoId={data.repo.id} targetPaths={data.targetPaths} onChange={onTargetPathsChange}/>
 
       </DialogContent>
       <DialogActions>

@@ -80,3 +80,7 @@ export class RepoSearchParams {
 export class RepoCreateReq {
   path: string;
 }
+
+export class ListAvaiableTargetPathsParams {
+	path: string
+}

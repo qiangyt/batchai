@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RepoBasic, RepoCreateReq, RepoDetail, RepoSearchParams } from '../dto';
+import { ListAvaiableTargetPathsParams, RepoBasic, RepoCreateReq, RepoDetail, RepoSearchParams } from '../dto';
 import { DataSource } from 'typeorm';
 import { RepoService } from './repo.service';
 import { CommandService } from './command.service';
@@ -56,5 +56,11 @@ export class RepoFacade implements RepoApi {
 		const owner = await this.userService.resolve(x, ownerName);
 		const repo = await this.service.create(x, params, owner);
 		return RepoDetail.from(repo);
+	}
+
+	@Transactional({ readOnly: true })
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async listAvaiableTargetPaths(x: Kontext, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
+		return this.service.listAvaiableTargetPaths(id, params);
 	}
 }

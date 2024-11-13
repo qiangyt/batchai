@@ -1,6 +1,6 @@
 import { UIContextType } from '@/lib/ui.context';
 import withAxios from './request'
-import { SessionState, RepoBasic, Page, RepoDetail, RepoSearchParams, RepoCreateReq } from '@/lib';
+import { SessionState, RepoBasic, Page, RepoDetail, RepoSearchParams, RepoCreateReq, ListAvaiableTargetPathsParams } from '@/lib';
 
 
 export async function searchRepo(s:SessionState, ui: UIContextType, params?: RepoSearchParams): Promise<Page<RepoBasic>> {
@@ -18,4 +18,8 @@ export async function createRepo(s: SessionState, ui: UIContextType, params: Rep
 
 export async function removeRepo(s:SessionState, ui: UIContextType, id:number): Promise<void> {
   return withAxios(s, ui).delete(`/repos/id/${id}`);
+}
+
+export async function listAvaiableTargetPaths(s:SessionState, ui: UIContextType, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
+  return withAxios(s, ui).get(`/repos/id/${id}/available_paths`, { params });
 }

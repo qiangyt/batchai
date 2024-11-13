@@ -1,5 +1,5 @@
 import { Kontext, Page } from '../framework';
-import { RepoDetail, RepoBasic, RepoSearchParams, RepoCreateReq } from '../dto';
+import { RepoDetail, RepoBasic, RepoSearchParams, RepoCreateReq, ListAvaiableTargetPathsParams } from '../dto';
 
 export interface RepoApi {
 	createRepo(x: Kontext, params: RepoCreateReq): Promise<RepoDetail>;
@@ -13,4 +13,6 @@ export interface RepoApi {
 	loadRepo(x: Kontext, id: number): Promise<RepoDetail>;
 
 	removeRepo(x: Kontext, id: number): Promise<void>;
+
+	listAvaiableTargetPaths(x: Kontext, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]>;
 }

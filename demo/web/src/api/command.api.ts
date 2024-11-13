@@ -15,10 +15,6 @@ export async function loadCommandLog(s:SessionState, ui: UIContextType, id: numb
   return await withAxios(s, ui).get(`/commands/id/${id}/log`);
 }
 
-export async function listAvaiableTargetPaths(s:SessionState, ui: UIContextType, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
-  return withAxios(s, ui).get(`/commands/id/${id}/available_paths`, { params });
-}
-
 export async function restartCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
   return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/restart`));
 }

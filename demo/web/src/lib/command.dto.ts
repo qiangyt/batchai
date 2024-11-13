@@ -311,7 +311,3 @@ export class ParsedRepoPath {
 		return new ParsedRepoPath(ownerName, repoName);
 	}
 }
-
-export class ListAvaiableTargetPathsParams {
-	path: string
-}

@@ -9,37 +9,36 @@ import ListItemText from "@mui/material/ListItemText";
 import TextField from "@mui/material/TextField";
 import { ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
-import * as commandApi from '@/api/command.api';
+import * as repoApi from '@/api/repo.api';
 import _ from 'lodash';
 
 
 interface TargetPathInputProps {
-  id: number;
+  repoId: number;
+  commandId: number;
   targetPaths: string[];
-  onChange: (targetPaths:string[]) => void;
+  onChange: (targetPaths: string[]) => void;
 }
 
-async function refreshAvailableTargetPaths(s: SessionState, ui: UIContextType, id: number, prefix:string, setAvailableTargetPaths: Dispatch<SetStateAction<string[]>>) {
-  if (id) {
-    if (prefix.startsWith('/')) prefix = prefix.slice(1);
-	  if (prefix.endsWith('/')) prefix = prefix.slice(0, prefix.length - 1);
+async function refreshAvailableTargetPaths(s: SessionState, ui: UIContextType, repoId: number, prefix: string, setAvailableTargetPaths: Dispatch<SetStateAction<string[]>>) {
+  if (prefix.startsWith('/')) prefix = prefix.slice(1);
+  if (prefix.endsWith('/')) prefix = prefix.slice(0, prefix.length - 1);
 
-    const paths = await commandApi.listAvaiableTargetPaths(s, ui, id, {path: prefix});
-    setAvailableTargetPaths(paths.map(p => prefix ? prefix + '/' + p : p));
-  }
+  const paths = await repoApi.listAvaiableTargetPaths(s, ui, repoId, { path: prefix });
+  setAvailableTargetPaths(paths.map(p => prefix ? prefix + '/' + p : p));
 }
 
-export default function TargetPathInput({ id, targetPaths, onChange }: TargetPathInputProps) {
+export default function TargetPathInput({ repoId, commandId, targetPaths, onChange }: TargetPathInputProps) {
   const s = useSession().state;
   const ui = useUIContext();
 
   const [targetPath, setTargetPath] = useState('');
   const [availableTargetPaths, setAvailableTargetPaths] = useState([]);
-  
+
   useEffect(() => {
-    refreshAvailableTargetPaths(s, ui, id, '', setAvailableTargetPaths);
-  }, [s, ui, id]);
-  
+    refreshAvailableTargetPaths(s, ui, repoId, '', setAvailableTargetPaths);
+  }, [s, ui, repoId]);
+
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       onAddTargetPath();
@@ -50,11 +49,11 @@ export default function TargetPathInput({ id, targetPaths, onChange }: TargetPat
   const onTargetPathInputChange = (e) => {
     //otEvent(e);
 
-    const path:string = e.target.value;
+    const path: string = e.target.value;
     setTargetPath(path);
 
-    if (id && path.endsWith('/')) {
-      refreshAvailableTargetPaths(s, ui, id, path, setAvailableTargetPaths);
+    if (path.endsWith('/')) {
+      refreshAvailableTargetPaths(s, ui, repoId, path, setAvailableTargetPaths);
     }
   };
 
@@ -76,9 +75,9 @@ export default function TargetPathInput({ id, targetPaths, onChange }: TargetPat
 
   return <Box sx={{ mt: 2, border: 0.5, borderColor: 'lightgray', borderRadius: 1, padding: 1 }}>
     <Autocomplete size='small' freeSolo fullWidth onKeyDown={onKeyDown}
-        options={availableTargetPaths} value={targetPath} 
-        onInputChange={onTargetPathInputChange} onChange={onTargetPathChange}
-        renderInput={(params) => <TextField {...params} label="Target Path" />}
+      options={availableTargetPaths} value={targetPath}
+      onInputChange={onTargetPathInputChange} onChange={onTargetPathChange}
+      renderInput={(params) => <TextField {...params} label="Target Path" />}
     />
     <Button variant="contained" color="inherit" onClick={onAddTargetPath} sx={{ mt: 1, mb: 1 }}>
       Add Target Path
