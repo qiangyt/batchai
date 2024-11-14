@@ -149,13 +149,13 @@ export default function RepoList() {
             <Box>
               <Link href={repo.repoUrl}>
                 <Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}
-                  <DeleteIcon sx={{ ml: 1, color: 'gray' }} onClick={(e) => onDeleteRepo(e, repo)}/>
+                  <DeleteIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onDeleteRepo(e, repo)}/>
                 </Typography>
               </Link>
-              <Typography variant="h5" sx={{color: 'white'}}>
+              <Typography variant="h5" sx={{color: 'white', mt: 1}}>
                 {repo.repoPath(false)}
-                <Link href={`/rest/v1/repos/id/${repo.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#B8E986' }}>
-                  <DownloadIcon sx={{ ml: 2, color: '#4A90E2'}} />
+                <Link href={`/rest/v1/repos/id/${repo.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'white' }}>
+                  <DownloadIcon sx={{ ml: 2}} />
                 </Link>
               </Typography>
               <Box sx={{mt: 4}}>

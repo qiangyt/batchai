@@ -79,10 +79,8 @@ export class GithubRepo {
 
 		const args = ['clone', '--depth', `${depth}`, this._url];
 		const code = await spawnAsync(this.ownerDir, 'git', args, this.log, this.log);
-		const msg = `exitCode=${code}, command line="${['git', ...args].join(' ')}"`;
-		this.log(`git clone end: ${msg}`);
 		if (code !== 0) {
-			throw new Error(`git clone failed: ${msg}`);
+			throw new Error(`git clone failed: exitCode=${code}, command line="${['git', ...args].join(' ')}"`);
 		}
 	}
 
@@ -90,10 +88,8 @@ export class GithubRepo {
 		this.log(`Pulling in ${this._repoDir}...`);
 
 		const code = await spawnAsync(this._repoDir, 'git', ['pull'], this.log, this.log);
-		const msg = `exitCode=${code}, command line="git pull"}`;
-		this.log(`git pull end: ${msg}`);
 		if (code !== 0) {
-			throw new Error(`git pull failed: ${msg}`);
+			throw new Error(`git pull failed: exitCode=${code}, command line="git pull"}`);
 		}
 	}
 
@@ -101,10 +97,8 @@ export class GithubRepo {
 		this.log(`Adding files in ${this._repoDir}...`);
 
 		const code = await spawnAsync(this._repoDir, 'git', ['add', '.'], this.log, this.log);
-		const msg = `exitCode=${code}, command line="git add ."}`;
-		this.log(`git add end: ${msg}`);
 		if (code !== 0) {
-			throw new Error(`git add failed: ${msg}`);
+			throw new Error(`git add failed: exitCode=${code}, command line="git add ."`);
 		}
 	}
 
@@ -138,10 +132,8 @@ export class GithubRepo {
 			this.log,
 			this.log,
 		);
-		const msg = `exitCode=${code}, command line="git push origin --delete ${this._branch}"}`;
-		this.log(`git push end: ${msg}`);
 		if (code !== 0) {
-			throw new Error(`git push failed: ${msg}`);
+			throw new Error(`git push failed: exitCode=${code}, command line="git push origin --delete ${this._branch}"`);
 		}
 
 		this.log(`Removed remote branch in ${this._repoDir}...`);
@@ -156,10 +148,10 @@ export class GithubRepo {
 			this.log,
 			this.log,
 		);
-		const msg = `exitCode=${code}, command line="git push --set-upstream origin ${this._branch}"`;
-		this.log(`git push end: ${msg}`);
 		if (code !== 0) {
-			throw new Error(`git push failed: ${msg}`);
+			throw new Error(
+				`git push failed: exitCode=${code}, command line="git push --set-upstream origin ${this._branch}"`,
+			);
 		}
 	}
 
@@ -181,11 +173,9 @@ export class GithubRepo {
 			this.log,
 		);
 
-		const msg = `exitCode=${code}, command line="git ${args.join(' ')}"`;
-		this.log(`git commit end: ${msg}`);
 		if (code !== 0) {
 			if (!nothingToCommit) {
-				throw new Error(`git commit failed: ${msg}`);
+				throw new Error(`git commit failed: exitCode=${code}, command line="git ${args.join(' ')}"`);
 			}
 		}
 
@@ -218,10 +208,8 @@ export class GithubRepo {
 		if (cleanAnyway) {
 			this.log(`Clean up in ${this._repoDir}...`);
 			const code = await spawnAsync(this._repoDir, 'git', ['clean', '-fd'], this.log, this.log);
-			const msg = `exitCode=${code}, command line="git clean -fd"`;
-			this.log(`git clean end: ${msg}`);
 			if (code !== 0) {
-				throw new Error(`git clean failed: ${msg}`);
+				throw new Error(`git clean failed: exitCode=${code}, command line="git clean -fd"`);
 			}
 		}
 
@@ -229,21 +217,17 @@ export class GithubRepo {
 
 		try {
 			let args = ['rev-parse', '--verify', newBranch];
-			let code = await spawnAsync(this._repoDir, 'git', args);
-			let msg = `exitCode=${code}, command line="${['git', ...args].join(' ')}"`;
-			this.log(`git rev-parse end: ${msg}`);
+			let code = await spawnAsync(this._repoDir, 'git', args, this.log, this.log);
 			if (code !== 0) {
-				throw new Error(`git rev-parse failed: ${msg}`);
+				throw new Error(`git rev-parse failed: exitCode=${code}, command line="${['git', ...args].join(' ')}"`);
 			}
 
 			this.log(`Branch '${newBranch}' exists. Checking out...`);
 
 			args = ['checkout', newBranch];
 			code = await spawnAsync(this._repoDir, 'git', args, this.log, this.log);
-			msg = `exitCode=${code}, command line="${['git', ...args].join(' ')}"`;
-			this.log(`git checkout end: ${msg}`);
 			if (code !== 0) {
-				throw new Error(`git checkout failed: ${msg}`);
+				throw new Error(`git checkout failed: exitCode=${code}, command line="${['git', ...args].join(' ')}"`);
 			}
 
 			this._branch = newBranch;
@@ -252,10 +236,8 @@ export class GithubRepo {
 			this.log(`Branch '${newBranch}' does not exist (err=${err}). Creating and checking out...`);
 			const args = ['checkout', '-b', newBranch];
 			const code = await spawnAsync(this._repoDir, 'git', args, this.log, this.log);
-			const msg = `exitCode=${code}, command line="${['git', ...args].join(' ')}"`;
-			this.log(`git checkout end: ${msg}`);
 			if (code !== 0) {
-				throw new Error(`git checkout failed: ${msg}`);
+				throw new Error(`git checkout failed: exitCode=${code}, command line="${['git', ...args].join(' ')}"`);
 			}
 
 			this._branch = newBranch;
@@ -335,11 +317,11 @@ export class GithubRepo {
 		this.log(`getting last commit id in ${this._repoDir}...`);
 
 		const args = ['log', '-1', '--format=%H'];
-		const { stdout, stderr, exitCode } = await execAsync(this._repoDir, 'git', args);
-		const msg = `git log -1 --format=%H: exitCode=${exitCode}, stdout=${stdout}, stderr=${stderr}, command line="${['git', ...args].join(' ')}"`;
-		this.log(msg);
+		const { stdout, stderr, exitCode } = await execAsync(this._repoDir, 'git', args, this.log);
 		if (exitCode !== 0) {
-			throw new Error(msg);
+			throw new Error(
+				`git log -1 --format=%H: exitCode=${exitCode}, stdout=${stdout}, stderr=${stderr}, command line="${['git', ...args].join(' ')}"`,
+			);
 		}
 		return stdout.trim();
 	}

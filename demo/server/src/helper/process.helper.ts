@@ -4,6 +4,7 @@ export function execAsync(
 	cwd: string,
 	command: string,
 	args: string[],
+	log?: (output: string) => void,
 	silent: boolean = false,
 	timeout: number = 0,
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
@@ -14,6 +15,7 @@ export function execAsync(
 		options.timeout = timeout * 1000;
 	}
 
+	if (log) log(fullCommand);
 	return new Promise((resolve, reject) => {
 		exec(fullCommand, options, (err, stdout, stderr) => {
 			if (err) {
@@ -47,7 +49,7 @@ export function spawnAsync(
 	timeout: number = 0,
 ): Promise<number> {
 	return new Promise((resolve, reject) => {
-		if (fnStdout) fnStdout(`${cwd}$ ${command} ${args.join(' ')}`);
+		if (fnStdout) fnStdout(`${command} ${args.join(' ')}`);
 
 		const options: ExecOptions = { cwd, env: { ...process.env } };
 		const child = spawn(command, args, options);
