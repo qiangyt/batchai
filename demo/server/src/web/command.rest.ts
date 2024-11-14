@@ -3,7 +3,7 @@ import { CommandStatus } from '../constants';
 import { CommandFacade } from '../service';
 import { CommandApi } from '../api';
 import { RequiredRoles, Role, Kontext, RequestKontext } from '../framework';
-import { CommandDetail, CommandBasic, CommandCreateReq, CommandUpdateReq } from '../dto';
+import { CommandDetail, CommandBasic, CommandCreateReq, CommandUpdateReq, CommandLog } from '../dto';
 
 @Controller('rest/v1/commands')
 export class CommandRest implements CommandApi {
@@ -39,7 +39,7 @@ export class CommandRest implements CommandApi {
 
 	@RequiredRoles(Role.None)
 	@Get('id/:id/log')
-	loadCommandLog(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<string> {
+	loadCommandLog(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandLog[]> {
 		return this.facade.loadCommandLog(x, id);
 	}
 

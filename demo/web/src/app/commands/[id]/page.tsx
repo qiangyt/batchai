@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-import { CommandDetail, CommandEditData, CommandRunStatus, CommandStatus, SessionState, useSession } from "@/lib";
+import { CommandDetail, CommandEditData, CommandLog, CommandRunStatus, CommandStatus, SessionState, useSession } from "@/lib";
 import * as commandApi from '@/api/command.api';
 import * as repoApi from '@/api/repo.api';
 import { UIContextType, useUIContext } from '@/lib/ui.context';
@@ -77,12 +77,12 @@ const steps: Step[] = [
 
 async function refreshPage(s: SessionState, ui: UIContextType, id: number,
   setCommand: React.Dispatch<React.SetStateAction<CommandDetail>>,
-  setLog: React.Dispatch<React.SetStateAction<string>>,
+  setLogs: React.Dispatch<React.SetStateAction<CommandLog[]>>,
   setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
   ui.setLoading(true);
   try {
     const c = await commandApi.loadCommand(s, ui, id);
-    refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
+    refreshCommand(s, ui, c, setCommand, setLogs, setActiveStep);
   } catch (err) {
     ui.setError(err);
   } finally {
@@ -92,16 +92,16 @@ async function refreshPage(s: SessionState, ui: UIContextType, id: number,
 
 async function refreshCommand(s: SessionState, ui: UIContextType, c: CommandDetail,
   setCommand: React.Dispatch<React.SetStateAction<CommandDetail>>,
-  setLog: React.Dispatch<React.SetStateAction<string>>,
+  setLogs: React.Dispatch<React.SetStateAction<CommandLog[]>>,
   setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
   ui.setLoading(true);
   try {
     setActiveStep(steps.findIndex(x => x.status === c.runStatus));
     setCommand(c);
 
-    const log = await commandApi.loadCommandLog(s, ui, c.id);
-    //setLog(log.replace(/\n/g, '<br/>') || "...");
-    setLog(log);
+    const logs = await commandApi.loadCommandLog(s, ui, c.id);
+    //setLog(logs.replace(/\n/g, '<br/>') || "...");
+    setLogs(logs);
   } catch (err) {
     ui.setError(err);
   } finally {
@@ -114,7 +114,7 @@ export default function CommandHome({ params }) {
   const [command, setCommand] = useState<CommandDetail>(null);
   const [openCommandDialog, setOpenCommandDialog] = useState(false);
   const status = command?.status || '';
-  const [log, setLog] = useState<string>("...");
+  const [logs, setLogs] = useState<CommandLog[]>([]);
   const repo = command?.repo;
   const owner = repo?.owner;
   const id = params.id;
@@ -139,21 +139,21 @@ export default function CommandHome({ params }) {
   };
 
   useEffect(() => {
-    refreshPage(s, ui, id, setCommand, setLog, setActiveStep);
+    refreshPage(s, ui, id, setCommand, setLogs, setActiveStep);
   }, [s, ui, id]);
 
   const onRefresh = async () => {
-    refreshPage(s, ui, id, setCommand, setLog, setActiveStep);
+    refreshPage(s, ui, id, setCommand, setLogs, setActiveStep);
   };
 
   const onRestart = async () => {
     const c = await commandApi.restartCommand(s, ui, id);
-    refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
+    refreshCommand(s, ui, c, setCommand, setLogs, setActiveStep);
   };
 
   const onStop = async () => {
     const c = await commandApi.stopCommand(s, ui, id);
-    refreshCommand(s, ui, c, setCommand, setLog, setActiveStep);
+    refreshCommand(s, ui, c, setCommand, setLogs, setActiveStep);
   };
 
   const onDelete = async () => {
@@ -257,7 +257,7 @@ export default function CommandHome({ params }) {
             <ContentCopyIcon />
           </IconButton>
         </div>
-        <ReactAnsi log={log} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
+        <ReactAnsi log={logs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
       </Box>
 
       <Drawer anchor='right' open={showProgress} onClose={toggleProgress(false)}>

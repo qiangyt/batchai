@@ -1,6 +1,6 @@
 import { UIContextType } from '@/lib/ui.context';
 import withAxios from './request'
-import { SessionState, CommandDetail, CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams } from '@/lib';
+import { SessionState, CommandDetail, CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams, CommandLog } from '@/lib';
 
 
 export async function createCommand(s:SessionState, ui: UIContextType, params: CommandCreateReq): Promise<CommandDetail> {
@@ -11,7 +11,7 @@ export async function loadCommand(s:SessionState, ui: UIContextType, id:number):
   return CommandDetail.with(await withAxios(s, ui).get(`/commands/id/${id}`));
 }
 
-export async function loadCommandLog(s:SessionState, ui: UIContextType, id: number): Promise<string> {
+export async function loadCommandLog(s:SessionState, ui: UIContextType, id: number): Promise<CommandLog[]> {
   return await withAxios(s, ui).get(`/commands/id/${id}/log`);
 }
 

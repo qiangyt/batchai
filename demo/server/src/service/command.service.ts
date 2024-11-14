@@ -7,7 +7,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
 import { spawnAsync, GithubRepo, fileExists, renameFileOrDir } from '../helper';
 import { Repo, Command } from '../entity';
-import { CommandCreateReq, CommandUpdateReq } from '../dto';
+import { CommandCreateReq, CommandLog, CommandUpdateReq } from '../dto';
 import { Kontext } from '../framework';
 import AdmZip from 'adm-zip';
 
@@ -198,17 +198,23 @@ export class CommandService {
 		return r;
 	}
 
-	async loadLog(id: number): Promise<string> {
+	async loadLog(id: number): Promise<CommandLog[]> {
 		const c = await this.load(id);
 		if (!c) {
 			throw new NotFoundException(`id=${id}`);
 		}
 
 		const logFile = await c.logFile();
-		if (await fileExists(logFile)) {
-			return await fs.readFile(logFile, 'utf-8');
+		if (!(await fileExists(logFile))) {
+			return [];
 		}
-		return '';
+
+		const content = await fs.readFile(logFile, 'utf-8');
+		return content
+			.split('\n')
+			.map((line) => line.trim())
+			.filter((line) => line.length > 0)
+			.map((line) => JSON.parse(line));
 	}
 
 	//@Interval('Commands', 5 * 1000)
@@ -333,14 +339,8 @@ export class CommandService {
 	}
 
 	private async log(logFile: string, message: string): Promise<void> {
-		//const jsonLine = JSON.stringify({
-		//  timestamp: new Date().toISOString(),
-		//  message,
-		//});
-		//return fs.appendFile(logFile, jsonLine + `\n`, {
-		//  encoding: 'utf8',
-		//});
-		return fs.appendFile(logFile, `${new Date().toISOString()}\t${message}\n`);
+		const jsonLine = JSON.stringify(new CommandLog(new Date().toISOString(), message));
+		return fs.appendFile(logFile, jsonLine + `\n`, { encoding: 'utf8' });
 	}
 
 	private async newRepoObject(c: Command): Promise<GithubRepo> {

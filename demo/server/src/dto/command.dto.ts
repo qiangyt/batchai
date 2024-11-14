@@ -6,6 +6,13 @@ import { AuditableDto } from '../framework';
 import { BadRequestException } from '@nestjs/common';
 import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
+export class CommandLog {
+	constructor(
+		private readonly timestamp: string,
+		private readonly message: string,
+	) {}
+}
+
 export class CommandBasic extends AuditableDto {
 	command: string;
 	status: CommandStatus;

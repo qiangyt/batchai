@@ -5,6 +5,29 @@ import { AuditableDto } from './dto';
 import { Page } from './page';
 
 
+export class CommandLog {
+	timestamp: string;
+	message: string;
+
+	static with(obj: any): CommandLog {
+		if (!obj) return obj;
+		Object.setPrototypeOf(obj, CommandLog.prototype);
+		return obj;
+	}
+
+	static withMany(cmds: any[]): CommandLog[] {
+		if (!cmds) return cmds;
+		return cmds.map(CommandLog.with);
+	}
+
+	static withPage(p: any): Page<CommandLog> {
+		if (!p) return p;
+		Page.with(p);
+		CommandLog.withMany(p.elements);
+		return p;
+	}
+}
+
 export enum CommandStatus {
 	Pending = 'Pending',
 	Queued = 'Queued',
@@ -39,7 +62,8 @@ export class CommandBasic extends AuditableDto {
 
 	static with(obj: any): CommandBasic {
 		if (!obj) return obj;
-		AuditableDto.with(obj);
+		AuditableDto.with(obj);		
+		Object.setPrototypeOf(obj, CommandBasic.prototype);
 		return obj;
 	}
 

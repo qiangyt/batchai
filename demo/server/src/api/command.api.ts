@@ -1,6 +1,6 @@
 import { CommandStatus } from '../constants';
 import { Kontext } from '../framework';
-import { CommandCreateReq, CommandDetail, CommandBasic, CommandUpdateReq } from '../dto';
+import { CommandCreateReq, CommandDetail, CommandBasic, CommandUpdateReq, CommandLog } from '../dto';
 
 export interface CommandApi {
 	createCommand(x: Kontext, req: CommandCreateReq): Promise<CommandDetail>;
@@ -13,7 +13,7 @@ export interface CommandApi {
 
 	loadCommand(x: Kontext, id: number): Promise<CommandDetail>;
 
-	loadCommandLog(x: Kontext, id: number): Promise<string>;
+	loadCommandLog(x: Kontext, id: number): Promise<CommandLog[]>;
 
 	restartCommand(x: Kontext, id: number): Promise<CommandDetail>;
 
