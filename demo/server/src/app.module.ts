@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommandService, CommandFacade, RepoService, RepoFacade } from './service';
 import { Command, Repo } from './entity';
-import { CommandRest, RepoRest } from './rest';
+import { CommandRest, RepoRest } from './web';
 import { FrameworkModule, jwtAuthGuard, requestKontextInterceptor } from './framework';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SQLITE_FILE } from './constants';
