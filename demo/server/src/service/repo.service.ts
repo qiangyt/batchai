@@ -57,6 +57,8 @@ export class RepoService {
 	}
 
 	async create(x: Kontext, req: RepoCreateReq, owner: User): Promise<Repo> {
+		this.logger.log(`creating repository ${JSON.stringify(req)}, owner=${JSON.stringify(owner)}`);
+
 		const { ownerName, repoName } = req.parsePath();
 		if (await this.dao.existsBy({ owner: { id: owner.id }, name: repoName })) {
 			throw new ConflictException(`repository=${req.path}}`);
@@ -117,8 +119,10 @@ export class RepoService {
 	}
 
 	async remove(repo: Repo): Promise<void> {
+		this.logger.log(`removing repository ${JSON.stringify(repo)}`);
 		await this.archiveArtifacts(repo);
 		await this.dao.remove(repo);
+		this.logger.log(`removing repository ${repo.id}`);
 	}
 
 	async archiveArtifacts(repo: Repo): Promise<void> {

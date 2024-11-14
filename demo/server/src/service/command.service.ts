@@ -53,7 +53,7 @@ export class CommandService {
 	}
 
 	private async enqueue(x: Kontext, c: Command): Promise<Command> {
-		this.logger.warn(`add command to queue: ${JSON.stringify(c)}`);
+		this.logger.warn(`adding command to queue: ${JSON.stringify(c)}`);
 
 		if (c.status !== CommandStatus.Queued) {
 			c = await this.updateStatus(x, c, CommandStatus.Queued);
@@ -66,10 +66,14 @@ export class CommandService {
 				this.logger.log(`run command: queueing failed - err=${err}, ${JSON.stringify(c)}`);
 			}
 		});
+
+		this.logger.warn(`successfully added command to queue: ${c.id}`);
 		return c;
 	}
 
 	async update(x: Kontext, id: number, params: CommandUpdateReq): Promise<Command> {
+		this.logger.warn(`updating command: id=${id}`);
+
 		params.normalize();
 
 		let c = await this.load(id);
@@ -104,6 +108,7 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
+		this.logger.warn(`Successfully updated command: ${c}`);
 
 		if (params.executeItRightNow) {
 			if (c.status !== CommandStatus.Running && c.status !== CommandStatus.Queued) {
@@ -115,6 +120,8 @@ export class CommandService {
 	}
 
 	async create(x: Kontext, params: CommandCreateReq, repo: Repo): Promise<Command> {
+		this.logger.warn(`creating command: paramss=${params}, repo=${repo}`);
+
 		params.normalize();
 
 		if (await this.dao.existsBy({ repo: { id: repo.id }, command: params.command })) {
@@ -159,6 +166,7 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
+		this.logger.warn(`successfully created command: paramss=${c}`);
 
 		if (params.executeItRightNow) {
 			c = await this.enqueue(x, c);
@@ -205,14 +213,14 @@ export class CommandService {
 
 	//@Interval('Commands', 5 * 1000)
 	private async execute(x: Kontext, c: Command): Promise<void> {
-		this.logger.log(`run command: checking - ${JSON.stringify(c)}`);
+		this.logger.log(`begin to run command: checking - ${JSON.stringify(c)}`);
 
 		// confirm the command is queued
 		if (c.status !== CommandStatus.Queued) {
 			this.logger.log(`run command: cancelled - ${JSON.stringify(c)}`);
 			return;
 		}
-		this.logger.log(`run command: begin - ${JSON.stringify(c)}`);
+
 		c = await this.updateStatus(x, c, CommandStatus.Running);
 
 		let logFile;
@@ -250,6 +258,8 @@ export class CommandService {
 	}
 
 	async restart(x: Kontext, c: Command): Promise<Command> {
+		this.logger.warn(`restarting command: ${c}`);
+
 		if (c.status === CommandStatus.Running) {
 			throw new ConflictException(`cannot restart a running command: ${JSON.stringify(c)}`);
 		}
@@ -260,33 +270,50 @@ export class CommandService {
 		c.updater = x?.user;
 		await this.dao.save(c);
 
-		return await this.enqueue(x, c);
+		c = await this.enqueue(x, c);
+		this.logger.warn(`successfully restarted command: ${c}`);
+		return c;
 	}
 
 	async resume(x: Kontext, c: Command): Promise<Command> {
+		this.logger.warn(`resuming command: ${c}`);
+
 		if (c.status !== CommandStatus.Pending && c.status !== CommandStatus.Failed) {
 			throw new ConflictException(`cannot resume a ${c.status} command`);
 		}
-		return await this.enqueue(x, c);
+		c = await this.enqueue(x, c);
+		this.logger.warn(`successfully resumed command: ${c}`);
+		return c;
 	}
 
 	async stop(x: Kontext, c: Command): Promise<Command> {
+		this.logger.warn(`stopping command: ${c}`);
+
 		if (c.status !== CommandStatus.Running) {
 			throw new ConflictException(`cannot stop a ${c.status} command`);
 		}
-		return this.updateStatus(x, c, CommandStatus.Pending);
+		c = await this.updateStatus(x, c, CommandStatus.Pending);
+
+		this.logger.warn(`successfully stopped command: ${c}`);
+		return c;
 	}
 
 	async remove(c: Command): Promise<void> {
+		this.logger.warn(`removing command: ${c}`);
+
 		if (c.status === CommandStatus.Running) {
 			throw new ConflictException(`cannot remove a ${c.status} command`);
 		}
 
 		await this.archiveArtifacts(c);
 		await this.dao.remove(c);
+
+		this.logger.warn(`successfully removed command: ${c}`);
 	}
 
 	async archiveArtifacts(c: Command): Promise<void> {
+		this.logger.warn(`archiving command: ${c}`);
+
 		const date = new Date();
 
 		const y = date.getFullYear();
@@ -301,6 +328,8 @@ export class CommandService {
 		const [logFile, logArchiveFile] = await Promise.all([c.logFile(), c.logArchiveFile(ts)]);
 
 		await renameFileOrDir(logFile, logArchiveFile);
+
+		this.logger.warn(`successfully archived command: ${c}`);
 	}
 
 	private async log(logFile: string, message: string): Promise<void> {
@@ -357,6 +386,7 @@ export class CommandService {
 			if (code !== 0) {
 				throw new Error(`batchai execution failed: command=${cmdLine}`);
 			}
+			this.logger.log(`exec succeeded: command=${cmdLine}`);
 			c = await this.updateRunStatus(c, CommandRunStatus.BatchAIExecuted);
 		}
 
@@ -374,6 +404,7 @@ export class CommandService {
 		}
 
 		if (c.hasChanges) {
+			this.logger.log(`run: no changs found: command=${c.id}`);
 			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.ChangesPushed) {
 				await fork.removeRemoteBranch(); // removes existing remote branch, if possible
@@ -383,9 +414,11 @@ export class CommandService {
 
 			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.ChangesArchived) {
+				this.logger.log(`run: zipping the folder: command=${c.id}`);
 				const zip = new AdmZip();
 				zip.addLocalFolder(workDir);
 				zip.writeZip(repo.artifactArchiveFile());
+				this.logger.log(`run: zipped the folder: command=${c.id}`);
 
 				c = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
 			}
@@ -397,9 +430,11 @@ export class CommandService {
 				c = await this.dao.save(c);
 			}
 		} else {
+			this.logger.log(`run: found changs: command=${c.id}`);
 			const zip = new AdmZip();
 			zip.addLocalFolder(workDir);
 			zip.writeZip(repo.artifactArchiveFile());
+			this.logger.log(`run: zipped the folder: command=${c.id}`);
 
 			c = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
 		}

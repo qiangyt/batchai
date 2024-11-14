@@ -73,7 +73,7 @@ export class GithubRepo {
 	}
 
 	async clone(depth: number = 1): Promise<void> {
-		this.log(`Cloning ${this._url}...`);
+		this.log(`cloning ${this._url}...`);
 
 		await mkdirp(this.ownerDir);
 
@@ -82,28 +82,34 @@ export class GithubRepo {
 		if (code !== 0) {
 			throw new Error(`git clone failed: exitCode=${code}, command line="${['git', ...args].join(' ')}"`);
 		}
+
+		this.log(`cloned ${this._url}...`);
 	}
 
 	async pull(): Promise<void> {
-		this.log(`Pulling in ${this._repoDir}...`);
+		this.log(`pulling in ${this._repoDir}...`);
 
 		const code = await spawnAsync(this._repoDir, 'git', ['pull'], this.log, this.log);
 		if (code !== 0) {
 			throw new Error(`git pull failed: exitCode=${code}, command line="git pull"}`);
 		}
+
+		this.log(`successfully pulled ${this._repoDir}...`);
 	}
 
 	async add(): Promise<void> {
-		this.log(`Adding files in ${this._repoDir}...`);
+		this.log(`adding files in ${this._repoDir}...`);
 
 		const code = await spawnAsync(this._repoDir, 'git', ['add', '.'], this.log, this.log);
 		if (code !== 0) {
 			throw new Error(`git add failed: exitCode=${code}, command line="git add ."`);
 		}
+
+		this.log(`successfully added files in ${this._repoDir}...`);
 	}
 
 	async removeRemoteBranch(): Promise<void> {
-		this.log(`Removing remote branch in ${this._repoDir}...`);
+		this.log(`removing remote branch in ${this._repoDir}...`);
 		try {
 			await getOctokit().rest.repos.getBranch({
 				owner: this.owner,
@@ -113,7 +119,7 @@ export class GithubRepo {
 		} catch (err) {
 			if (err.status === 404) {
 				// remote branch not exists
-				this.log(`No remote branch`);
+				this.log(`no remote branch`);
 				return;
 			}
 			throw err;
@@ -136,11 +142,11 @@ export class GithubRepo {
 			throw new Error(`git push failed: exitCode=${code}, command line="git push origin --delete ${this._branch}"`);
 		}
 
-		this.log(`Removed remote branch in ${this._repoDir}...`);
+		this.log(`successfully removed remote branch in ${this._repoDir}...`);
 	}
 
 	async push(): Promise<void> {
-		this.log(`Pushing files in ${this._repoDir}...`);
+		this.log(`pushing files in ${this._repoDir}...`);
 		const code = await spawnAsync(
 			this._repoDir,
 			'git',
@@ -153,10 +159,11 @@ export class GithubRepo {
 				`git push failed: exitCode=${code}, command line="git push --set-upstream origin ${this._branch}"`,
 			);
 		}
+		this.log(`successfully pushed files in ${this._repoDir}...`);
 	}
 
 	async commit(commitMsg: string): Promise<boolean> {
-		this.log(`Commiting files in ${this._repoDir}...`);
+		this.log(`commiting files in ${this._repoDir}...`);
 
 		let nothingToCommit = false;
 		const args = ['commit', '-m', commitMsg];
@@ -178,7 +185,7 @@ export class GithubRepo {
 				throw new Error(`git commit failed: exitCode=${code}, command line="git ${args.join(' ')}"`);
 			}
 		}
-
+		this.log(`successfully committed files in ${this._repoDir}...`);
 		return !nothingToCommit;
 	}
 
@@ -191,7 +198,7 @@ export class GithubRepo {
 	}
 
 	async rename(newName: string): Promise<void> {
-		this.log(`Renaming ${this.owner}/${this.name} to ${this.owner}/${newName}...`);
+		this.log(`renaming ${this.owner}/${this.name} to ${this.owner}/${newName}...`);
 
 		await getOctokit().repos.update({ owner: this.owner, repo: this.name, name: newName });
 
@@ -201,19 +208,20 @@ export class GithubRepo {
 			: `https://github.com/${this.owner}/${newName}`;
 		this._repoDir = path.join(this.ownerDir, newName);
 
-		this.log(`Successfully renamed ${this.owner}/${newName} to ${this.owner}/${newName}`);
+		this.log(`successfully renamed ${this.owner}/${newName} to ${this.owner}/${newName}`);
 	}
 
 	async checkout(newBranch: string, cleanAnyway: boolean): Promise<void> {
 		if (cleanAnyway) {
-			this.log(`Clean up in ${this._repoDir}...`);
+			this.log(`clean up in ${this._repoDir}...`);
 			const code = await spawnAsync(this._repoDir, 'git', ['clean', '-fd'], this.log, this.log);
 			if (code !== 0) {
 				throw new Error(`git clean failed: exitCode=${code}, command line="git clean -fd"`);
 			}
+			this.log(`successfully clean up in ${this._repoDir}...`);
 		}
 
-		this.log(`Check out in ${this._repoDir}...`);
+		this.log(`checking out in ${this._repoDir}...`);
 
 		try {
 			let args = ['rev-parse', '--verify', newBranch];
@@ -222,7 +230,7 @@ export class GithubRepo {
 				throw new Error(`git rev-parse failed: exitCode=${code}, command line="${['git', ...args].join(' ')}"`);
 			}
 
-			this.log(`Branch '${newBranch}' exists. Checking out...`);
+			this.log(`branch '${newBranch}' exists. Checking out...`);
 
 			args = ['checkout', newBranch];
 			code = await spawnAsync(this._repoDir, 'git', args, this.log, this.log);
@@ -231,9 +239,9 @@ export class GithubRepo {
 			}
 
 			this._branch = newBranch;
-			console.log(`Checked out to branch '${newBranch}'.`);
+			this.log(`successfully checked out to branch '${newBranch}'.`);
 		} catch (err) {
-			this.log(`Branch '${newBranch}' does not exist (err=${err}). Creating and checking out...`);
+			this.log(`branch '${newBranch}' does not exist (err=${err}). Creating and checking out...`);
 			const args = ['checkout', '-b', newBranch];
 			const code = await spawnAsync(this._repoDir, 'git', args, this.log, this.log);
 			if (code !== 0) {
@@ -241,7 +249,7 @@ export class GithubRepo {
 			}
 
 			this._branch = newBranch;
-			this.log(`Created and checked out to new branch '${newBranch}'.`);
+			this.log(`successfully created and checked out to new branch '${newBranch}'.`);
 		}
 	}
 
@@ -273,14 +281,14 @@ export class GithubRepo {
 	async fork(ssh: boolean = true, targetOwner: string = EXAMPLES_ORG): Promise<GithubRepo> {
 		const result = this.forkedRepo(ssh, targetOwner);
 		if (await result.checkRemote()) {
-			this.log(`Already forked`);
+			this.log(`already forked`);
 			return result;
 		}
 
 		this.log(`Forking ${this.owner}/${this.name}...`);
 
 		await getOctokit().repos.createFork({ owner: this.owner, repo: this.name, organization: targetOwner });
-		this.log(`Created fork: ${this.owner}/${this.name} to ${targetOwner}`);
+		this.log(`successfully created fork: ${this.owner}/${this.name} to ${targetOwner}`);
 
 		for (let i = 0; i < 10; i++) {
 			if (await result.checkRemote()) {
@@ -288,7 +296,7 @@ export class GithubRepo {
 			}
 			await sleepSecondds(5);
 		}
-		this.log(`Found forked repo: ${this.owner}/${this.name} to ${targetOwner}`);
+		this.log(`found forked repo: ${this.owner}/${this.name} to ${targetOwner}`);
 
 		return result;
 	}
@@ -297,7 +305,7 @@ export class GithubRepo {
 		if (!this.forkedFrom) {
 			throw new Error(`${this.owner}/${this.name} is not a forked repository`);
 		}
-		this.log('Creating a PR...');
+		this.log('creating a PR...');
 
 		const pr = await getOctokit().pulls.create({
 			owner: this.owner,
@@ -309,7 +317,7 @@ export class GithubRepo {
 		});
 
 		const prUrl = pr.data.html_url;
-		this.log(`PR reated: ${prUrl}`);
+		this.log(`successed created a PR: ${prUrl}`);
 		return prUrl;
 	}
 
@@ -323,6 +331,8 @@ export class GithubRepo {
 				`git log -1 --format=%H: exitCode=${exitCode}, stdout=${stdout}, stderr=${stderr}, command line="${['git', ...args].join(' ')}"`,
 			);
 		}
+
+		this.log(`successfully got last commit id in ${this._repoDir}...`);
 		return stdout.trim();
 	}
 }
