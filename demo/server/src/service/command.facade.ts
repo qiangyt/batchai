@@ -58,8 +58,8 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 
 	@Transactional({ readOnly: true })
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async loadCommandHistoryLog(x: Kontext, id: number): Promise<CommandLog[]> {
-		return this.service.loadHistoryLog(id);
+	async loadCommandAuditLog(x: Kontext, id: number): Promise<CommandLog[]> {
+		return this.service.loadAuditLog(id);
 	}
 
 	@Transactional({ readOnly: true })

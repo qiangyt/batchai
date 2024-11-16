@@ -13,7 +13,7 @@ export interface CommandApi {
 
 	loadCommand(x: Kontext, id: number): Promise<CommandDetail>;
 
-	loadCommandHistoryLog(x: Kontext, id: number): Promise<CommandLog[]>;
+	loadCommandAuditLog(x: Kontext, id: number): Promise<CommandLog[]>;
 
 	loadCommandExecutionLog(x: Kontext, id: number): Promise<CommandLog[]>;
 

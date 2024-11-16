@@ -112,23 +112,6 @@ function refreshActiveStep(runStatus: CommandRunStatus, setActiveStep: React.Dis
   setActiveStep(steps.findIndex(x => x.status === runStatus));
 }
 
-async function refreshPage(s: SessionState, ui: UIContextType, id: number,
-  setCommand: React.Dispatch<React.SetStateAction<CommandDetail>>,
-  setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
-
-  ui.setLoading(true);
-  try {
-    const c = await commandApi.loadCommand(s, ui, id);
-
-    refreshActiveStep(c.runStatus, setActiveStep);
-    setCommand(c);
-  } catch (err) {
-    ui.setError(err);
-  } finally {
-    ui.setLoading(false);
-  };
-}
-
 export default function CommandHome({ params }) {
   const router = useRouter();
   const [command, setCommand] = useState<CommandDetail>(null);
@@ -147,7 +130,7 @@ export default function CommandHome({ params }) {
   const onChangeLogTab = (event: React.SyntheticEvent, newTabIndex: number) => {
     setLogTabIndex(newTabIndex);
   };
-  
+
 
   const [showProgress, setShowProgress] = React.useState(false);
   const toggleProgress = (show: boolean) => () => {
@@ -166,9 +149,23 @@ export default function CommandHome({ params }) {
   };
 
   useEffect(() => {
-    refreshPage(s, ui, id, setCommand, setActiveStep);
+    async function refreshPage(id) {
+      ui.setLoading(true);
+      try {
+        const c = await commandApi.loadCommand(s, ui, id);
+
+        setStatus(c.status);
+        refreshActiveStep(c.runStatus, setActiveStep);
+        setCommand(c);
+      } catch (err) {
+        ui.setError(err);
+      } finally {
+        ui.setLoading(false);
+      };
+    }
+    refreshPage(id);
   }, [s, ui, id]);
-  
+
   useEffect(() => {
     function onStatusEvent(c: CommandStatusUpdate) {
       setStatus(c.status);
@@ -176,32 +173,36 @@ export default function CommandHome({ params }) {
     }
 
     function onAuditLogEvent(newLog: CommandLog) {
-      setAuditLogs([...auditLogs, newLog]);
+      setAuditLogs(prevAuditLogs => [...prevAuditLogs, newLog]);
     }
 
     function onExecutionLogEvent(newLog: CommandLog) {
-      setExecutionLogs([...executionLogs, newLog]);
+      setExecutionLogs(prevExecutionLogs => [...prevExecutionLogs, newLog]);
     }
-    
-    socket.on("status", onStatusEvent);
-    socket.emit("status", id);
 
-    socket.on("auditLog", onAuditLogEvent);    
-    socket.on("executionLog", onExecutionLogEvent);
+    if (!socket.connected) {
+      socket.connect();
+    }
 
-    socket.emit("log", { id, amountOfAuditLog: auditLogs.length, amountOfExecutionLog: executionLogs.length }, 
+    socket.on(`status-${id}`, onStatusEvent);
+    socket.emit("subscribeStatusEvent", id);
+
+    socket.on(`auditLog-${id}`, onAuditLogEvent);
+    socket.on(`executionLog-${id}`, onExecutionLogEvent);
+
+    socket.emit("subscribeLogEvent", id,
       (newLogs: CommandLog[][]) => {
-        setAuditLogs([...auditLogs, ...newLogs[0]]);
-        setExecutionLogs([...executionLogs, ...newLogs[1]]);
+        setAuditLogs(prevAuditLogs => [...prevAuditLogs, ...newLogs[0]]);
+        setExecutionLogs(prevExecutionLogs => [...prevExecutionLogs, ...newLogs[1]]);
       }
     );
 
     return () => {
-      socket.off("status");
-      socket.off("auditLog");
-      socket.off("executionLog");
+      socket.off(`status-${id}`);
+      socket.off(`auditLog-${id}`);
+      socket.off(`executionLog-${id}`);
     };
-  }, [id, auditLogs, executionLogs]);
+  }, [id]);
 
   const onRestart = async () => {
     const c = await commandApi.restartCommand(s, ui, id);
@@ -214,11 +215,11 @@ export default function CommandHome({ params }) {
   const onDelete = async () => {
     ui.confirm(
       {
-        action: 'delete', 
-        subject: `${owner.name}/${repo.name} ${command.command}`, 
+        action: 'delete',
+        subject: `${owner.name}/${repo.name} ${command.command}`,
         subjectType: 'command'
-      }, 
-      async() => {
+      },
+      async () => {
         await commandApi.removeCommand(s, ui, id);
         router.push('/repos');
       }
@@ -237,20 +238,20 @@ export default function CommandHome({ params }) {
   const enableDelete = (status !== CommandStatus.Running);
   const enableEdit = (status !== CommandStatus.Running);
   const enableDownload = (status === CommandStatus.Succeeded);
-  
+
   const title = command?.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
-  
+
   return (
     <>
       <Box sx={{ mt: 6, mb: 2, color: 'white' }}>
         <Typography variant="body2" color="lightgray">{title}</Typography>
-        <Box sx={{mt: 2, fontFamily: 'arial', }}>
-          <span style={{ color: "gray", fontSize: 12, marginRight: 8}}>for</span>
+        <Box sx={{ mt: 2, fontFamily: 'arial', }}>
+          <span style={{ color: "gray", fontSize: 12, marginRight: 8 }}>for</span>
           <Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
           <Link sx={{ ml: 2 }} color='info' href={command?.repo.repoUrl}>( {command?.repo.repoUrl} )</Link>
-          
-          <Typography sx={{mt: 2}} variant="body2">
-            {status} 
+
+          <Typography sx={{ mt: 2 }} variant="body2">
+            {status}
             <Link href={`/rest/v1/repos/id/${repo?.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: enableDownload ? '#4A90E2' : 'gray' }}>
               <DownloadIcon sx={{ ml: 2, color: enableDownload ? '#4A90E2' : 'gray' }} />
             </Link>
@@ -281,7 +282,7 @@ export default function CommandHome({ params }) {
         </ToolbarIcon>
         <ToolbarIcon key='Delete' label='Delete' enabled={enableDelete} onClick={onDelete}>
           <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
-        </ToolbarIcon>        
+        </ToolbarIcon>
       </Toolbar>
 
       <Box sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
@@ -305,14 +306,14 @@ export default function CommandHome({ params }) {
           </IconButton>
         </div>
         <Tabs value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">
-          <Tab label="Execution Log" sx={{color: 'gray'}} {...a11yProps(0)} />
-          <Tab label="Audit Log" sx={{color: 'gray'}} {...a11yProps(1)} />
+          <Tab label="Execution Log" sx={{ color: 'gray' }} {...a11yProps(0)} />
+          <Tab label="Audit Log" sx={{ color: 'gray' }} {...a11yProps(1)} />
         </Tabs>
         <CustomTabPanel value={logTabIndex} index={0}>
           <ReactAnsi log={executionLogs.map(log => `${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
         </CustomTabPanel>
-        <CustomTabPanel value={logTabIndex} index={1}>        
-          <ReactAnsi log={auditLogs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />        
+        <CustomTabPanel value={logTabIndex} index={1}>
+          <ReactAnsi log={auditLogs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
         </CustomTabPanel>
       </Box>
 
@@ -327,7 +328,7 @@ export default function CommandHome({ params }) {
           })}
         </Stepper>
       </Drawer>
-        
+
       {command && <CommandDialog data={CommandEditData.forUpdate(command)} open={openCommandDialog} setOpen={setOpenCommandDialog} onSubmited={onCommandUpdated} />}
     </>
   );

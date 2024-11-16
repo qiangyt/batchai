@@ -7,7 +7,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
 import { spawnAsync, GithubRepo, renameFileOrDir, readJsonLogFile, removeFileOrDir } from '../helper';
 import { Repo, Command } from '../entity';
-import { CommandCreateReq, CommandLog, CommandUpdateReq, SubscribeCommandLogReq } from '../dto';
+import { CommandCreateReq, CommandLog, CommandUpdateReq } from '../dto';
 import { Kontext } from '../framework';
 import AdmZip from 'adm-zip';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -204,7 +204,7 @@ export class CommandService {
 		return r;
 	}
 
-	async loadHistoryLog(id: number): Promise<CommandLog[]> {
+	async loadAuditLog(id: number): Promise<CommandLog[]> {
 		const c = await this.load(id);
 		const auditLogFile = await c.auditLogFile();
 		return readJsonLogFile(auditLogFile);
@@ -259,7 +259,7 @@ export class CommandService {
 		c.updater = x?.user;
 		c = await this.dao.save(c);
 
-		this.websocket.to(`status-${c.id}`).emit('status', { status: c.status, runStatus: c.runStatus });
+		this.websocket.to(`status-${c.id}`).emit(`status-${c.id}`, { status: c.status, runStatus: c.runStatus });
 
 		return c;
 	}
@@ -268,12 +268,12 @@ export class CommandService {
 		c.runStatus = runStatus;
 		c = await this.dao.save(c);
 
-		this.websocket.to(`status-${c.id}`).emit('status', { status: c.status, runStatus: c.runStatus });
+		this.websocket.to(`status-${c.id}`).emit(`status-${c.id}`, { status: c.status, runStatus: c.runStatus });
 
 		return c;
 	}
 
-	@SubscribeMessage('status')
+	@SubscribeMessage('subscribeStatusEvent')
 	async subscribeStatusEvent(@ConnectedSocket() client: Socket, @MessageBody() id: number) {
 		const c = await this.findById(id);
 		if (!c) {
@@ -291,7 +291,7 @@ export class CommandService {
 	}
 
 	private async auditLog(id: number, auditLogFile: string, message: string): Promise<void> {
-		return this.log(id, auditLogFile, 'auditLog', message);
+		return this.log(id, auditLogFile, `auditLog-${id}`, message);
 	}
 
 	private async executionLog(
@@ -302,46 +302,27 @@ export class CommandService {
 	): Promise<void> {
 		await Promise.all([
 			this.auditLog(id, auditLogFile, message),
-			this.log(id, executionLogFile, 'executionLog', message),
+			this.log(id, executionLogFile, `executionLog-${id}`, message),
 		]);
 	}
 
-	@SubscribeMessage('log')
+	@SubscribeMessage('subscribeLogEvent')
 	async subscribeLogEvent(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() req: SubscribeCommandLogReq,
+		@MessageBody() id: number,
 	): Promise<[CommandLog[], CommandLog[]]> {
-		const id = req.id;
 		const c = await this.findById(id);
 		if (!c) {
 			return [[], []];
 		}
 
 		const [auditLogFile, executionLogFile] = await Promise.all([c.auditLogFile(), c.executionLogFile()]);
-		let [auditLogLines, executionLogLines] = await Promise.all([
+		const [auditLogLines, executionLogLines] = await Promise.all([
 			readJsonLogFile(auditLogFile),
 			readJsonLogFile(executionLogFile),
 		]);
 
 		client.join(`log-${id}`);
-
-		const amountOfAuditLog = req.amountOfAuditLog;
-		if (amountOfAuditLog) {
-			if (amountOfAuditLog >= auditLogLines.length) {
-				auditLogLines = [];
-			} else {
-				auditLogLines = auditLogLines.slice(amountOfAuditLog);
-			}
-		}
-
-		const amountOfExecutionLog = req.amountOfExecutionLog;
-		if (amountOfExecutionLog) {
-			if (amountOfExecutionLog >= executionLogLines.length) {
-				executionLogLines = [];
-			} else {
-				executionLogLines = executionLogLines.slice(amountOfExecutionLog);
-			}
-		}
 
 		return [auditLogLines, executionLogLines];
 	}
