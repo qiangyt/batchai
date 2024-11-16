@@ -223,6 +223,10 @@ export default function CommandHome({ params }) {
       return;
     }
 
+    if (!s.detail.user.admin) {
+      alert('admin privilege is required');
+    }
+
     ui.confirm(
       {
         action: 'delete',
