@@ -28,6 +28,39 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import CommandDialog from '@/components/command-dialog';
 import { socket } from '@/socket';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
 
 interface Step {
   status: CommandRunStatus;
@@ -101,13 +134,20 @@ export default function CommandHome({ params }) {
   const [command, setCommand] = useState<CommandDetail>(null);
   const [openCommandDialog, setOpenCommandDialog] = useState(false);
   const [status, setStatus] = useState(command?.status);
-  const [logs, setLogs] = useState<CommandLog[]>([]);
+  const [auditLogs, setAuditLogs] = useState<CommandLog[]>([]);
+  const [executionLogs, setExecutionLogs] = useState<CommandLog[]>([]);
   const repo = command?.repo;
   const owner = repo?.owner;
   const id = params.id;
   const s = useSession().state;
   const [activeStep, setActiveStep] = useState(0);
   const ui = useUIContext();
+
+  const [logTabIndex, setLogTabIndex] = React.useState(0);
+  const onChangeLogTab = (event: React.SyntheticEvent, newTabIndex: number) => {
+    setLogTabIndex(newTabIndex);
+  };
+  
 
   const [showProgress, setShowProgress] = React.useState(false);
   const toggleProgress = (show: boolean) => () => {
@@ -135,27 +175,38 @@ export default function CommandHome({ params }) {
       refreshActiveStep(c.runStatus, setActiveStep);
     }
 
-    function onLogEvent(newLog: CommandLog) {
-      setLogs([...logs, newLog]);
+    function onAuditLogEvent(newLog: CommandLog) {
+      setAuditLogs([...auditLogs, newLog]);
+    }
+
+    function onExecutionLogEvent(newLog: CommandLog) {
+      setExecutionLogs([...executionLogs, newLog]);
     }
     
     socket.on("status", onStatusEvent);
     socket.emit("status", id);
 
-    socket.on("log", onLogEvent);
-    socket.emit("log", { id, amount: logs.length }, (newLogs: CommandLog[]) => {
-      setLogs([...logs, ...newLogs]);
-    });
+    socket.on("auditLog", onAuditLogEvent);    
+    socket.on("executionLog", onExecutionLogEvent);
+
+    socket.emit("log", { id, amountOfAuditLog: auditLogs.length, amountOfExecutionLog: executionLogs.length }, 
+      (newLogs: CommandLog[][]) => {
+        setAuditLogs([...auditLogs, ...newLogs[0]]);
+        setExecutionLogs([...executionLogs, ...newLogs[1]]);
+      }
+    );
 
     return () => {
-      socket.off("log");
       socket.off("status");
+      socket.off("auditLog");
+      socket.off("executionLog");
     };
-  }, [id, logs]);
+  }, [id, auditLogs, executionLogs]);
 
   const onRestart = async () => {
     const c = await commandApi.restartCommand(s, ui, id);
 
+    setExecutionLogs([]);
     refreshActiveStep(c.runStatus, setActiveStep);
     setCommand(c);
   };
@@ -233,8 +284,7 @@ export default function CommandHome({ params }) {
         </ToolbarIcon>        
       </Toolbar>
 
-      <Box sx={{ mb: 2 }}>
-        <Typography sx={{ mt: 2 }} variant="body2">Command Line & Execution Log</Typography>
+      <Box sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
         <div
           style={{
             paddingTop: '5px', paddingBottom: '5px', paddingLeft: '12px', paddingRight: '12px',
@@ -254,7 +304,16 @@ export default function CommandHome({ params }) {
             <ContentCopyIcon />
           </IconButton>
         </div>
-        <ReactAnsi log={logs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
+        <Tabs value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">
+          <Tab label="Execution Log" sx={{color: 'gray'}} {...a11yProps(0)} />
+          <Tab label="Audit Log" sx={{color: 'gray'}} {...a11yProps(1)} />
+        </Tabs>
+        <CustomTabPanel value={logTabIndex} index={0}>
+          <ReactAnsi log={executionLogs.map(log => `${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
+        </CustomTabPanel>
+        <CustomTabPanel value={logTabIndex} index={1}>        
+          <ReactAnsi log={auditLogs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />        
+        </CustomTabPanel>
       </Box>
 
       <Drawer anchor='right' open={showProgress} onClose={toggleProgress(false)}>

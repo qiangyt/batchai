@@ -38,9 +38,15 @@ export class CommandRest implements CommandApi {
 	}
 
 	@RequiredRoles(Role.None)
-	@Get('id/:id/log')
-	loadCommandLog(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandLog[]> {
-		return this.facade.loadCommandLog(x, id);
+	@Get('id/:id/history_log')
+	loadCommandHistoryLog(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandLog[]> {
+		return this.facade.loadCommandHistoryLog(x, id);
+	}
+
+	@RequiredRoles(Role.None)
+	@Get('id/:id/execution_log')
+	loadCommandExecutionLog(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandLog[]> {
+		return this.facade.loadCommandExecutionLog(x, id);
 	}
 
 	@RequiredRoles(Role.User)

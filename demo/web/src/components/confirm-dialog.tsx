@@ -51,13 +51,15 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
 
     const onClose = (e) => {
         otEvent(e);
+        setConfirmInput('');
         props.closeFunc();
     };
 
     const onConfirm = (e) => {
         otEvent(e);
         if (confirmInput === props.subject) {
-            props.onConfirmed();
+            props.onConfirmed();            
+            setConfirmInput('');
             props.closeFunc();
         }
     };

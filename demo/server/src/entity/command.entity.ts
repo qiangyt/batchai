@@ -55,19 +55,34 @@ export class Command extends AuditableEntity {
 		return `https://github.com/batchai-examples/batchai/commit/${this.commitId}`;
 	}
 
-	private _logFile: string;
+	private _auditLogFile: string;
 
-	async logFile(): Promise<string> {
-		if (!this._logFile) {
+	async auditLogFile(): Promise<string> {
+		if (!this._auditLogFile) {
 			const p = await (await this.repo).logDir();
-			this._logFile = path.join(p, `${this.id}.log`);
+			this._auditLogFile = path.join(p, `${this.id}.audit.log`);
 		}
-		return this._logFile;
+		return this._auditLogFile;
 	}
 
-	async logArchiveFile(ts: string): Promise<string> {
+	async auditLogArchiveFile(ts: string): Promise<string> {
 		const p = await (await this.repo).logArchiveDir();
-		return path.join(p, `${this.id}.${ts}.log`);
+		return path.join(p, `${this.id}.${ts}.audit.log`);
+	}
+
+	private _executionLogFile: string;
+
+	async executionLogFile(): Promise<string> {
+		if (!this._executionLogFile) {
+			const p = await (await this.repo).logDir();
+			this._executionLogFile = path.join(p, `${this.id}.execution.log`);
+		}
+		return this._executionLogFile;
+	}
+
+	async executionLogArchiveFile(ts: string): Promise<string> {
+		const p = await (await this.repo).logArchiveDir();
+		return path.join(p, `${this.id}.${ts}.execution.log`);
 	}
 
 	nextRunStatus(): CommandRunStatus {

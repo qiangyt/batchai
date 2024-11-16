@@ -13,7 +13,9 @@ export interface CommandApi {
 
 	loadCommand(x: Kontext, id: number): Promise<CommandDetail>;
 
-	loadCommandLog(x: Kontext, id: number): Promise<CommandLog[]>;
+	loadCommandHistoryLog(x: Kontext, id: number): Promise<CommandLog[]>;
+
+	loadCommandExecutionLog(x: Kontext, id: number): Promise<CommandLog[]>;
 
 	restartCommand(x: Kontext, id: number): Promise<CommandDetail>;
 

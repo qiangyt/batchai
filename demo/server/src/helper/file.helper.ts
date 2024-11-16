@@ -65,3 +65,16 @@ export async function listPathsWithPrefix(rootDir: string, prefix: string): Prom
 
 	return r;
 }
+
+export async function readJsonLogFile(logFile: string): Promise<any[]> {
+	if (!(await fileExists(logFile))) {
+		return [];
+	}
+
+	const content = await fs.readFile(logFile, 'utf-8');
+	return content
+		.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => line.length > 0)
+		.map((line) => JSON.parse(line));
+}

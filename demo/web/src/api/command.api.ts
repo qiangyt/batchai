@@ -11,10 +11,6 @@ export async function loadCommand(s:SessionState, ui: UIContextType, id:number):
   return CommandDetail.with(await withAxios(s, ui).get(`/commands/id/${id}`));
 }
 
-export async function loadCommandLog(s:SessionState, ui: UIContextType, id: number): Promise<CommandLog[]> {
-  return await withAxios(s, ui).get(`/commands/id/${id}/log`);
-}
-
 export async function restartCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
   return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/restart`));
 }

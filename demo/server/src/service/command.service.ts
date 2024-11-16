@@ -5,7 +5,7 @@ import { CommandStatus, CommandRunStatus } from '../constants';
 import { promises as fs } from 'fs';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
-import { spawnAsync, GithubRepo, fileExists, renameFileOrDir } from '../helper';
+import { spawnAsync, GithubRepo, renameFileOrDir, readJsonLogFile, removeFileOrDir } from '../helper';
 import { Repo, Command } from '../entity';
 import { CommandCreateReq, CommandLog, CommandUpdateReq, SubscribeCommandLogReq } from '../dto';
 import { Kontext } from '../framework';
@@ -204,23 +204,16 @@ export class CommandService {
 		return r;
 	}
 
-	async loadLog(id: number): Promise<CommandLog[]> {
+	async loadHistoryLog(id: number): Promise<CommandLog[]> {
 		const c = await this.load(id);
-		if (!c) {
-			throw new NotFoundException(`id=${id}`);
-		}
+		const auditLogFile = await c.auditLogFile();
+		return readJsonLogFile(auditLogFile);
+	}
 
-		const logFile = await c.logFile();
-		if (!(await fileExists(logFile))) {
-			return [];
-		}
-
-		const content = await fs.readFile(logFile, 'utf-8');
-		return content
-			.split('\n')
-			.map((line) => line.trim())
-			.filter((line) => line.length > 0)
-			.map((line) => JSON.parse(line));
+	async loadExecutionLog(id: number): Promise<CommandLog[]> {
+		const c = await this.load(id);
+		const executionLogFile = await c.executionLogFile();
+		return readJsonLogFile(executionLogFile);
 	}
 
 	//@Interval('Commands', 5 * 1000)
@@ -235,22 +228,21 @@ export class CommandService {
 
 		c = await this.updateStatus(x, c, CommandStatus.Running);
 
-		let logFile;
+		const auditLogFile = await c.auditLogFile();
 
 		try {
-			logFile = await c.logFile();
-			await this.log(c.id, logFile, `begin to run command`);
+			await this.auditLog(c.id, auditLogFile, `begin to run command`);
 
-			await this.doRun(c, logFile);
+			await this.doRun(c, auditLogFile);
 
-			await this.log(c.id, logFile, `end to run command (succeeded)\n\n\n\n`);
+			await this.auditLog(c.id, auditLogFile, `end to run command (succeeded)\n\n\n\n`);
 			c = await this.updateStatus(x, c, CommandStatus.Succeeded);
 			this.logger.log(`run command: succeeded: ${JSON.stringify(c)}`);
 		} catch (err) {
-			if (logFile) {
+			if (auditLogFile) {
 				try {
-					await this.log(c.id, logFile, err.toString());
-					await this.log(c.id, logFile, `end to run command (failed)\n\n\n\n`);
+					await this.auditLog(c.id, auditLogFile, err.toString());
+					await this.auditLog(c.id, auditLogFile, `end to run command (failed)\n\n\n\n`);
 				} catch (err) {
 					this.logger.error(`run command: failed to log: err=${err}, ${JSON.stringify(c)}`);
 				}
@@ -290,47 +282,68 @@ export class CommandService {
 		client.join(`status-${id}`);
 	}
 
-	private async log(id: number, logFile: string, message: string): Promise<void> {
+	private async log(id: number, logFile: string, logEventName: string, message: string): Promise<void> {
 		const v = new CommandLog(new Date().toISOString(), message);
 		const jsonLine = JSON.stringify(v);
 		await fs.appendFile(logFile, jsonLine + `\n`, { encoding: 'utf8' });
 
-		this.websocket.to(`log-${id}`).emit('log', v);
+		this.websocket.to(`log-${id}`).emit(logEventName, v);
+	}
+
+	private async auditLog(id: number, auditLogFile: string, message: string): Promise<void> {
+		return this.log(id, auditLogFile, 'auditLog', message);
+	}
+
+	private async executionLog(
+		id: number,
+		executionLogFile: string,
+		auditLogFile: string,
+		message: string,
+	): Promise<void> {
+		await Promise.all([
+			this.auditLog(id, auditLogFile, message),
+			this.log(id, executionLogFile, 'executionLog', message),
+		]);
 	}
 
 	@SubscribeMessage('log')
 	async subscribeLogEvent(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() req: SubscribeCommandLogReq,
-	): Promise<CommandLog[]> {
+	): Promise<[CommandLog[], CommandLog[]]> {
 		const id = req.id;
 		const c = await this.findById(id);
 		if (!c) {
-			return [];
+			return [[], []];
 		}
 
-		const logFile = await c.logFile();
-		if (!(await fileExists(logFile))) {
-			return [];
-		}
-
-		const content = await fs.readFile(logFile, 'utf-8');
-		const logLines = content
-			.split('\n')
-			.map((line) => line.trim())
-			.filter((line) => line.length > 0)
-			.map((line) => JSON.parse(line));
+		const [auditLogFile, executionLogFile] = await Promise.all([c.auditLogFile(), c.executionLogFile()]);
+		let [auditLogLines, executionLogLines] = await Promise.all([
+			readJsonLogFile(auditLogFile),
+			readJsonLogFile(executionLogFile),
+		]);
 
 		client.join(`log-${id}`);
 
-		const amount = req.amount;
-		if (!amount) {
-			return logLines;
+		const amountOfAuditLog = req.amountOfAuditLog;
+		if (amountOfAuditLog) {
+			if (amountOfAuditLog >= auditLogLines.length) {
+				auditLogLines = [];
+			} else {
+				auditLogLines = auditLogLines.slice(amountOfAuditLog);
+			}
 		}
-		if (amount >= logLines.length) {
-			return [];
+
+		const amountOfExecutionLog = req.amountOfExecutionLog;
+		if (amountOfExecutionLog) {
+			if (amountOfExecutionLog >= executionLogLines.length) {
+				executionLogLines = [];
+			} else {
+				executionLogLines = executionLogLines.slice(amountOfExecutionLog);
+			}
 		}
-		return logLines.slice(amount);
+
+		return [auditLogLines, executionLogLines];
 	}
 
 	async restart(x: Kontext, c: Command): Promise<Command> {
@@ -401,19 +414,24 @@ export class CommandService {
 
 		const ts = `${y}_${mon}${d}_${h}${min}_${ms}`;
 
-		const [logFile, logArchiveFile] = await Promise.all([c.logFile(), c.logArchiveFile(ts)]);
+		const [auditLogFile, auditLogArchiveFile] = await Promise.all([c.auditLogFile(), c.auditLogArchiveFile(ts)]);
+		await renameFileOrDir(auditLogFile, auditLogArchiveFile);
 
-		await renameFileOrDir(logFile, logArchiveFile);
+		const [executionLogFile, executionLogArchiveFile] = await Promise.all([
+			c.executionLogFile(),
+			c.executionLogArchiveFile(ts),
+		]);
+		await renameFileOrDir(executionLogFile, executionLogArchiveFile);
 
 		this.logger.warn(`successfully archived command: ${JSON.stringify(c)}`);
 	}
 
 	private async newRepoObject(c: Command): Promise<GithubRepo> {
-		const logFile = await c.logFile();
+		const auditLogFile = await c.auditLogFile();
 		const repo = await c.repo;
 
 		return new GithubRepo(
-			(output) => this.log(c.id, logFile, output),
+			(output) => this.auditLog(c.id, auditLogFile, output),
 			`/data/batchai-examples/repo`,
 			repo.owner.name,
 			repo.name,
@@ -421,7 +439,7 @@ export class CommandService {
 		);
 	}
 
-	private async doRun(c: Command, logFile: string) {
+	private async doRun(c: Command, auditLogFile: string) {
 		const repo = await c.repo;
 		const repoObj = await this.newRepoObject(c);
 
@@ -439,12 +457,15 @@ export class CommandService {
 			const cmdLine = c.commandLine(workDir);
 			this.logger.log(`exec begin: ${cmdLine}`);
 
+			const executionLogFile = await c.executionLogFile();
+			await removeFileOrDir(executionLogFile);
+
 			const code = await spawnAsync(
 				workDir,
 				'batchai',
 				c.commandLineArgs(workDir),
-				(stdout) => this.log(c.id, logFile, stdout),
-				(stderr) => this.log(c.id, logFile, stderr),
+				(stdout) => this.executionLog(c.id, executionLogFile, auditLogFile, stdout),
+				(stderr) => this.executionLog(c.id, executionLogFile, auditLogFile, stderr),
 			);
 			this.logger.log(`exec end: exitCode=${code}, command=${cmdLine}`);
 

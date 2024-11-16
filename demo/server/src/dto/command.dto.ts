@@ -9,7 +9,8 @@ import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'cla
 export class SubscribeCommandLogReq {
 	constructor(
 		readonly id: number /* command id */,
-		readonly amount: number /* 0-based amount of log lines that the client has */,
+		readonly amountOfAuditLog: number /* 0-based amount of audit log lines that the client has */,
+		readonly amountOfExecutionLog: number /* 0-based amount of execution log lines that the client has */,
 	) {}
 }
 
