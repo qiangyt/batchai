@@ -12,18 +12,17 @@ export async function loadRepo(s:SessionState, ui: UIContextType, id:number): Pr
   return RepoDetail.with(await withAxios(s, ui).get(`/repos/id/${id}`));
 }
 
+// @RequiredRoles(Role.User)
 export async function createRepo(s: SessionState, ui: UIContextType, params: RepoCreateReq): Promise<RepoDetail> {
   return RepoDetail.with(await withAxios(s, ui).post(`/repos`, params));
 }
 
+// @RequiredRoles(Role.Admin)
 export async function removeRepo(s:SessionState, ui: UIContextType, id:number): Promise<void> {
   return withAxios(s, ui).delete(`/repos/id/${id}`);
 }
 
+// @RequiredRoles(Role.User)
 export async function listAvaiableTargetPaths(s:SessionState, ui: UIContextType, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
   return withAxios(s, ui).get(`/repos/id/${id}/available_paths`, { params });
-}
-
-export async function doesRepoDirExists(s:SessionState, ui: UIContextType, id: number): Promise<boolean> {
-  return withAxios(s, ui).get(`/repos/id/${id}/dir/exists`);
 }

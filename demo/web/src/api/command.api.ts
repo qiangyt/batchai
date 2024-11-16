@@ -2,7 +2,7 @@ import { UIContextType } from '@/lib/ui.context';
 import withAxios from './request'
 import { SessionState, CommandDetail, CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams, CommandLog } from '@/lib';
 
-
+// @RequiredRoles(Role.User)
 export async function createCommand(s:SessionState, ui: UIContextType, params: CommandCreateReq): Promise<CommandDetail> {
   return CommandDetail.with(await withAxios(s, ui).post('/commands', params));
 }
@@ -11,18 +11,22 @@ export async function loadCommand(s:SessionState, ui: UIContextType, id:number):
   return CommandDetail.with(await withAxios(s, ui).get(`/commands/id/${id}`));
 }
 
+// @RequiredRoles(Role.User)
 export async function restartCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
   return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/restart`));
 }
 
+// @RequiredRoles(Role.User)
 export async function stopCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
   return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/stop`));
 }
 
+// @RequiredRoles(Role.User)
 export async function updateCommand(s:SessionState, ui: UIContextType, id:number, params: CommandUpdateReq): Promise<CommandDetail> {
   return CommandDetail.with(await withAxios(s, ui).put(`/commands/id/${id}`, params));
 }
 
+// @RequiredRoles(Role.Admin)
 export async function removeCommand(s:SessionState, ui: UIContextType, id:number): Promise<void> {
   return withAxios(s, ui).delete(`/commands/id/${id}`);
 }

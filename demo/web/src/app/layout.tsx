@@ -36,8 +36,8 @@ export default function RootLayout({
         /*fontSans.className*/
       )}>
       <ErrorBoundary>
-        <UIContextProvider>
-          <SessionProvider>
+        <SessionProvider>
+          <UIContextProvider>          
             <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
               <CssBaseline />
               <TopBar anchorId='scroll-to-top' />
@@ -45,9 +45,9 @@ export default function RootLayout({
                 {children}
               </Paper>
               <ScrollTop anchorId='scroll-to-top' />
-            </ThemeProvider>
-          </SessionProvider>
-        </UIContextProvider>
+            </ThemeProvider>          
+          </UIContextProvider>
+        </SessionProvider>
       </ErrorBoundary>
       </body>
     </html>

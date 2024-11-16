@@ -205,6 +205,11 @@ export default function CommandHome({ params }) {
   }, [id]);
 
   const onRestart = async () => {
+    if (!s.detail || !s.detail.accessToken) {
+      ui.signIn({action: 'restart command'});
+      return;
+    }
+
     const c = await commandApi.restartCommand(s, ui, id);
 
     setExecutionLogs([]);
@@ -213,6 +218,11 @@ export default function CommandHome({ params }) {
   };
 
   const onDelete = async () => {
+    if (!s.detail || !s.detail.accessToken) {
+      ui.signIn({action: 'delete command'});
+      return;
+    }
+
     ui.confirm(
       {
         action: 'delete',
@@ -227,6 +237,10 @@ export default function CommandHome({ params }) {
   };
 
   const onClickEditIcon = () => {
+    if (!s.detail || !s.detail.accessToken) {
+      ui.signIn({action: `${id ? 'update' : 'create'} command`});
+      return;
+    }
     setOpenCommandDialog(true);
   };
 

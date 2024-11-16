@@ -15,7 +15,7 @@ import { UIContextType, useUIContext } from '@/lib/ui.context';
 import SearchBar from './search-bar';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { CommandChip } from './command-chip';
+import { CommandChip } from '../../components/command-chip';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField';
@@ -76,6 +76,11 @@ export default function RepoList() {
   const onAddRepo = async (e) => {
     otEvent(e);
     if (newRepoPath) {
+      if (!s.detail || !s.detail.accessToken) {
+        ui.signIn({action: 'create repository'});
+        return;
+      }
+
       const parsed = ParsedRepoPath.parse(newRepoPath);
       if (parsed) {
         ui.setLoading(true);
@@ -104,6 +109,11 @@ export default function RepoList() {
 
   const onDeleteRepo = async(e, repo:RepoBasic) => {
     otEvent(e);
+
+    if (!s.detail || !s.detail.accessToken) {
+      ui.signIn({action: 'delete repository'});
+      return;
+    }
 
     ui.confirm(
       {
