@@ -7,9 +7,8 @@ import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-import { CommandDetail, CommandEditData, CommandLog, CommandRunStatus, CommandStatus, SessionState, useSession } from "@/lib";
+import { CommandDetail, CommandEditData, CommandLog, CommandRunStatus, CommandStatus, CommandStatusUpdate, SessionState, useSession } from "@/lib";
 import * as commandApi from '@/api/command.api';
-import * as repoApi from '@/api/repo.api';
 import { UIContextType, useUIContext } from '@/lib/ui.context';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Typography from '@mui/material/Typography';
@@ -17,17 +16,18 @@ import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
-import RefreshIcon from '@mui/icons-material/RefreshOutlined';
+//import RefreshIcon from '@mui/icons-material/RefreshOutlined';
 import Link from '@mui/material/Link';
 import Toolbar from '@mui/material/Toolbar';
-import StopIcon from '@mui/icons-material/StopOutlined';
+//import StopIcon from '@mui/icons-material/StopOutlined';
 //import ResumeIcon from '@mui/icons-material/NavigateNextOutlined';
 import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
 import ToolbarIcon from '@/components/toolbar.button';
-import ResetIcon from '@mui/icons-material/UndoOutlined';
+import RestartIcon from '@mui/icons-material/UndoOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import CommandDialog from '@/components/command-dialog';
+import { socket } from '@/socket';
 
 interface Step {
   status: CommandRunStatus;
@@ -75,33 +75,20 @@ const steps: Step[] = [
   },
 ];
 
+function refreshActiveStep(runStatus: CommandRunStatus, setActiveStep: React.Dispatch<React.SetStateAction<number>>) {
+  setActiveStep(steps.findIndex(x => x.status === runStatus));
+}
+
 async function refreshPage(s: SessionState, ui: UIContextType, id: number,
   setCommand: React.Dispatch<React.SetStateAction<CommandDetail>>,
-  setLogs: React.Dispatch<React.SetStateAction<CommandLog[]>>,
   setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
+
   ui.setLoading(true);
   try {
     const c = await commandApi.loadCommand(s, ui, id);
-    refreshCommand(s, ui, c, setCommand, setLogs, setActiveStep);
-  } catch (err) {
-    ui.setError(err);
-  } finally {
-    ui.setLoading(false);
-  };
-}
 
-async function refreshCommand(s: SessionState, ui: UIContextType, c: CommandDetail,
-  setCommand: React.Dispatch<React.SetStateAction<CommandDetail>>,
-  setLogs: React.Dispatch<React.SetStateAction<CommandLog[]>>,
-  setActiveStep: React.Dispatch<React.SetStateAction<number>>): Promise<void> {
-  ui.setLoading(true);
-  try {
-    setActiveStep(steps.findIndex(x => x.status === c.runStatus));
+    refreshActiveStep(c.runStatus, setActiveStep);
     setCommand(c);
-
-    const logs = await commandApi.loadCommandLog(s, ui, c.id);
-    //setLog(logs.replace(/\n/g, '<br/>') || "...");
-    setLogs(logs);
   } catch (err) {
     ui.setError(err);
   } finally {
@@ -113,7 +100,7 @@ export default function CommandHome({ params }) {
   const router = useRouter();
   const [command, setCommand] = useState<CommandDetail>(null);
   const [openCommandDialog, setOpenCommandDialog] = useState(false);
-  const status = command?.status || '';
+  const [status, setStatus] = useState(command?.status);
   const [logs, setLogs] = useState<CommandLog[]>([]);
   const repo = command?.repo;
   const owner = repo?.owner;
@@ -139,21 +126,38 @@ export default function CommandHome({ params }) {
   };
 
   useEffect(() => {
-    refreshPage(s, ui, id, setCommand, setLogs, setActiveStep);
+    refreshPage(s, ui, id, setCommand, setActiveStep);
   }, [s, ui, id]);
+  
+  useEffect(() => {
+    function onStatusEvent(c: CommandStatusUpdate) {
+      setStatus(c.status);
+      refreshActiveStep(c.runStatus, setActiveStep);
+    }
 
-  const onRefresh = async () => {
-    refreshPage(s, ui, id, setCommand, setLogs, setActiveStep);
-  };
+    function onLogEvent(newLog: CommandLog) {
+      setLogs([...logs, newLog]);
+    }
+    
+    socket.on("status", onStatusEvent);
+    socket.emit("status", id);
+
+    socket.on("log", onLogEvent);
+    socket.emit("log", { id, amount: logs.length }, (newLogs: CommandLog[]) => {
+      setLogs([...logs, ...newLogs]);
+    });
+
+    return () => {
+      socket.off("log");
+      socket.off("status");
+    };
+  }, [id, logs]);
 
   const onRestart = async () => {
     const c = await commandApi.restartCommand(s, ui, id);
-    refreshCommand(s, ui, c, setCommand, setLogs, setActiveStep);
-  };
 
-  const onStop = async () => {
-    const c = await commandApi.stopCommand(s, ui, id);
-    refreshCommand(s, ui, c, setCommand, setLogs, setActiveStep);
+    refreshActiveStep(c.runStatus, setActiveStep);
+    setCommand(c);
   };
 
   const onDelete = async () => {
@@ -179,7 +183,6 @@ export default function CommandHome({ params }) {
   };
 
   const enableRestart = (status !== CommandStatus.Running);
-  const enableStop = (status === CommandStatus.Running);
   const enableDelete = (status !== CommandStatus.Running);
   const enableEdit = (status !== CommandStatus.Running);
   const enableDownload = (status === CommandStatus.Succeeded);
@@ -219,14 +222,8 @@ export default function CommandHome({ params }) {
       <Divider sx={{ mb: 2 }} />
 
       <Toolbar sx={{ mb: 2 }}>
-        <ToolbarIcon key='Refresh' label='Refresh' enabled={true} onClick={onRefresh}>
-          <RefreshIcon sx={{ color: '#B8E986' }} />
-        </ToolbarIcon>
-        <ToolbarIcon key='Restart' label='Restart' enabled={enableRestart} onClick={onRestart}>
-          <ResetIcon sx={{ color: enableRestart ? '#B8E986' : 'gray' }} />
-        </ToolbarIcon>
-        <ToolbarIcon key='Stop' label='Stop' enabled={enableStop} onClick={onStop}>
-          <StopIcon sx={{ color: enableStop ? '#B8E986' : 'gray' }} />
+        <ToolbarIcon key='(Re)Start' label='(Re)start' enabled={enableRestart} onClick={onRestart}>
+          <RestartIcon sx={{ color: enableRestart ? '#B8E986' : 'gray' }} />
         </ToolbarIcon>
         <ToolbarIcon key='Edit' label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
           <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />

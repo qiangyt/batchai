@@ -6,10 +6,17 @@ import { AuditableDto } from '../framework';
 import { BadRequestException } from '@nestjs/common';
 import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
+export class SubscribeCommandLogReq {
+	constructor(
+		readonly id: number /* command id */,
+		readonly amount: number /* 0-based amount of log lines that the client has */,
+	) {}
+}
+
 export class CommandLog {
 	constructor(
-		private readonly timestamp: string,
-		private readonly message: string,
+		readonly timestamp: string,
+		readonly message: string,
 	) {}
 }
 

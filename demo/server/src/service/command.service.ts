@@ -7,15 +7,21 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
 import { spawnAsync, GithubRepo, fileExists, renameFileOrDir } from '../helper';
 import { Repo, Command } from '../entity';
-import { CommandCreateReq, CommandLog, CommandUpdateReq } from '../dto';
+import { CommandCreateReq, CommandLog, CommandUpdateReq, SubscribeCommandLogReq } from '../dto';
 import { Kontext } from '../framework';
 import AdmZip from 'adm-zip';
+import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 
 @Injectable()
+@WebSocketGateway({ cors: '*' /*, namespace: 'ws/v1/commands'*/ })
 export class CommandService {
 	private readonly logger = new Logger(CommandService.name);
 
 	private readonly queue = new PQueue({ concurrency: 1 });
+
+	@WebSocketServer()
+	websocket: Server;
 
 	constructor(
 		private scheduler: SchedulerRegistry,
@@ -233,14 +239,18 @@ export class CommandService {
 
 		try {
 			logFile = await c.logFile();
+			await this.log(c.id, logFile, `begin to run command`);
+
 			await this.doRun(c, logFile);
 
+			await this.log(c.id, logFile, `end to run command (succeeded)\n\n\n\n`);
 			c = await this.updateStatus(x, c, CommandStatus.Succeeded);
 			this.logger.log(`run command: succeeded: ${JSON.stringify(c)}`);
 		} catch (err) {
 			if (logFile) {
 				try {
-					await this.log(logFile, err.toString());
+					await this.log(c.id, logFile, err.toString());
+					await this.log(c.id, logFile, `end to run command (failed)\n\n\n\n`);
 				} catch (err) {
 					this.logger.error(`run command: failed to log: err=${err}, ${JSON.stringify(c)}`);
 				}
@@ -255,16 +265,76 @@ export class CommandService {
 	private async updateStatus(x: Kontext, c: Command, status: CommandStatus): Promise<Command> {
 		c.status = status;
 		c.updater = x?.user;
-		return this.dao.save(c);
+		c = await this.dao.save(c);
+
+		this.websocket.to(`status-${c.id}`).emit('status', { status: c.status, runStatus: c.runStatus });
+
+		return c;
 	}
 
 	private async updateRunStatus(c: Command, runStatus: CommandRunStatus): Promise<Command> {
 		c.runStatus = runStatus;
-		return this.dao.save(c);
+		c = await this.dao.save(c);
+
+		this.websocket.to(`status-${c.id}`).emit('status', { status: c.status, runStatus: c.runStatus });
+
+		return c;
+	}
+
+	@SubscribeMessage('status')
+	async subscribeStatusEvent(@ConnectedSocket() client: Socket, @MessageBody() id: number) {
+		const c = await this.findById(id);
+		if (!c) {
+			return;
+		}
+		client.join(`status-${id}`);
+	}
+
+	private async log(id: number, logFile: string, message: string): Promise<void> {
+		const v = new CommandLog(new Date().toISOString(), message);
+		const jsonLine = JSON.stringify(v);
+		await fs.appendFile(logFile, jsonLine + `\n`, { encoding: 'utf8' });
+
+		this.websocket.to(`log-${id}`).emit('log', v);
+	}
+
+	@SubscribeMessage('log')
+	async subscribeLogEvent(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() req: SubscribeCommandLogReq,
+	): Promise<CommandLog[]> {
+		const id = req.id;
+		const c = await this.findById(id);
+		if (!c) {
+			return [];
+		}
+
+		const logFile = await c.logFile();
+		if (!(await fileExists(logFile))) {
+			return [];
+		}
+
+		const content = await fs.readFile(logFile, 'utf-8');
+		const logLines = content
+			.split('\n')
+			.map((line) => line.trim())
+			.filter((line) => line.length > 0)
+			.map((line) => JSON.parse(line));
+
+		client.join(`log-${id}`);
+
+		const amount = req.amount;
+		if (!amount) {
+			return logLines;
+		}
+		if (amount >= logLines.length) {
+			return [];
+		}
+		return logLines.slice(amount);
 	}
 
 	async restart(x: Kontext, c: Command): Promise<Command> {
-		this.logger.warn(`restarting command: ${c}`);
+		this.logger.warn(`restarting command: ${JSON.stringify(c)}`);
 
 		if (c.status === CommandStatus.Running) {
 			throw new ConflictException(`cannot restart a running command: ${JSON.stringify(c)}`);
@@ -277,35 +347,35 @@ export class CommandService {
 		await this.dao.save(c);
 
 		c = await this.enqueue(x, c);
-		this.logger.warn(`successfully restarted command: ${c}`);
+		this.logger.warn(`successfully restarted command: ${JSON.stringify(c)}`);
 		return c;
 	}
 
 	async resume(x: Kontext, c: Command): Promise<Command> {
-		this.logger.warn(`resuming command: ${c}`);
+		this.logger.warn(`resuming command: ${JSON.stringify(c)}`);
 
 		if (c.status !== CommandStatus.Pending && c.status !== CommandStatus.Failed) {
 			throw new ConflictException(`cannot resume a ${c.status} command`);
 		}
 		c = await this.enqueue(x, c);
-		this.logger.warn(`successfully resumed command: ${c}`);
+		this.logger.warn(`successfully resumed command: ${JSON.stringify(c)}`);
 		return c;
 	}
 
 	async stop(x: Kontext, c: Command): Promise<Command> {
-		this.logger.warn(`stopping command: ${c}`);
+		this.logger.warn(`stopping command: ${JSON.stringify(c)}`);
 
 		if (c.status !== CommandStatus.Running) {
 			throw new ConflictException(`cannot stop a ${c.status} command`);
 		}
 		c = await this.updateStatus(x, c, CommandStatus.Pending);
 
-		this.logger.warn(`successfully stopped command: ${c}`);
+		this.logger.warn(`successfully stopped command: ${JSON.stringify(c)}`);
 		return c;
 	}
 
 	async remove(c: Command): Promise<void> {
-		this.logger.warn(`removing command: ${c}`);
+		this.logger.warn(`removing command: ${JSON.stringify(c)}`);
 
 		if (c.status === CommandStatus.Running) {
 			throw new ConflictException(`cannot remove a ${c.status} command`);
@@ -314,11 +384,11 @@ export class CommandService {
 		await this.archiveArtifacts(c);
 		await this.dao.remove(c);
 
-		this.logger.warn(`successfully removed command: ${c}`);
+		this.logger.warn(`successfully removed command: ${JSON.stringify(c)}`);
 	}
 
 	async archiveArtifacts(c: Command): Promise<void> {
-		this.logger.warn(`archiving command: ${c}`);
+		this.logger.warn(`archiving command: ${JSON.stringify(c)}`);
 
 		const date = new Date();
 
@@ -335,12 +405,7 @@ export class CommandService {
 
 		await renameFileOrDir(logFile, logArchiveFile);
 
-		this.logger.warn(`successfully archived command: ${c}`);
-	}
-
-	private async log(logFile: string, message: string): Promise<void> {
-		const jsonLine = JSON.stringify(new CommandLog(new Date().toISOString(), message));
-		return fs.appendFile(logFile, jsonLine + `\n`, { encoding: 'utf8' });
+		this.logger.warn(`successfully archived command: ${JSON.stringify(c)}`);
 	}
 
 	private async newRepoObject(c: Command): Promise<GithubRepo> {
@@ -348,7 +413,7 @@ export class CommandService {
 		const repo = await c.repo;
 
 		return new GithubRepo(
-			(output) => this.log(logFile, output),
+			(output) => this.log(c.id, logFile, output),
 			`/data/batchai-examples/repo`,
 			repo.owner.name,
 			repo.name,
@@ -378,8 +443,8 @@ export class CommandService {
 				workDir,
 				'batchai',
 				c.commandLineArgs(workDir),
-				(stdout) => this.log(logFile, stdout),
-				(stderr) => this.log(logFile, stderr),
+				(stdout) => this.log(c.id, logFile, stdout),
+				(stderr) => this.log(c.id, logFile, stderr),
 			);
 			this.logger.log(`exec end: exitCode=${code}, command=${cmdLine}`);
 
