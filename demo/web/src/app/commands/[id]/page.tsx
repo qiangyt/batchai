@@ -261,47 +261,49 @@ export default function CommandHome({ params }) {
 
   return (
     <>
-      <Box sx={{ mt: 6, mb: 2, color: 'white' }}>
-        <Typography variant="body2" color="lightgray">{title}</Typography>
-        <Box sx={{ mt: 2, fontFamily: 'arial', }}>
-          <span style={{ color: "gray", fontSize: 12, marginRight: 8 }}>for</span>
-          <Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
-          <Link sx={{ ml: 2 }} color='info' href={command?.repo.repoUrl}>( {command?.repo.repoUrl} )</Link>
+      <Box display="flex" justifyContent="space-between" alignItems="center" width="100%" sx={{ mt: 3, mb: 4, color: 'white' }}>
+        <Box>
+          <Typography variant="body2" color="lightgray">{title}</Typography>
+          <Box sx={{ mt: 2, fontFamily: 'arial', }}>
+            <span style={{ color: "gray", fontSize: 12, marginRight: 8 }}>for</span>
+            <Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
+            <Link sx={{ ml: 2 }} color='info' href={command?.repo.repoUrl}>( {command?.repo.repoUrl} )</Link>
 
-          <Typography sx={{ mt: 2 }} variant="body2">
-            {status}
-            <Link href={`/rest/v1/repos/id/${repo?.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: enableDownload ? '#4A90E2' : 'gray' }}>
-              <DownloadIcon sx={{ ml: 2, color: enableDownload ? '#4A90E2' : 'gray' }} />
-            </Link>
-          </Typography>
-          <Button color='info' onClick={toggleProgress(true)}>Detailed progress</Button>
+            <Typography sx={{ mt: 2 }} variant="body2">
+              {status}
+              <Link href={`/rest/v1/repos/id/${repo?.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: enableDownload ? '#4A90E2' : 'gray' }}>
+                <DownloadIcon sx={{ ml: 2, color: enableDownload ? '#4A90E2' : 'gray' }} />
+              </Link>
+            </Typography>
+            <Button color='info' onClick={toggleProgress(true)}>Detailed progress</Button>
 
-          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'row' }}>
-            {command?.hasChanges ?
-              <>
-                <Typography variant="body2">Changes:</Typography>
-                <Link sx={{ ml: 2 }} href={command?.commitId ? command.commitUrl : '#'}>{command?.commitId ? command.commitUrl : 'N/A'}</Link>
-              </>
-              :
-              <Typography variant="body2">No changes</Typography>
-            }
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+              {command?.hasChanges ?
+                <>
+                  <Typography variant="body2">Changes:</Typography>
+                  <Link sx={{ ml: 2 }} href={command?.commitId ? command.commitUrl : '#'}>{command?.commitId ? command.commitUrl : 'N/A'}</Link>
+                </>
+                :
+                <Typography variant="body2">No changes</Typography>
+              }
+            </Box>
           </Box>
         </Box>
+
+        <Box>
+          <Toolbar>
+            <ToolbarIcon key='(Re)Start' label='(Re)start' enabled={enableRestart} onClick={onRestart}>
+              <RestartIcon sx={{ color: enableRestart ? '#B8E986' : 'gray' }} />
+            </ToolbarIcon>
+            <ToolbarIcon key='Edit' label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
+              <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />
+            </ToolbarIcon>
+            <ToolbarIcon key='Delete' label='Delete' enabled={enableDelete} onClick={onDelete}>
+              <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
+            </ToolbarIcon>
+          </Toolbar>
+        </Box>
       </Box>
-
-      <Divider sx={{ mb: 2 }} />
-
-      <Toolbar sx={{ mb: 2 }}>
-        <ToolbarIcon key='(Re)Start' label='(Re)start' enabled={enableRestart} onClick={onRestart}>
-          <RestartIcon sx={{ color: enableRestart ? '#B8E986' : 'gray' }} />
-        </ToolbarIcon>
-        <ToolbarIcon key='Edit' label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
-          <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />
-        </ToolbarIcon>
-        <ToolbarIcon key='Delete' label='Delete' enabled={enableDelete} onClick={onDelete}>
-          <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
-        </ToolbarIcon>
-      </Toolbar>
 
       <Box sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
         <div

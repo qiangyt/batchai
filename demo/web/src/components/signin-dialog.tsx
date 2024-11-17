@@ -64,7 +64,7 @@ export function SignInDialog(props: SignInDialogProps) {
                         To {props.action}, please sign in with GITHUB.COM first
                     </Alert>
                     <Typography sx={{ mt: 2}}>
-                        Clicks [Go ahead] to be redirected to <Link href="https://github.com">GITHUB.COM</Link> sign in page.
+                        Clicks [GO AHEAD] button to be redirected to <Link href="https://github.com">GITHUB.COM</Link> sign in page.
                     </Typography>
                 </DialogContentText>
             </DialogContent>
