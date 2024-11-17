@@ -11,8 +11,8 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import MuiLink from "@mui/material/Link";
 // import Breadcrumbs from "@mui/material/Breadcrumbs";
 // import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-// import NextLink from "next/link";
-// import HomeIcon from '@mui/icons-material/HomeOutlined';
+import NextLink from "next/link";
+import HomeIcon from '@mui/icons-material/HomeOutlined';
 // import { usePathname } from "next/navigation";
 // import { useEffect, useState } from "react";
 
@@ -60,6 +60,7 @@ export default function TopBar({ anchorId }: Props) {
                         </Box>
                     </Typography>
 
+                    <NextLink href={{ pathname: `/` }}><HomeIcon sx={{mr: 6}} /></NextLink>
                     <GitHubLoginButton />
                 </Toolbar>
             </Container>
