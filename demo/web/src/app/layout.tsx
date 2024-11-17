@@ -41,7 +41,7 @@ export default function RootLayout({
             <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
               <CssBaseline />
               <TopBar anchorId='scroll-to-top' />
-              <Paper  variant="outlined" sx={{ mt: 3, mr: 24, ml: 24, background:"black" }} >
+              <Paper  variant="outlined" sx={{ mt: 0, mr: 24, ml: 24, background:"black" }} >
                 {children}
               </Paper>
               <ScrollTop anchorId='scroll-to-top' />
