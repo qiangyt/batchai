@@ -228,17 +228,17 @@ func LoadEnvFile(fs afero.Fs, filename string) error {
 }
 
 func LoadEnvMap(envMap map[string]string) {
-	currentEnv := map[string]bool{}
+	/*currentEnv := map[string]bool{}
 	rawEnv := os.Environ()
 	for _, rawEnvLine := range rawEnv {
 		key := strings.Split(rawEnvLine, "=")[0]
 		currentEnv[key] = true
-	}
+	}*/
 
 	for key, value := range envMap {
-		if !currentEnv[key] {
-			os.Setenv(key, value)
-		}
+		//if !currentEnv[key] {
+		os.Setenv(key, value)
+		//}
 	}
 }
 

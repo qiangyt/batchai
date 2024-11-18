@@ -20,7 +20,7 @@ var (
 
 func main() {
 	fs := comm.AppFs
-	batchai.LoadAngineerEnv(fs)
+	batchai.LoadEnv(fs)
 
 	x := batchai.NewKontext(fs)
 	x.Config = batchai.ConfigWithYaml(fs)
