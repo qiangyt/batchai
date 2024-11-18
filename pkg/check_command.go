@@ -56,7 +56,7 @@ func (me CheckCommand) launchCheckAgents(x Kontext, checkArgs CheckArgs, targetF
 
 func (me CheckCommand) Check(x Kontext, checkArgs CheckArgs) {
 	metrics := NewCheckMetrics()
-	c := comm.NewConsole(x.Args.Concurrent == 1)
+	c := comm.NewConsole(!x.Args.Concurrent)
 
 	targetFiles, _, _, repoFiles := me.listCommand.CollectWorkingFiles(x, c)
 	if len(targetFiles) > 0 {

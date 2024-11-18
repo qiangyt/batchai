@@ -39,28 +39,37 @@ func NewTestAgent(reportManager TestReportManager,
 	}
 }
 
+func (me TestAgent) run(x Kontext, testArgs TestArgs, resultChan chan<- TestResult) {
+	c := comm.NewConsole(!x.Args.Concurrent)
+
+	c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
+	c.Begin()
+	defer c.End()
+
+	defer func() {
+		if e := recover(); e != nil {
+			c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.file, e)
+			resultChan <- &TestResultT{Failed: true}
+		}
+	}()
+
+	result := me.generateTest(x, testArgs, c)
+
+	resultChan <- result
+}
+
 func (me TestAgent) Run(x Kontext, testArgs TestArgs, resultChan chan<- TestResult, wg *sync.WaitGroup) {
+	if !x.Args.Concurrent {
+		me.run(x, testArgs, resultChan)
+		return
+	}
+
 	wg.Add(1)
 
 	go func() {
 		defer wg.Done()
 
-		c := comm.NewConsole(x.Args.Concurrent == 1)
-
-		c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
-		c.Begin()
-		defer c.End()
-
-		defer func() {
-			if e := recover(); e != nil {
-				c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.file, e)
-				resultChan <- &TestResultT{Failed: true}
-			}
-		}()
-
-		result := me.generateTest(x, testArgs, c)
-
-		resultChan <- result
+		me.run(x, testArgs, resultChan)
 	}()
 }
 

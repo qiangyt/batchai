@@ -43,7 +43,7 @@ func (me ListCommand) CollectWorkingFiles(x Kontext, c comm.Console) ([]string, 
 	}
 
 	if len(targetFiles) == 1 {
-		x.Args.Concurrent = 1
+		x.Args.Concurrent = false
 	}
 
 	return targetFiles, ignored, failed, repoFiles

@@ -53,7 +53,7 @@ func (me TestCommand) launchTestAgents(x Kontext, testArgs TestArgs, targetFiles
 
 func (me TestCommand) Test(x Kontext, testArgs TestArgs) {
 	metrics := NewTestMetrics()
-	c := comm.NewConsole(x.Args.Concurrent == 1)
+	c := comm.NewConsole(!x.Args.Concurrent)
 
 	targetFiles, _, _, repoFiles := me.listCommand.CollectWorkingFiles(x, c)
 	if len(targetFiles) > 0 {

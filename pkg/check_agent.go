@@ -41,28 +41,37 @@ func NewCheckAgent(reportManager CheckReportManager,
 	}
 }
 
+func (me CheckAgent) run(x Kontext, checkArgs CheckArgs, resultChan chan<- CheckResult) {
+	c := comm.NewConsole(!x.Args.Concurrent)
+
+	c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
+	c.Begin()
+	defer c.End()
+
+	defer func() {
+		if e := recover(); e != nil {
+			c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.file, e)
+			resultChan <- &CheckResultT{Failed: true}
+		}
+	}()
+
+	result := me.checkFile(x, checkArgs, c)
+
+	resultChan <- result
+}
+
 func (me CheckAgent) Run(x Kontext, checkArgs CheckArgs, resultChan chan<- CheckResult, wg *sync.WaitGroup) {
+	if !x.Args.Concurrent {
+		me.run(x, checkArgs, resultChan)
+		return
+	}
+
 	wg.Add(1)
 
 	go func() {
 		defer wg.Done()
 
-		c := comm.NewConsole(x.Args.Concurrent == 1)
-
-		c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
-		c.Begin()
-		defer c.End()
-
-		defer func() {
-			if e := recover(); e != nil {
-				c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.file, e)
-				resultChan <- &CheckResultT{Failed: true}
-			}
-		}()
-
-		result := me.checkFile(x, checkArgs, c)
-
-		resultChan <- result
+		me.run(x, checkArgs, resultChan)
 	}()
 }
 
