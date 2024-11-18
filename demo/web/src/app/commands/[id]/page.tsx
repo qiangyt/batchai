@@ -30,8 +30,27 @@ import CommandDialog from '@/components/command-dialog';
 import { socket } from '@/socket';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import ReactDiffViewer from 'react-diff-viewer-continued';
 
+const oldCode = `
+const a = 10
+const b = 10
+const c = () => console.log('foo')
 
+if(a > 10) {
+  console.log('bar')
+}
+
+console.log('done')
+`;
+const newCode = `
+const a = 10
+const boo = 10
+
+if(a === 10) {
+  console.log('bar')
+}
+`;
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -309,7 +328,7 @@ export default function CommandHome({ params }) {
         <div
           style={{
             paddingTop: '5px', paddingBottom: '5px', paddingLeft: '12px', paddingRight: '12px',
-            width: '100%', background: '#404040', color: 'white', display: 'flex', alignItems: 'center',
+            width: '100%', background: '#363946', color: 'white', display: 'flex', alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
@@ -325,14 +344,18 @@ export default function CommandHome({ params }) {
             <ContentCopyIcon />
           </IconButton>
         </div>
-        <Tabs value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">
-          <Tab label="Execution Log" sx={{ color: 'gray' }} {...a11yProps(0)} />
-          <Tab label="Audit Log" sx={{ color: 'gray' }} {...a11yProps(1)} />
-        </Tabs>
+        <Tabs value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">    
+          <Tab label="Changes" sx={{ color: 'gray' }} {...a11yProps(0)} />      
+          <Tab label="Execution Log" sx={{ color: 'gray' }} {...a11yProps(1)} />
+          <Tab label="Audit Log" sx={{ color: 'gray' }} {...a11yProps(2)} />
+        </Tabs>                
         <CustomTabPanel value={logTabIndex} index={0}>
-          <ReactAnsi log={executionLogs.map(log => `${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
+          <ReactDiffViewer useDarkTheme oldValue={oldCode} newValue={newCode} splitView />
         </CustomTabPanel>
         <CustomTabPanel value={logTabIndex} index={1}>
+          <ReactAnsi log={executionLogs.map(log => `${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
+        </CustomTabPanel>
+        <CustomTabPanel value={logTabIndex} index={2}>
           <ReactAnsi log={auditLogs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
         </CustomTabPanel>
       </Box>
