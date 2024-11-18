@@ -107,6 +107,39 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 	return &TestResultT{Report: r, Skipped: false}
 }
 
+type TestCodeWriterT struct {
+	console    comm.Console
+	inTestCode bool
+}
+
+type TestCodeWriter = *TestCodeWriterT
+
+func NewTestCodeWriter(console comm.Console) TestCodeWriter {
+	return &TestCodeWriterT{
+		console:    console,
+		inTestCode: false,
+	}
+}
+
+// Write method to implement io.Writer
+func (me TestCodeWriter) Write(p []byte) (n int, err error) {
+	s := string(p)
+
+	if me.inTestCode {
+		if strings.Contains(s, TEST_END) {
+			me.inTestCode = false
+		} else {
+			me.console.Print(s)
+		}
+	} else {
+		if strings.Contains(s, TEST_BEGIN) {
+			me.inTestCode = true
+		}
+	}
+
+	return len(p), nil
+}
+
 func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string, exstingTestCode string) TestReport {
 	verbose := x.Args.Verbose
 
@@ -126,7 +159,7 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 		c.NewLine().Gray("chat: ").Default("generates tests")
 	}
 
-	answer, metrics := me.modelService.Chat(x, x.Config.Test.ModelId, mem, c)
+	answer, metrics := me.modelService.Chat(x, x.Config.Test.ModelId, mem, NewTestCodeWriter(c))
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}

@@ -151,6 +151,11 @@ func (me Console) Print(a ...interface{}) Console {
 	return me
 }
 
+func (me Console) Write(p []byte) (n int, err error) {
+	me.print(string(p))
+	return len(p), nil
+}
+
 func (me Console) NewLine() Console {
 	me.Defaultln(me.prefix)
 	return me

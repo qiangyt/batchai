@@ -2,9 +2,9 @@ package batchai
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/pkg/errors"
-	"github.com/qiangyt/batchai/comm"
 	"github.com/tiktoken-go/tokenizer"
 )
 
@@ -48,7 +48,7 @@ func (me ModelService) Decode(tokens []uint) string {
 	return text
 }
 
-func (me ModelService) Chat(x Kontext, modelId string, memory ChatMemory, console comm.Console) (string, ModelUsageMetrics) {
+func (me ModelService) Chat(x Kontext, modelId string, memory ChatMemory, writer io.Writer) (string, ModelUsageMetrics) {
 	metrics := NewModelUsageMetrics()
 
 	modelClient, exists := me.clients[modelId]
@@ -68,7 +68,7 @@ func (me ModelService) Chat(x Kontext, modelId string, memory ChatMemory, consol
 		}
 	}
 
-	chatCompletion, duration := modelClient.Chat(x, memory, console)
+	chatCompletion, duration := modelClient.Chat(x, memory, writer)
 
 	metrics.Duration = duration
 	metrics.OpenAiUsage = &chatCompletion.Usage

@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -48,17 +49,17 @@ func (me ModelClient) release() {
 	<-me.semaphore
 }
 
-func (me ModelClient) Chat(x Kontext, memory ChatMemory, console comm.Console) (*openai.ChatCompletion, time.Duration) {
+func (me ModelClient) Chat(x Kontext, memory ChatMemory, writer io.Writer) (*openai.ChatCompletion, time.Duration) {
 	me.acquire()
 	defer me.release()
 
 	startTime := time.Now()
 
 	var r *openai.ChatCompletion
-	if console == nil {
+	if writer == nil {
 		r = me.chat(x, memory)
 	} else {
-		r = me.chatStream(x, memory, console)
+		r = me.chatStream(x, memory, writer)
 	}
 
 	content := r.Choices[0].Message.Content
@@ -80,7 +81,7 @@ func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion 
 	return r
 }
 
-func (me ModelClient) chatStream(x Kontext, memory ChatMemory, console comm.Console) *openai.ChatCompletion {
+func (me ModelClient) chatStream(x Kontext, memory ChatMemory, output io.Writer) *openai.ChatCompletion {
 	stream := me.openAiStreamingClient.Chat.Completions.NewStreaming(x.Context, openai.ChatCompletionNewParams{
 		Messages:    openai.F(memory.ToChatCompletionMessageParamUnion()),
 		Temperature: openai.F(me.config.Temperature),
@@ -90,6 +91,8 @@ func (me ModelClient) chatStream(x Kontext, memory ChatMemory, console comm.Cons
 
 	// optionally, an accumulator helper can be used
 	acc := &openai.ChatCompletionAccumulator{}
+
+	var buffer string // Buffer to hold partial lines
 
 	for stream.Next() {
 		chunk := stream.Current()
@@ -109,9 +112,21 @@ func (me ModelClient) chatStream(x Kontext, memory ChatMemory, console comm.Cons
 		}
 
 		// it's best to use chunks after handling JustFinished events
+		// Process chunk content
 		if len(chunk.Choices) > 0 {
-			console.Print(chunk.Choices[0].Delta.Content)
+			buffer += chunk.Choices[0].Delta.Content
+
+			// Split the buffer by lines
+			lines := comm.SplitBufferByLines(&buffer)
+			for _, line := range lines {
+				output.Write([]byte(line + "\n"))
+			}
 		}
+	}
+
+	// Output the last incomplete part in the buffer
+	if len(buffer) > 0 {
+		output.Write([]byte(buffer + "\n"))
 	}
 
 	if err := stream.Err(); err != nil {

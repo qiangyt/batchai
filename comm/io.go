@@ -3,6 +3,7 @@ package comm
 import (
 	"bufio"
 	"io"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -53,4 +54,21 @@ func ReadLines(reader io.Reader) []string {
 	}
 
 	return r
+}
+
+// SplitBufferByLines splits the buffer by lines and returns complete lines.
+// It leaves any incomplete line in the buffer.
+func SplitBufferByLines(buffer *string) []string {
+	lines := []string{}
+	parts := strings.Split(*buffer, "\n")
+
+	// Append all complete lines to the result
+	for i := 0; i < len(parts)-1; i++ {
+		lines = append(lines, parts[i])
+	}
+
+	// The last part is incomplete; keep it in the buffer
+	*buffer = parts[len(parts)-1]
+
+	return lines
 }

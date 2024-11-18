@@ -14,16 +14,16 @@ type TestPromptVariablesT struct {
 type TestPromptVariables = *TestPromptVariablesT
 
 const (
-// TEST_BEGIN      = "!!!!test_begin!!!!"
-// TEST_BEGIN_LINE = TEST_BEGIN + "\n"
-// TEST_END        = "!!!!test_end!!!!"
-// TEST_END_LINE   = /*"\n" + */ TEST_END
+	TEST_BEGIN      = "!!!!test_begin!!!!"
+	TEST_BEGIN_LINE = TEST_BEGIN + "\n"
+	TEST_END        = "!!!!test_end!!!!"
+	TEST_END_LINE   = /*"\n" + */ TEST_END + "\n"
 )
 
 func NewTestPromptVariables() TestPromptVariables {
 	return &TestPromptVariablesT{Data: map[string]any{
-		//"test_begin":  TEST_BEGIN,
-		//"test_end":    TEST_END,
+		"test_begin":  TEST_BEGIN,
+		"test_end":    TEST_END,
 		"test_format": TEST_REPORT_JSON_FORMAT,
 	}}
 }
