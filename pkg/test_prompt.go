@@ -14,16 +14,16 @@ type TestPromptVariablesT struct {
 type TestPromptVariables = *TestPromptVariablesT
 
 const (
-	TEST_BEGIN      = "!!!!test_begin!!!!"
-	TEST_BEGIN_LINE = TEST_BEGIN + "\n"
-	TEST_END        = "!!!!test_end!!!!"
-	TEST_END_LINE   = /*"\n" + */ TEST_END
+// TEST_BEGIN      = "!!!!test_begin!!!!"
+// TEST_BEGIN_LINE = TEST_BEGIN + "\n"
+// TEST_END        = "!!!!test_end!!!!"
+// TEST_END_LINE   = /*"\n" + */ TEST_END
 )
 
 func NewTestPromptVariables() TestPromptVariables {
 	return &TestPromptVariablesT{Data: map[string]any{
-		"test_begin":  TEST_BEGIN,
-		"test_end":    TEST_END,
+		//"test_begin":  TEST_BEGIN,
+		//"test_end":    TEST_END,
 		"test_format": TEST_REPORT_JSON_FORMAT,
 	}}
 }
@@ -66,7 +66,7 @@ type TestPrompt = *TestPromptT
 func (me TestPrompt) Init(config AppConfig) {
 	me.Rules = comm.StringArrayTrimSpace(me.Rules)
 	for i, rule := range me.Rules {
-		me.Rules[i] = fmt.Sprintf("%d) %s.", i, rule)
+		me.Rules[i] = fmt.Sprintf("## %s\n", rule)
 	}
 
 	me.Template = strings.TrimSpace(me.Template)

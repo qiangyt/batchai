@@ -122,10 +122,12 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}
 
-	testCode, remainedAnswer := ExtractTestCode(answer)
-	r := ExtractTestReport(remainedAnswer, strings.HasSuffix(me.file, ".go"))
+	r, remainedAnswer := ExtractTestReport(answer, strings.HasSuffix(me.file, ".go"))
 	r.ModelUsageMetrics = metrics
-	r.TestCode = testCode
 	r.Path = me.file
+
+	testCode, _ := comm.ExtractMarkdownCodeBlocksP(remainedAnswer)
+	r.TestCode = testCode
+
 	return r
 }

@@ -36,29 +36,8 @@ func (me TestReport) Print(console comm.Console) {
 	console.NewLine().Printf("Test Command: %s", me.SingleTestRunCommand)
 }
 
-func ExtractTestCode(input string) (string, string) {
-	begin := strings.Index(input, TEST_BEGIN_LINE)
-	if begin < 0 {
-		return "", input
-	}
-	block := input[begin+len(TEST_BEGIN_LINE):]
-
-	end := strings.LastIndex(block, TEST_END_LINE)
-	if end <= 0 {
-		panic(errors.New("unmatched separator tag"))
-	}
-	result := block[:end]
-
-	if strings.HasPrefix(strings.TrimSpace(result), "```") {
-		result, _ = comm.ExtractMarkdownCodeBlocksP(result)
-	}
-
-	remained := input[:begin] + block[end+len(TEST_END_LINE):]
-	return result, remained
-}
-
-func ExtractTestReport(answer string, isGolang bool) TestReport {
-	jsonStr, _ := comm.ExtractMarkdownJsonBlocksP(answer)
+func ExtractTestReport(answer string, isGolang bool) (TestReport, string) {
+	jsonStr, remained := comm.ExtractMarkdownJsonBlocksP(answer)
 
 	indexOfLeftBrace := strings.Index(jsonStr, "{")
 	if indexOfLeftBrace < 0 {
@@ -77,5 +56,5 @@ func ExtractTestReport(answer string, isGolang bool) TestReport {
 		jsonStr = comm.FixJson(jsonStr, isGolang)
 		comm.FromJsonP(jsonStr, false, report)
 	}
-	return report
+	return report, remained
 }

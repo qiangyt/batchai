@@ -42,8 +42,8 @@ func (me ModelUsageMetrics) Print(console comm.Console, color comm.Color) {
 	console.NewLine().Colorf(color, "Evaluated prompt tokens: %v", me.EvaluatedPromptTokens)
 
 	if usage := me.OpenAiUsage; usage != nil {
-		console.NewLine().Colorf(color, "OpenAI prompt tokens: %v", usage.PromptTokens)
-		console.NewLine().Colorf(color, "OpenAI completion tokens: %v", usage.CompletionTokens)
-		console.NewLine().Colorf(color, "OpenAI total tokens: %v", usage.TotalTokens)
+		console.NewLine().Colorf(color, "Prompt tokens: %v", usage.PromptTokens)
+		console.NewLine().Colorf(color, "Completion tokens: %v", usage.CompletionTokens)
+		console.NewLine().Colorf(color, "Total tokens: %v", usage.TotalTokens)
 	}
 }
