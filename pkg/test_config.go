@@ -6,6 +6,7 @@ type TestConfigT struct {
 	AppConfig AppConfig
 	ModelId   string     `mapstructure:"model_id"`
 	Prompt    TestPrompt `mapstructure:"prompt"`
+	Includes  []string   `mapstructure:"includes"`
 }
 
 type TestConfig = *TestConfigT

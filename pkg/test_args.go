@@ -31,6 +31,8 @@ func TestUrfaveCommand(x Kontext) *cli.Command {
 
 func TestFunc(x Kontext) func(*cli.Context) error {
 	return func(cliContext *cli.Context) error {
+		x.Config.Init("test")
+
 		a := &AppArgsT{}
 		if err := a.WithCliContext(x, cliContext); err != nil {
 			return err

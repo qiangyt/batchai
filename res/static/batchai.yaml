@@ -1,9 +1,9 @@
-includes: ['Dockerfile','*.xml','*.py', '*.python', '*.cs', '*.cpp', '*.cc', '*.h', '*.hpp', '*.c', '*.ruby', '*.go', '*.html', '*.htm', '*.java', '*.json', '*.kt', '*.lua', '*.rs', '*.scala', '*.ts', '*.php', '*.python', '*.proto', '*.python', '*.swift', '*.md', '*.cob', '*.cpy', '*.pl','*.sh','*.yaml','*.yml']
 excludes: ['.git','.svn']
 cache_dir: ${BATCHAI_CACHE_DIR}
 lang: ${LANG}
 test:
   model_id: ${BATCHAI_TEST_MODEL}
+  includes: ['*.py', '*.python', '*.cs', '*.cpp', '*.cc', '*.h', '*.hpp', '*.c', '*.ruby', '*.go', '*.java', '*.kt', '*.lua', '*.rs', '*.scala', '*.ts', '*.php', '*.swift', '*.pl']
   prompt:
     rules:
       - "${BATCHAI_TEST_RULE_1}"
@@ -59,6 +59,7 @@ test:
         {{.code_to_test}}
 check:
   model_id: ${BATCHAI_CHECK_MODEL}
+  includes: ['Dockerfile','*.xml','*.py', '*.python', '*.cs', '*.cpp', '*.cc', '*.h', '*.hpp', '*.c', '*.ruby', '*.go', '*.html', '*.htm', '*.java', '*.json', '*.kt', '*.lua', '*.rs', '*.scala', '*.ts', '*.php', '*.proto', '*.swift', '*.md', '*.pl','*.sh','*.yaml','*.yml']
   severity: ${BATCHAI_CHECK_SEVERITY}
   prompt:
     rules:

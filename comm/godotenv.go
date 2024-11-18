@@ -236,7 +236,7 @@ func LoadEnvMap(envMap map[string]string) {
 	}*/
 
 	for key, value := range envMap {
-		//if !currentEnv[key] {
+		// if !currentEnv[key] {
 		os.Setenv(key, value)
 		//}
 	}

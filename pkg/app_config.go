@@ -26,7 +26,6 @@ func LoadEnv(fs afero.Fs) {
 }
 
 type AppConfigT struct {
-	Includes []string      `mapstructure:"includes"`
 	Excludes []string      `mapstructure:"excludes"`
 	CacheDir string        `mapstructure:"cache_dir"`
 	Lang     string        `mapstructure:"lang"`
@@ -61,13 +60,19 @@ func ConfigWithYaml(fs afero.Fs) AppConfig {
 		comm.DecodeWithYamlP(true, y, configConfig, &r, devault)
 	}
 
-	r.init()
-
 	return &r
 }
 
-func (me AppConfig) init() {
-	me.include = comm.CompileMatchLines(nil, me.Includes...)
+func (me AppConfig) Init(command string) {
+	switch command {
+	case "test":
+		me.include = comm.CompileMatchLines(nil, me.Test.Includes...)
+	case "check":
+		me.include = comm.CompileMatchLines(nil, me.Check.Includes...)
+	default:
+		me.include = comm.CompileMatchLines(nil, me.Check.Includes...)
+	}
+
 	me.exclude = comm.CompileMatchLines(nil, me.Excludes...)
 
 	workDir := comm.WorkingDirectoryP()

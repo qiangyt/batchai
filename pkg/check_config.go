@@ -9,6 +9,7 @@ type CheckConfigT struct {
 	ModelId   string      `mapstructure:"model_id"`
 	Severity  string      `mapstructure:"severity"`
 	Prompt    CheckPrompt `mapstructure:"prompt"`
+	Includes  []string    `mapstructure:"includes"`
 }
 
 type CheckConfig = *CheckConfigT

@@ -110,6 +110,8 @@ func (me ListCommand) CollectFiles(x Kontext, c comm.Console, dirPath string) ([
 
 func ListFunc(x Kontext) func(*cli.Context) error {
 	return func(cliContext *cli.Context) error {
+		x.Config.Init("list")
+
 		a := &AppArgsT{}
 		if err := a.WithCliContext(x, cliContext); err != nil {
 			return err

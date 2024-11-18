@@ -34,18 +34,20 @@ func CheckUrfaveCommand(x Kontext) *cli.Command {
 
 func CheckFunc(x Kontext) func(*cli.Context) error {
 	return func(cliContext *cli.Context) error {
+		x.Config.Init("check")
+
 		a := &AppArgsT{}
 		if err := a.WithCliContext(x, cliContext); err != nil {
 			return err
 		}
 		x.Args = a
 
-		ra := &CheckArgsT{}
-		if err := ra.WithCliContext(x, cliContext); err != nil {
+		ca := &CheckArgsT{}
+		if err := ca.WithCliContext(x, cliContext); err != nil {
 			return err
 		}
 
-		if ra.Fix {
+		if ca.Fix {
 			unstagedFiles, err := comm.GetUnstagedFiles(x.Fs, a.Repository)
 			if err != nil {
 				return errors.Wrap(err, "failed to check unstaged files")
@@ -55,7 +57,7 @@ func CheckFunc(x Kontext) func(*cli.Context) error {
 			}
 		}
 
-		NewCheckCommand(x).Check(x, ra)
+		NewCheckCommand(x).Check(x, ca)
 
 		return nil
 	}

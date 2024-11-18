@@ -35,6 +35,7 @@ func main() {
 		},
 		Action: func(ctx *cli.Context) error {
 			fmt.Println("to be implemented")
+			x.Config.Init("explain")
 			return nil
 		},
 	}
@@ -44,6 +45,7 @@ func main() {
 		Usage: "Refactors the code",
 		Action: func(ctx *cli.Context) error {
 			fmt.Println("to be implemented")
+			x.Config.Init("refactor")
 			return nil
 		},
 	}
@@ -56,6 +58,7 @@ func main() {
 		},
 		Action: func(ctx *cli.Context) error {
 			fmt.Println("to be implemented")
+			x.Config.Init("comment")
 			return nil
 		},
 	}
