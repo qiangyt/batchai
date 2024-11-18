@@ -11,10 +11,10 @@ import (
 
 	"github.com/openai/openai-go/internal/apijson"
 	"github.com/openai/openai-go/internal/apiquery"
-	"github.com/openai/openai-go/internal/pagination"
 	"github.com/openai/openai-go/internal/param"
 	"github.com/openai/openai-go/internal/requestconfig"
 	"github.com/openai/openai-go/option"
+	"github.com/openai/openai-go/packages/pagination"
 )
 
 // BetaVectorStoreFileService contains methods and other services that help with
@@ -49,6 +49,46 @@ func (r *BetaVectorStoreFileService) New(ctx context.Context, vectorStoreID stri
 	path := fmt.Sprintf("vector_stores/%s/files", vectorStoreID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
+}
+
+// Create a vector store file by attaching a
+// [File](https://platform.openai.com/docs/api-reference/files) to a
+// [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object).
+//
+// Polls the API and blocks until the task is complete.
+// Default polling interval is 1 second.
+func (r *BetaVectorStoreFileService) NewAndPoll(ctx context.Context, vectorStoreId string, body BetaVectorStoreFileNewParams, pollIntervalMs int, opts ...option.RequestOption) (res *VectorStoreFile, err error) {
+	file, err := r.New(ctx, vectorStoreId, body, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return r.PollStatus(ctx, vectorStoreId, file.ID, pollIntervalMs, opts...)
+}
+
+// Upload a file to the `files` API and then attach it to the given vector store.
+//
+// Note the file will be asynchronously processed (you can use the alternative
+// polling helper method to wait for processing to complete).
+func (r *BetaVectorStoreFileService) Upload(ctx context.Context, vectorStoreID string, body FileNewParams, opts ...option.RequestOption) (*VectorStoreFile, error) {
+	filesService := NewFileService(r.Options...)
+	fileObj, err := filesService.New(ctx, body, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.New(ctx, vectorStoreID, BetaVectorStoreFileNewParams{
+		FileID: F(fileObj.ID),
+	}, opts...)
+}
+
+// Add a file to a vector store and poll until processing is complete.
+// Default polling interval is 1 second.
+func (r *BetaVectorStoreFileService) UploadAndPoll(ctx context.Context, vectorStoreID string, body FileNewParams, pollIntervalMs int, opts ...option.RequestOption) (*VectorStoreFile, error) {
+	res, err := r.Upload(ctx, vectorStoreID, body, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return r.PollStatus(ctx, vectorStoreID, res.ID, pollIntervalMs, opts...)
 }
 
 // Retrieves a vector store file.
@@ -305,8 +345,8 @@ type BetaVectorStoreFileListParams struct {
 	After param.Field[string] `query:"after"`
 	// A cursor for use in pagination. `before` is an object ID that defines your place
 	// in the list. For instance, if you make a list request and receive 100 objects,
-	// ending with obj_foo, your subsequent call can include before=obj_foo in order to
-	// fetch the previous page of the list.
+	// starting with obj_foo, your subsequent call can include before=obj_foo in order
+	// to fetch the previous page of the list.
 	Before param.Field[string] `query:"before"`
 	// Filter by file status. One of `in_progress`, `completed`, `failed`, `cancelled`.
 	Filter param.Field[BetaVectorStoreFileListParamsFilter] `query:"filter"`

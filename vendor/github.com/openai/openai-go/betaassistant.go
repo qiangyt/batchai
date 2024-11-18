@@ -12,10 +12,10 @@ import (
 
 	"github.com/openai/openai-go/internal/apijson"
 	"github.com/openai/openai-go/internal/apiquery"
-	"github.com/openai/openai-go/internal/pagination"
 	"github.com/openai/openai-go/internal/param"
 	"github.com/openai/openai-go/internal/requestconfig"
 	"github.com/openai/openai-go/option"
+	"github.com/openai/openai-go/packages/pagination"
 	"github.com/openai/openai-go/shared"
 	"github.com/tidwall/gjson"
 )
@@ -129,8 +129,8 @@ type Assistant struct {
 	// ID of the model to use. You can use the
 	// [List models](https://platform.openai.com/docs/api-reference/models/list) API to
 	// see all of your available models, or see our
-	// [Model overview](https://platform.openai.com/docs/models/overview) for
-	// descriptions of them.
+	// [Model overview](https://platform.openai.com/docs/models) for descriptions of
+	// them.
 	Model string `json:"model,required"`
 	// The name of the assistant. The maximum length is 256 characters.
 	Name string `json:"name,required,nullable"`
@@ -335,19 +335,22 @@ func (r AssistantDeletedObject) IsKnown() bool {
 // [Assistants API quickstart](https://platform.openai.com/docs/assistants/overview)
 // to learn how to integrate the Assistants API with streaming.
 type AssistantStreamEvent struct {
-	Event AssistantStreamEventEvent `json:"event,required"`
 	// This field can have the runtime type of [Thread], [Run], [RunStep],
 	// [RunStepDeltaEvent], [Message], [MessageDeltaEvent], [shared.ErrorObject].
-	Data  interface{}              `json:"data"`
-	JSON  assistantStreamEventJSON `json:"-"`
-	union AssistantStreamEventUnion
+	Data  interface{}               `json:"data,required"`
+	Event AssistantStreamEventEvent `json:"event,required"`
+	// Whether to enable input audio transcription.
+	Enabled bool                     `json:"enabled"`
+	JSON    assistantStreamEventJSON `json:"-"`
+	union   AssistantStreamEventUnion
 }
 
 // assistantStreamEventJSON contains the JSON metadata for the struct
 // [AssistantStreamEvent]
 type assistantStreamEventJSON struct {
-	Event       apijson.Field
 	Data        apijson.Field
+	Event       apijson.Field
+	Enabled     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -577,7 +580,9 @@ type AssistantStreamEventThreadCreated struct {
 	// [messages](https://platform.openai.com/docs/api-reference/messages).
 	Data  Thread                                 `json:"data,required"`
 	Event AssistantStreamEventThreadCreatedEvent `json:"event,required"`
-	JSON  assistantStreamEventThreadCreatedJSON  `json:"-"`
+	// Whether to enable input audio transcription.
+	Enabled bool                                  `json:"enabled"`
+	JSON    assistantStreamEventThreadCreatedJSON `json:"-"`
 }
 
 // assistantStreamEventThreadCreatedJSON contains the JSON metadata for the struct
@@ -585,6 +590,7 @@ type AssistantStreamEventThreadCreated struct {
 type assistantStreamEventThreadCreatedJSON struct {
 	Data        apijson.Field
 	Event       apijson.Field
+	Enabled     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -1566,7 +1572,7 @@ func (r AssistantStreamEventThreadMessageIncompleteEvent) IsKnown() bool {
 }
 
 // Occurs when an
-// [error](https://platform.openai.com/docs/guides/error-codes/api-errors) occurs.
+// [error](https://platform.openai.com/docs/guides/error-codes#api-errors) occurs.
 // This can happen due to an internal server error or a timeout.
 type AssistantStreamEventErrorEvent struct {
 	Data  shared.ErrorObject                  `json:"data,required"`
@@ -1648,7 +1654,7 @@ type AssistantTool struct {
 	// The type of tool being defined: `code_interpreter`
 	Type AssistantToolType `json:"type,required"`
 	// This field can have the runtime type of [FileSearchToolFileSearch].
-	FileSearch interface{}               `json:"file_search,required"`
+	FileSearch interface{}               `json:"file_search"`
 	Function   shared.FunctionDefinition `json:"function"`
 	JSON       assistantToolJSON         `json:"-"`
 	union      AssistantToolUnion
@@ -1732,7 +1738,7 @@ func (r AssistantToolType) IsKnown() bool {
 type AssistantToolParam struct {
 	// The type of tool being defined: `code_interpreter`
 	Type       param.Field[AssistantToolType]              `json:"type,required"`
-	FileSearch param.Field[interface{}]                    `json:"file_search,required"`
+	FileSearch param.Field[interface{}]                    `json:"file_search"`
 	Function   param.Field[shared.FunctionDefinitionParam] `json:"function"`
 }
 
@@ -1861,14 +1867,14 @@ type FileSearchToolFileSearch struct {
 	//
 	// Note that the file search tool may output fewer than `max_num_results` results.
 	// See the
-	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 	// for more information.
 	MaxNumResults int64 `json:"max_num_results"`
 	// The ranking options for the file search. If not specified, the file search tool
 	// will use the `auto` ranker and a score_threshold of 0.
 	//
 	// See the
-	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 	// for more information.
 	RankingOptions FileSearchToolFileSearchRankingOptions `json:"ranking_options"`
 	JSON           fileSearchToolFileSearchJSON           `json:"-"`
@@ -1895,7 +1901,7 @@ func (r fileSearchToolFileSearchJSON) RawJSON() string {
 // will use the `auto` ranker and a score_threshold of 0.
 //
 // See the
-// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 // for more information.
 type FileSearchToolFileSearchRankingOptions struct {
 	// The score threshold for the file search. All values must be a floating point
@@ -1964,14 +1970,14 @@ type FileSearchToolFileSearchParam struct {
 	//
 	// Note that the file search tool may output fewer than `max_num_results` results.
 	// See the
-	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 	// for more information.
 	MaxNumResults param.Field[int64] `json:"max_num_results"`
 	// The ranking options for the file search. If not specified, the file search tool
 	// will use the `auto` ranker and a score_threshold of 0.
 	//
 	// See the
-	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 	// for more information.
 	RankingOptions param.Field[FileSearchToolFileSearchRankingOptionsParam] `json:"ranking_options"`
 }
@@ -1984,7 +1990,7 @@ func (r FileSearchToolFileSearchParam) MarshalJSON() (data []byte, err error) {
 // will use the `auto` ranker and a score_threshold of 0.
 //
 // See the
-// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 // for more information.
 type FileSearchToolFileSearchRankingOptionsParam struct {
 	// The score threshold for the file search. All values must be a floating point
@@ -2057,8 +2063,8 @@ type BetaAssistantNewParams struct {
 	// ID of the model to use. You can use the
 	// [List models](https://platform.openai.com/docs/api-reference/models/list) API to
 	// see all of your available models, or see our
-	// [Model overview](https://platform.openai.com/docs/models/overview) for
-	// descriptions of them.
+	// [Model overview](https://platform.openai.com/docs/models) for descriptions of
+	// them.
 	Model param.Field[ChatModel] `json:"model,required"`
 	// The description of the assistant. The maximum length is 512 characters.
 	Description param.Field[string] `json:"description"`
@@ -2171,8 +2177,8 @@ type BetaAssistantUpdateParams struct {
 	// ID of the model to use. You can use the
 	// [List models](https://platform.openai.com/docs/api-reference/models/list) API to
 	// see all of your available models, or see our
-	// [Model overview](https://platform.openai.com/docs/models/overview) for
-	// descriptions of them.
+	// [Model overview](https://platform.openai.com/docs/models) for descriptions of
+	// them.
 	Model param.Field[string] `json:"model"`
 	// The name of the assistant. The maximum length is 256 characters.
 	Name param.Field[string] `json:"name"`
@@ -2246,8 +2252,8 @@ type BetaAssistantListParams struct {
 	After param.Field[string] `query:"after"`
 	// A cursor for use in pagination. `before` is an object ID that defines your place
 	// in the list. For instance, if you make a list request and receive 100 objects,
-	// ending with obj_foo, your subsequent call can include before=obj_foo in order to
-	// fetch the previous page of the list.
+	// starting with obj_foo, your subsequent call can include before=obj_foo in order
+	// to fetch the previous page of the list.
 	Before param.Field[string] `query:"before"`
 	// A limit on the number of objects to be returned. Limit can range between 1 and
 	// 100, and the default is 20.

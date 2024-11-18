@@ -15,10 +15,10 @@ import (
 	"github.com/openai/openai-go/internal/apiform"
 	"github.com/openai/openai-go/internal/apijson"
 	"github.com/openai/openai-go/internal/apiquery"
-	"github.com/openai/openai-go/internal/pagination"
 	"github.com/openai/openai-go/internal/param"
 	"github.com/openai/openai-go/internal/requestconfig"
 	"github.com/openai/openai-go/option"
+	"github.com/openai/openai-go/packages/pagination"
 )
 
 // FileService contains methods and other services that help with interacting with
@@ -80,8 +80,8 @@ func (r *FileService) Get(ctx context.Context, fileID string, opts ...option.Req
 	return
 }
 
-// Returns a list of files that belong to the user's organization.
-func (r *FileService) List(ctx context.Context, query FileListParams, opts ...option.RequestOption) (res *pagination.Page[FileObject], err error) {
+// Returns a list of files.
+func (r *FileService) List(ctx context.Context, query FileListParams, opts ...option.RequestOption) (res *pagination.CursorPage[FileObject], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -98,9 +98,9 @@ func (r *FileService) List(ctx context.Context, query FileListParams, opts ...op
 	return res, nil
 }
 
-// Returns a list of files that belong to the user's organization.
-func (r *FileService) ListAutoPaging(ctx context.Context, query FileListParams, opts ...option.RequestOption) *pagination.PageAutoPager[FileObject] {
-	return pagination.NewPageAutoPager(r.List(ctx, query, opts...))
+// Returns a list of files.
+func (r *FileService) ListAutoPaging(ctx context.Context, query FileListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[FileObject] {
+	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
 // Delete a file.
@@ -127,6 +127,22 @@ func (r *FileService) Content(ctx context.Context, fileID string, opts ...option
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
+
+// Returns the contents of the specified file.
+//
+// Deprecated: The `.content()` method should be used instead
+func (r *FileService) GetContent(ctx context.Context, fileID string, opts ...option.RequestOption) (res *FileContent, err error) {
+	opts = append(r.Options[:], opts...)
+	if fileID == "" {
+		err = errors.New("missing required file_id parameter")
+		return
+	}
+	path := fmt.Sprintf("files/%s/content", fileID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
+type FileContent = string
 
 type FileDeleted struct {
 	ID      string            `json:"id,required"`
@@ -324,6 +340,17 @@ func (r FileNewParams) MarshalMultipart() (data []byte, contentType string, err 
 }
 
 type FileListParams struct {
+	// A cursor for use in pagination. `after` is an object ID that defines your place
+	// in the list. For instance, if you make a list request and receive 100 objects,
+	// ending with obj_foo, your subsequent call can include after=obj_foo in order to
+	// fetch the next page of the list.
+	After param.Field[string] `query:"after"`
+	// A limit on the number of objects to be returned. Limit can range between 1 and
+	// 10,000, and the default is 10,000.
+	Limit param.Field[int64] `query:"limit"`
+	// Sort order by the `created_at` timestamp of the objects. `asc` for ascending
+	// order and `desc` for descending order.
+	Order param.Field[FileListParamsOrder] `query:"order"`
 	// Only return files with the given purpose.
 	Purpose param.Field[string] `query:"purpose"`
 }
@@ -334,4 +361,21 @@ func (r FileListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatBrackets,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Sort order by the `created_at` timestamp of the objects. `asc` for ascending
+// order and `desc` for descending order.
+type FileListParamsOrder string
+
+const (
+	FileListParamsOrderAsc  FileListParamsOrder = "asc"
+	FileListParamsOrderDesc FileListParamsOrder = "desc"
+)
+
+func (r FileListParamsOrder) IsKnown() bool {
+	switch r {
+	case FileListParamsOrderAsc, FileListParamsOrderDesc:
+		return true
+	}
+	return false
 }

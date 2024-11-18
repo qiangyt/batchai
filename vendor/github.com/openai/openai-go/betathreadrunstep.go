@@ -12,10 +12,10 @@ import (
 
 	"github.com/openai/openai-go/internal/apijson"
 	"github.com/openai/openai-go/internal/apiquery"
-	"github.com/openai/openai-go/internal/pagination"
 	"github.com/openai/openai-go/internal/param"
 	"github.com/openai/openai-go/internal/requestconfig"
 	"github.com/openai/openai-go/option"
+	"github.com/openai/openai-go/packages/pagination"
 	"github.com/tidwall/gjson"
 )
 
@@ -267,11 +267,11 @@ func (r codeInterpreterToolCallCodeInterpreterJSON) RawJSON() string {
 type CodeInterpreterToolCallCodeInterpreterOutput struct {
 	// Always `logs`.
 	Type CodeInterpreterToolCallCodeInterpreterOutputsType `json:"type,required"`
-	// The text output from the Code Interpreter tool call.
-	Logs string `json:"logs"`
 	// This field can have the runtime type of
 	// [CodeInterpreterToolCallCodeInterpreterOutputsImageImage].
-	Image interface{}                                      `json:"image,required"`
+	Image interface{} `json:"image"`
+	// The text output from the Code Interpreter tool call.
+	Logs  string                                           `json:"logs"`
 	JSON  codeInterpreterToolCallCodeInterpreterOutputJSON `json:"-"`
 	union CodeInterpreterToolCallCodeInterpreterOutputsUnion
 }
@@ -280,8 +280,8 @@ type CodeInterpreterToolCallCodeInterpreterOutput struct {
 // the struct [CodeInterpreterToolCallCodeInterpreterOutput]
 type codeInterpreterToolCallCodeInterpreterOutputJSON struct {
 	Type        apijson.Field
-	Logs        apijson.Field
 	Image       apijson.Field
+	Logs        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -561,10 +561,10 @@ type CodeInterpreterToolCallDeltaCodeInterpreterOutput struct {
 	Index int64 `json:"index,required"`
 	// Always `logs`.
 	Type CodeInterpreterToolCallDeltaCodeInterpreterOutputsType `json:"type,required"`
-	// The text output from the Code Interpreter tool call.
-	Logs string `json:"logs"`
 	// This field can have the runtime type of [CodeInterpreterOutputImageImage].
-	Image interface{}                                           `json:"image,required"`
+	Image interface{} `json:"image"`
+	// The text output from the Code Interpreter tool call.
+	Logs  string                                                `json:"logs"`
 	JSON  codeInterpreterToolCallDeltaCodeInterpreterOutputJSON `json:"-"`
 	union CodeInterpreterToolCallDeltaCodeInterpreterOutputsUnion
 }
@@ -574,8 +574,8 @@ type CodeInterpreterToolCallDeltaCodeInterpreterOutput struct {
 type codeInterpreterToolCallDeltaCodeInterpreterOutputJSON struct {
 	Index       apijson.Field
 	Type        apijson.Field
-	Logs        apijson.Field
 	Image       apijson.Field
+	Logs        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -1266,9 +1266,9 @@ type RunStepStepDetails struct {
 	Type RunStepStepDetailsType `json:"type,required"`
 	// This field can have the runtime type of
 	// [MessageCreationStepDetailsMessageCreation].
-	MessageCreation interface{} `json:"message_creation,required"`
+	MessageCreation interface{} `json:"message_creation"`
 	// This field can have the runtime type of [[]ToolCall].
-	ToolCalls interface{}            `json:"tool_calls,required"`
+	ToolCalls interface{}            `json:"tool_calls"`
 	JSON      runStepStepDetailsJSON `json:"-"`
 	union     RunStepStepDetailsUnion
 }
@@ -1418,9 +1418,9 @@ type RunStepDeltaStepDetails struct {
 	Type RunStepDeltaStepDetailsType `json:"type,required"`
 	// This field can have the runtime type of
 	// [RunStepDeltaMessageDeltaMessageCreation].
-	MessageCreation interface{} `json:"message_creation,required"`
+	MessageCreation interface{} `json:"message_creation"`
 	// This field can have the runtime type of [[]ToolCallDelta].
-	ToolCalls interface{}                 `json:"tool_calls,required"`
+	ToolCalls interface{}                 `json:"tool_calls"`
 	JSON      runStepDeltaStepDetailsJSON `json:"-"`
 	union     RunStepDeltaStepDetailsUnion
 }
@@ -1629,11 +1629,11 @@ type ToolCall struct {
 	Type ToolCallType `json:"type,required"`
 	// This field can have the runtime type of
 	// [CodeInterpreterToolCallCodeInterpreter].
-	CodeInterpreter interface{} `json:"code_interpreter,required"`
+	CodeInterpreter interface{} `json:"code_interpreter"`
 	// This field can have the runtime type of [FileSearchToolCallFileSearch].
-	FileSearch interface{} `json:"file_search,required"`
+	FileSearch interface{} `json:"file_search"`
 	// This field can have the runtime type of [FunctionToolCallFunction].
-	Function interface{}  `json:"function,required"`
+	Function interface{}  `json:"function"`
 	JSON     toolCallJSON `json:"-"`
 	union    ToolCallUnion
 }
@@ -1723,18 +1723,18 @@ func (r ToolCallType) IsKnown() bool {
 type ToolCallDelta struct {
 	// The index of the tool call in the tool calls array.
 	Index int64 `json:"index,required"`
-	// The ID of the tool call.
-	ID string `json:"id"`
 	// The type of tool call. This is always going to be `code_interpreter` for this
 	// type of tool call.
 	Type ToolCallDeltaType `json:"type,required"`
+	// The ID of the tool call.
+	ID string `json:"id"`
 	// This field can have the runtime type of
 	// [CodeInterpreterToolCallDeltaCodeInterpreter].
-	CodeInterpreter interface{} `json:"code_interpreter,required"`
+	CodeInterpreter interface{} `json:"code_interpreter"`
 	// This field can have the runtime type of [interface{}].
-	FileSearch interface{} `json:"file_search,required"`
+	FileSearch interface{} `json:"file_search"`
 	// This field can have the runtime type of [FunctionToolCallDeltaFunction].
-	Function interface{}       `json:"function,required"`
+	Function interface{}       `json:"function"`
 	JSON     toolCallDeltaJSON `json:"-"`
 	union    ToolCallDeltaUnion
 }
@@ -1742,8 +1742,8 @@ type ToolCallDelta struct {
 // toolCallDeltaJSON contains the JSON metadata for the struct [ToolCallDelta]
 type toolCallDeltaJSON struct {
 	Index           apijson.Field
-	ID              apijson.Field
 	Type            apijson.Field
+	ID              apijson.Field
 	CodeInterpreter apijson.Field
 	FileSearch      apijson.Field
 	Function        apijson.Field
@@ -1917,7 +1917,7 @@ type BetaThreadRunStepGetParams struct {
 	// to fetch the file search result content.
 	//
 	// See the
-	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 	// for more information.
 	Include param.Field[[]RunStepInclude] `query:"include"`
 }
@@ -1939,15 +1939,15 @@ type BetaThreadRunStepListParams struct {
 	After param.Field[string] `query:"after"`
 	// A cursor for use in pagination. `before` is an object ID that defines your place
 	// in the list. For instance, if you make a list request and receive 100 objects,
-	// ending with obj_foo, your subsequent call can include before=obj_foo in order to
-	// fetch the previous page of the list.
+	// starting with obj_foo, your subsequent call can include before=obj_foo in order
+	// to fetch the previous page of the list.
 	Before param.Field[string] `query:"before"`
 	// A list of additional fields to include in the response. Currently the only
 	// supported value is `step_details.tool_calls[*].file_search.results[*].content`
 	// to fetch the file search result content.
 	//
 	// See the
-	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 	// for more information.
 	Include param.Field[[]RunStepInclude] `query:"include"`
 	// A limit on the number of objects to be returned. Limit can range between 1 and

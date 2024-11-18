@@ -1,5 +1,113 @@
 # Changelog
 
+## 0.1.0-alpha.37 (2024-11-12)
+
+Full Changelog: [v0.1.0-alpha.36...v0.1.0-alpha.37](https://github.com/openai/openai-go/compare/v0.1.0-alpha.36...v0.1.0-alpha.37)
+
+### Bug Fixes
+
+* **client:** no panic on missing BaseURL ([#121](https://github.com/openai/openai-go/issues/121)) ([1a8b841](https://github.com/openai/openai-go/commit/1a8b8415caabf9e4f33fc2b095b31dd926376b47))
+
+## 0.1.0-alpha.36 (2024-11-11)
+
+Full Changelog: [v0.1.0-alpha.35...v0.1.0-alpha.36](https://github.com/openai/openai-go/compare/v0.1.0-alpha.35...v0.1.0-alpha.36)
+
+### Bug Fixes
+
+* correct required fields for flattened unions ([#120](https://github.com/openai/openai-go/issues/120)) ([8fe865b](https://github.com/openai/openai-go/commit/8fe865b5cb230bdac498ae295b16a7388cfdde6c))
+
+
+### Documentation
+
+* **readme:** fix example snippet ([#118](https://github.com/openai/openai-go/issues/118)) ([7f1803b](https://github.com/openai/openai-go/commit/7f1803b44183e8796a40eab6dee440cf16813e3c))
+
+## 0.1.0-alpha.35 (2024-11-10)
+
+Full Changelog: [v0.1.0-alpha.34...v0.1.0-alpha.35](https://github.com/openai/openai-go/compare/v0.1.0-alpha.34...v0.1.0-alpha.35)
+
+### Bug Fixes
+
+* **api:** escape key values when encoding maps ([#116](https://github.com/openai/openai-go/issues/116)) ([a2bcd73](https://github.com/openai/openai-go/commit/a2bcd7394f725ea0e653d7d4c145f3f48b36c1c3))
+
+## 0.1.0-alpha.34 (2024-11-07)
+
+Full Changelog: [v0.1.0-alpha.33...v0.1.0-alpha.34](https://github.com/openai/openai-go/compare/v0.1.0-alpha.33...v0.1.0-alpha.34)
+
+### Documentation
+
+* add missing docs for some enums ([#114](https://github.com/openai/openai-go/issues/114)) ([f01913f](https://github.com/openai/openai-go/commit/f01913f1432a64304de9232bd36624c9506e02ab))
+
+## 0.1.0-alpha.33 (2024-11-05)
+
+Full Changelog: [v0.1.0-alpha.32...v0.1.0-alpha.33](https://github.com/openai/openai-go/compare/v0.1.0-alpha.32...v0.1.0-alpha.33)
+
+### Features
+
+* **api:** add support for predicted outputs ([#110](https://github.com/openai/openai-go/issues/110)) ([ab88fa9](https://github.com/openai/openai-go/commit/ab88fa960917bedd15d2ffdf50d0d7169afd661a))
+
+
+### Refactors
+
+* sort fields for squashed union structs ([#111](https://github.com/openai/openai-go/issues/111)) ([f7e4ac8](https://github.com/openai/openai-go/commit/f7e4ac83cd345e58c824a489a2883bd4ef7717f6))
+
+## 0.1.0-alpha.32 (2024-10-30)
+
+Full Changelog: [v0.1.0-alpha.31...v0.1.0-alpha.32](https://github.com/openai/openai-go/compare/v0.1.0-alpha.31...v0.1.0-alpha.32)
+
+### Features
+
+* **api:** add new, expressive voices for Realtime and Audio in Chat Completions ([#101](https://github.com/openai/openai-go/issues/101)) ([f946acc](https://github.com/openai/openai-go/commit/f946acc71a92f885bed87f0d4e724fb40cae0f14))
+
+## 0.1.0-alpha.31 (2024-10-23)
+
+Full Changelog: [v0.1.0-alpha.30...v0.1.0-alpha.31](https://github.com/openai/openai-go/compare/v0.1.0-alpha.30...v0.1.0-alpha.31)
+
+### Chores
+
+* **internal:** update spec version ([#95](https://github.com/openai/openai-go/issues/95)) ([0cb6f6a](https://github.com/openai/openai-go/commit/0cb6f6abd428a5bd314902708ab12bc12a1b978f))
+
+## 0.1.0-alpha.30 (2024-10-22)
+
+Full Changelog: [v0.1.0-alpha.29...v0.1.0-alpha.30](https://github.com/openai/openai-go/compare/v0.1.0-alpha.29...v0.1.0-alpha.30)
+
+### ⚠ BREAKING CHANGES
+
+* **client:** improve naming of some variants ([#89](https://github.com/openai/openai-go/issues/89))
+
+### Features
+
+* **client:** improve naming of some variants ([#89](https://github.com/openai/openai-go/issues/89)) ([12ac070](https://github.com/openai/openai-go/commit/12ac070611061e98ae2aaaeefa8eb661ff7f995f))
+
+## 0.1.0-alpha.29 (2024-10-17)
+
+Full Changelog: [v0.1.0-alpha.28...v0.1.0-alpha.29](https://github.com/openai/openai-go/compare/v0.1.0-alpha.28...v0.1.0-alpha.29)
+
+### Features
+
+* **api:** add gpt-4o-audio-preview model for chat completions ([#88](https://github.com/openai/openai-go/issues/88)) ([03da9c9](https://github.com/openai/openai-go/commit/03da9c984e6b0fdb0d8da7a8e4fde29fc45b784d))
+* **assistants:** add polling helpers and examples ([#84](https://github.com/openai/openai-go/issues/84)) ([eab25dd](https://github.com/openai/openai-go/commit/eab25dde95f7dd50b712326714ce55e93432b4dc))
+
+
+### Bug Fixes
+
+* **example:** use correct model ([#86](https://github.com/openai/openai-go/issues/86)) ([6dad9b2](https://github.com/openai/openai-go/commit/6dad9b256b86b069ec9445ae86bfb2f2c3764b66))
+
+## 0.1.0-alpha.28 (2024-10-16)
+
+Full Changelog: [v0.1.0-alpha.27...v0.1.0-alpha.28](https://github.com/openai/openai-go/compare/v0.1.0-alpha.27...v0.1.0-alpha.28)
+
+### Features
+
+* move pagination package from internal to packages ([#81](https://github.com/openai/openai-go/issues/81)) ([8875bdc](https://github.com/openai/openai-go/commit/8875bdc847467b322bd9b6c54c027d97a79c5f16))
+
+## 0.1.0-alpha.27 (2024-10-14)
+
+Full Changelog: [v0.1.0-alpha.26...v0.1.0-alpha.27](https://github.com/openai/openai-go/compare/v0.1.0-alpha.26...v0.1.0-alpha.27)
+
+### Chores
+
+* fix GetNextPage docstring ([#78](https://github.com/openai/openai-go/issues/78)) ([490f8f0](https://github.com/openai/openai-go/commit/490f8f0ae34cc6769a7555cf77fef0192963ad06))
+
 ## 0.1.0-alpha.26 (2024-10-08)
 
 Full Changelog: [v0.1.0-alpha.25...v0.1.0-alpha.26](https://github.com/openai/openai-go/compare/v0.1.0-alpha.25...v0.1.0-alpha.26)

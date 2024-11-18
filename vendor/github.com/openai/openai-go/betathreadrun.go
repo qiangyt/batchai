@@ -11,10 +11,10 @@ import (
 
 	"github.com/openai/openai-go/internal/apijson"
 	"github.com/openai/openai-go/internal/apiquery"
-	"github.com/openai/openai-go/internal/pagination"
 	"github.com/openai/openai-go/internal/param"
 	"github.com/openai/openai-go/internal/requestconfig"
 	"github.com/openai/openai-go/option"
+	"github.com/openai/openai-go/packages/pagination"
 	"github.com/openai/openai-go/packages/ssestream"
 )
 
@@ -67,6 +67,16 @@ func (r *BetaThreadRunService) NewStreaming(ctx context.Context, threadID string
 	path := fmt.Sprintf("threads/%s/runs", threadID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &raw, opts...)
 	return ssestream.NewStream[AssistantStreamEvent](ssestream.NewDecoder(raw), err)
+}
+
+// Create a run and poll until task is completed.
+// Pass 0 to pollIntervalMs to use the default polling interval.
+func (r *BetaThreadRunService) NewAndPoll(ctx context.Context, threadID string, params BetaThreadRunNewParams, pollIntervalMs int, opts ...option.RequestOption) (res *Run, err error) {
+	run, err := r.New(ctx, threadID, params, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return r.PollStatus(ctx, threadID, run.ID, pollIntervalMs, opts...)
 }
 
 // Retrieves a run.
@@ -165,6 +175,18 @@ func (r *BetaThreadRunService) SubmitToolOutputs(ctx context.Context, threadID s
 	path := fmt.Sprintf("threads/%s/runs/%s/submit_tool_outputs", threadID, runID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
+}
+
+// A helper to submit a tool output to a run and poll for a terminal run state.
+// Pass 0 to pollIntervalMs to use the default polling interval.
+// More information on Run lifecycles can be found here:
+// https://platform.openai.com/docs/assistants/how-it-works/runs-and-run-steps
+func (r *BetaThreadRunService) SubmitToolOutputsAndPoll(ctx context.Context, threadID string, runID string, body BetaThreadRunSubmitToolOutputsParams, pollIntervalMs int, opts ...option.RequestOption) (*Run, error) {
+	run, err := r.SubmitToolOutputs(ctx, threadID, runID, body, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return r.PollStatus(ctx, threadID, run.ID, pollIntervalMs, opts...)
 }
 
 // When a run has the `status: "requires_action"` and `required_action.type` is
@@ -312,7 +334,7 @@ type Run struct {
 	// The object type, which is always `thread.run`.
 	Object RunObject `json:"object,required"`
 	// Whether to enable
-	// [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling)
+	// [parallel function calling](https://platform.openai.com/docs/guides/function-calling#configuring-parallel-function-calling)
 	// during tool use.
 	ParallelToolCalls bool `json:"parallel_tool_calls,required"`
 	// Details on the action required to continue the run. Will be `null` if no action
@@ -670,7 +692,7 @@ type BetaThreadRunNewParams struct {
 	// to fetch the file search result content.
 	//
 	// See the
-	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings)
+	// [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings)
 	// for more information.
 	Include param.Field[[]RunStepInclude] `query:"include"`
 	// Appends additional instructions at the end of the instructions for the run. This
@@ -706,7 +728,7 @@ type BetaThreadRunNewParams struct {
 	// assistant will be used.
 	Model param.Field[ChatModel] `json:"model"`
 	// Whether to enable
-	// [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling)
+	// [parallel function calling](https://platform.openai.com/docs/guides/function-calling#configuring-parallel-function-calling)
 	// during tool use.
 	ParallelToolCalls param.Field[bool] `json:"parallel_tool_calls"`
 	// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
@@ -751,7 +773,7 @@ type BetaThreadRunNewParamsAdditionalMessage struct {
 	// An array of content parts with a defined type, each can be of type `text` or
 	// images can be passed with `image_url` or `image_file`. Image types are only
 	// supported on
-	// [Vision-compatible models](https://platform.openai.com/docs/models/overview).
+	// [Vision-compatible models](https://platform.openai.com/docs/models).
 	Content param.Field[[]MessageContentPartParamUnion] `json:"content,required"`
 	// The role of the entity that is creating the message. Allowed values include:
 	//
@@ -923,8 +945,8 @@ type BetaThreadRunListParams struct {
 	After param.Field[string] `query:"after"`
 	// A cursor for use in pagination. `before` is an object ID that defines your place
 	// in the list. For instance, if you make a list request and receive 100 objects,
-	// ending with obj_foo, your subsequent call can include before=obj_foo in order to
-	// fetch the previous page of the list.
+	// starting with obj_foo, your subsequent call can include before=obj_foo in order
+	// to fetch the previous page of the list.
 	Before param.Field[string] `query:"before"`
 	// A limit on the number of objects to be returned. Limit can range between 1 and
 	// 100, and the default is 20.

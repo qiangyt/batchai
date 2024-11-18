@@ -98,6 +98,15 @@ func (r *BetaThreadService) NewAndRun(ctx context.Context, body BetaThreadNewAnd
 	return
 }
 
+// Create a thread and run it in one request. Poll the API until the run is complete.
+func (r *BetaThreadService) NewAndRunPoll(ctx context.Context, body BetaThreadNewAndRunParams, pollIntervalMs int, opts ...option.RequestOption) (res *Run, err error) {
+	run, err := r.NewAndRun(ctx, body, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return r.Runs.PollStatus(ctx, run.ThreadID, run.ID, pollIntervalMs, opts...)
+}
+
 // Create a thread and run it in one request.
 func (r *BetaThreadService) NewAndRunStreaming(ctx context.Context, body BetaThreadNewAndRunParams, opts ...option.RequestOption) (stream *ssestream.Stream[AssistantStreamEvent]) {
 	var (
@@ -209,7 +218,7 @@ func (r AssistantToolChoiceFunctionParam) MarshalJSON() (data []byte, err error)
 // `{"type": "function", "function": {"name": "my_function"}}` forces the model to
 // call that tool.
 //
-// Union satisfied by [AssistantToolChoiceOptionString] or [AssistantToolChoice].
+// Union satisfied by [AssistantToolChoiceOptionBehavior] or [AssistantToolChoice].
 type AssistantToolChoiceOptionUnion interface {
 	implementsAssistantToolChoiceOptionUnion()
 }
@@ -220,7 +229,7 @@ func init() {
 		"",
 		apijson.UnionVariant{
 			TypeFilter: gjson.String,
-			Type:       reflect.TypeOf(AssistantToolChoiceOptionString("")),
+			Type:       reflect.TypeOf(AssistantToolChoiceOptionBehavior("")),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
@@ -233,25 +242,25 @@ func init() {
 // `auto` means the model can pick between generating a message or calling one or
 // more tools. `required` means the model must call one or more tools before
 // responding to the user.
-type AssistantToolChoiceOptionString string
+type AssistantToolChoiceOptionBehavior string
 
 const (
-	AssistantToolChoiceOptionStringNone     AssistantToolChoiceOptionString = "none"
-	AssistantToolChoiceOptionStringAuto     AssistantToolChoiceOptionString = "auto"
-	AssistantToolChoiceOptionStringRequired AssistantToolChoiceOptionString = "required"
+	AssistantToolChoiceOptionBehaviorNone     AssistantToolChoiceOptionBehavior = "none"
+	AssistantToolChoiceOptionBehaviorAuto     AssistantToolChoiceOptionBehavior = "auto"
+	AssistantToolChoiceOptionBehaviorRequired AssistantToolChoiceOptionBehavior = "required"
 )
 
-func (r AssistantToolChoiceOptionString) IsKnown() bool {
+func (r AssistantToolChoiceOptionBehavior) IsKnown() bool {
 	switch r {
-	case AssistantToolChoiceOptionStringNone, AssistantToolChoiceOptionStringAuto, AssistantToolChoiceOptionStringRequired:
+	case AssistantToolChoiceOptionBehaviorNone, AssistantToolChoiceOptionBehaviorAuto, AssistantToolChoiceOptionBehaviorRequired:
 		return true
 	}
 	return false
 }
 
-func (r AssistantToolChoiceOptionString) implementsAssistantToolChoiceOptionUnion() {}
+func (r AssistantToolChoiceOptionBehavior) implementsAssistantToolChoiceOptionUnion() {}
 
-func (r AssistantToolChoiceOptionString) implementsAssistantToolChoiceOptionUnionParam() {}
+func (r AssistantToolChoiceOptionBehavior) implementsAssistantToolChoiceOptionUnionParam() {}
 
 // Controls which (if any) tool is called by the model. `none` means the model will
 // not call any tools and instead generates a message. `auto` is the default value
@@ -261,7 +270,7 @@ func (r AssistantToolChoiceOptionString) implementsAssistantToolChoiceOptionUnio
 // `{"type": "function", "function": {"name": "my_function"}}` forces the model to
 // call that tool.
 //
-// Satisfied by [AssistantToolChoiceOptionString], [AssistantToolChoiceParam].
+// Satisfied by [AssistantToolChoiceOptionBehavior], [AssistantToolChoiceParam].
 type AssistantToolChoiceOptionUnionParam interface {
 	implementsAssistantToolChoiceOptionUnionParam()
 }
@@ -460,7 +469,7 @@ type BetaThreadNewParamsMessage struct {
 	// An array of content parts with a defined type, each can be of type `text` or
 	// images can be passed with `image_url` or `image_file`. Image types are only
 	// supported on
-	// [Vision-compatible models](https://platform.openai.com/docs/models/overview).
+	// [Vision-compatible models](https://platform.openai.com/docs/models).
 	Content param.Field[[]MessageContentPartParamUnion] `json:"content,required"`
 	// The role of the entity that is creating the message. Allowed values include:
 	//
@@ -720,7 +729,7 @@ type BetaThreadNewAndRunParams struct {
 	// assistant will be used.
 	Model param.Field[ChatModel] `json:"model"`
 	// Whether to enable
-	// [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling)
+	// [parallel function calling](https://platform.openai.com/docs/guides/function-calling#configuring-parallel-function-calling)
 	// during tool use.
 	ParallelToolCalls param.Field[bool] `json:"parallel_tool_calls"`
 	// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
@@ -785,7 +794,7 @@ type BetaThreadNewAndRunParamsThreadMessage struct {
 	// An array of content parts with a defined type, each can be of type `text` or
 	// images can be passed with `image_url` or `image_file`. Image types are only
 	// supported on
-	// [Vision-compatible models](https://platform.openai.com/docs/models/overview).
+	// [Vision-compatible models](https://platform.openai.com/docs/models).
 	Content param.Field[[]MessageContentPartParamUnion] `json:"content,required"`
 	// The role of the entity that is creating the message. Allowed values include:
 	//
@@ -1000,7 +1009,7 @@ func (r BetaThreadNewAndRunParamsToolResourcesFileSearch) MarshalJSON() (data []
 type BetaThreadNewAndRunParamsTool struct {
 	// The type of tool being defined: `code_interpreter`
 	Type       param.Field[BetaThreadNewAndRunParamsToolsType] `json:"type,required"`
-	FileSearch param.Field[interface{}]                        `json:"file_search,required"`
+	FileSearch param.Field[interface{}]                        `json:"file_search"`
 	Function   param.Field[shared.FunctionDefinitionParam]     `json:"function"`
 }
 

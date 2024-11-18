@@ -504,7 +504,7 @@ const (
 type ModerationMultiModalInputParam struct {
 	// Always `image_url`.
 	Type     param.Field[ModerationMultiModalInputType] `json:"type,required"`
-	ImageURL param.Field[interface{}]                   `json:"image_url,required"`
+	ImageURL param.Field[interface{}]                   `json:"image_url"`
 	// A string of text to classify.
 	Text param.Field[string] `json:"text"`
 }
@@ -604,7 +604,7 @@ type ModerationNewParams struct {
 	// The content moderation model you would like to use. Learn more in
 	// [the moderation guide](https://platform.openai.com/docs/guides/moderation), and
 	// learn about available models
-	// [here](https://platform.openai.com/docs/models/moderation).
+	// [here](https://platform.openai.com/docs/models#moderation).
 	Model param.Field[ModerationModel] `json:"model"`
 }
 

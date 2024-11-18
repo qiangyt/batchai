@@ -25,7 +25,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/openai/openai-go@v0.1.0-alpha.26'
+go get -u 'github.com/openai/openai-go@v0.1.0-alpha.37'
 ```
 
 <!-- x-release-please-end -->
@@ -63,6 +63,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	println(chatCompletion.Choices[0].Message.Content)
 }
 
 ```
@@ -75,12 +76,12 @@ func main() {
 param := openai.ChatCompletionNewParams{
 	Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
 		openai.UserMessage("What kind of houseplant is easy to take care of?"),
-  }),
+  	}),
 	Seed:     openai.Int(1),
 	Model:    openai.F(openai.ChatModelGPT4o),
 }
 
-completion, err := client.Chat.Completions.New(ctx, params)
+completion, err := client.Chat.Completions.New(ctx, param)
 
 param.Messages.Value = append(param.Messages.Value, completion.Choices[0].Message)
 param.Messages.Value = append(param.Messages.Value, openai.UserMessage("How big are those?"))

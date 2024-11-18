@@ -12,10 +12,10 @@ import (
 
 	"github.com/openai/openai-go/internal/apijson"
 	"github.com/openai/openai-go/internal/apiquery"
-	"github.com/openai/openai-go/internal/pagination"
 	"github.com/openai/openai-go/internal/param"
 	"github.com/openai/openai-go/internal/requestconfig"
 	"github.com/openai/openai-go/option"
+	"github.com/openai/openai-go/packages/pagination"
 	"github.com/tidwall/gjson"
 )
 
@@ -133,27 +133,27 @@ func (r *BetaThreadMessageService) Delete(ctx context.Context, threadID string, 
 // File associated with the assistant or the message. Generated when the assistant
 // uses the "file_search" tool to search files.
 type Annotation struct {
-	// Always `file_citation`.
-	Type AnnotationType `json:"type,required"`
+	EndIndex   int64 `json:"end_index,required"`
+	StartIndex int64 `json:"start_index,required"`
 	// The text in the message content that needs to be replaced.
 	Text string `json:"text,required"`
+	// Always `file_citation`.
+	Type AnnotationType `json:"type,required"`
 	// This field can have the runtime type of [FileCitationAnnotationFileCitation].
-	FileCitation interface{} `json:"file_citation,required"`
-	StartIndex   int64       `json:"start_index,required"`
-	EndIndex     int64       `json:"end_index,required"`
+	FileCitation interface{} `json:"file_citation"`
 	// This field can have the runtime type of [FilePathAnnotationFilePath].
-	FilePath interface{}    `json:"file_path,required"`
+	FilePath interface{}    `json:"file_path"`
 	JSON     annotationJSON `json:"-"`
 	union    AnnotationUnion
 }
 
 // annotationJSON contains the JSON metadata for the struct [Annotation]
 type annotationJSON struct {
-	Type         apijson.Field
-	Text         apijson.Field
-	FileCitation apijson.Field
-	StartIndex   apijson.Field
 	EndIndex     apijson.Field
+	StartIndex   apijson.Field
+	Text         apijson.Field
+	Type         apijson.Field
+	FileCitation apijson.Field
 	FilePath     apijson.Field
 	raw          string
 	ExtraFields  map[string]apijson.Field
@@ -230,29 +230,29 @@ type AnnotationDelta struct {
 	// The index of the annotation in the text content part.
 	Index int64 `json:"index,required"`
 	// Always `file_citation`.
-	Type AnnotationDeltaType `json:"type,required"`
-	// The text in the message content that needs to be replaced.
-	Text string `json:"text"`
+	Type     AnnotationDeltaType `json:"type,required"`
+	EndIndex int64               `json:"end_index"`
 	// This field can have the runtime type of
 	// [FileCitationDeltaAnnotationFileCitation].
-	FileCitation interface{} `json:"file_citation,required"`
-	StartIndex   int64       `json:"start_index"`
-	EndIndex     int64       `json:"end_index"`
+	FileCitation interface{} `json:"file_citation"`
 	// This field can have the runtime type of [FilePathDeltaAnnotationFilePath].
-	FilePath interface{}         `json:"file_path,required"`
-	JSON     annotationDeltaJSON `json:"-"`
-	union    AnnotationDeltaUnion
+	FilePath   interface{} `json:"file_path"`
+	StartIndex int64       `json:"start_index"`
+	// The text in the message content that needs to be replaced.
+	Text  string              `json:"text"`
+	JSON  annotationDeltaJSON `json:"-"`
+	union AnnotationDeltaUnion
 }
 
 // annotationDeltaJSON contains the JSON metadata for the struct [AnnotationDelta]
 type annotationDeltaJSON struct {
 	Index        apijson.Field
 	Type         apijson.Field
-	Text         apijson.Field
-	FileCitation apijson.Field
-	StartIndex   apijson.Field
 	EndIndex     apijson.Field
+	FileCitation apijson.Field
 	FilePath     apijson.Field
+	StartIndex   apijson.Field
+	Text         apijson.Field
 	raw          string
 	ExtraFields  map[string]apijson.Field
 }
@@ -1336,8 +1336,8 @@ type MessageContent struct {
 	Type      MessageContentType `json:"type,required"`
 	ImageFile ImageFile          `json:"image_file"`
 	ImageURL  ImageURL           `json:"image_url"`
-	Text      Text               `json:"text"`
 	Refusal   string             `json:"refusal"`
+	Text      Text               `json:"text"`
 	JSON      messageContentJSON `json:"-"`
 	union     MessageContentUnion
 }
@@ -1347,8 +1347,8 @@ type messageContentJSON struct {
 	Type        apijson.Field
 	ImageFile   apijson.Field
 	ImageURL    apijson.Field
-	Text        apijson.Field
 	Refusal     apijson.Field
+	Text        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -1437,9 +1437,9 @@ type MessageContentDelta struct {
 	// Always `image_file`.
 	Type      MessageContentDeltaType `json:"type,required"`
 	ImageFile ImageFileDelta          `json:"image_file"`
-	Text      TextDelta               `json:"text"`
-	Refusal   string                  `json:"refusal"`
 	ImageURL  ImageURLDelta           `json:"image_url"`
+	Refusal   string                  `json:"refusal"`
+	Text      TextDelta               `json:"text"`
 	JSON      messageContentDeltaJSON `json:"-"`
 	union     MessageContentDeltaUnion
 }
@@ -1450,9 +1450,9 @@ type messageContentDeltaJSON struct {
 	Index       apijson.Field
 	Type        apijson.Field
 	ImageFile   apijson.Field
-	Text        apijson.Field
-	Refusal     apijson.Field
 	ImageURL    apijson.Field
+	Refusal     apijson.Field
+	Text        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -1952,7 +1952,7 @@ type BetaThreadMessageNewParams struct {
 	// An array of content parts with a defined type, each can be of type `text` or
 	// images can be passed with `image_url` or `image_file`. Image types are only
 	// supported on
-	// [Vision-compatible models](https://platform.openai.com/docs/models/overview).
+	// [Vision-compatible models](https://platform.openai.com/docs/models).
 	Content param.Field[[]MessageContentPartParamUnion] `json:"content,required"`
 	// The role of the entity that is creating the message. Allowed values include:
 	//
@@ -2088,8 +2088,8 @@ type BetaThreadMessageListParams struct {
 	After param.Field[string] `query:"after"`
 	// A cursor for use in pagination. `before` is an object ID that defines your place
 	// in the list. For instance, if you make a list request and receive 100 objects,
-	// ending with obj_foo, your subsequent call can include before=obj_foo in order to
-	// fetch the previous page of the list.
+	// starting with obj_foo, your subsequent call can include before=obj_foo in order
+	// to fetch the previous page of the list.
 	Before param.Field[string] `query:"before"`
 	// A limit on the number of objects to be returned. Limit can range between 1 and
 	// 100, and the default is 20.

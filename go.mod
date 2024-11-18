@@ -13,7 +13,7 @@ require (
 	github.com/go-playground/validator/v10 v10.14.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/openai/openai-go v0.1.0-alpha.26
+	github.com/openai/openai-go v0.1.0-alpha.37
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
