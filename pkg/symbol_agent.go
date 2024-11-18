@@ -83,7 +83,7 @@ func (me SymbolAgent) collectSymbols(x Kontext, c comm.Console) []Symbol {
 		c.NewLine().Gray("chat: ").Default(mem.Format())
 	}
 
-	answer, _ := me.modelService.Chat(x, x.Config.Check.ModelId, mem)
+	answer, _ := me.modelService.Chat(x, x.Config.Check.ModelId, mem, nil)
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(answer)
 	}

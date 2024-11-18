@@ -126,7 +126,7 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 		c.NewLine().Gray("chat: ").Default("generates tests")
 	}
 
-	answer, metrics := me.modelService.Chat(x, x.Config.Test.ModelId, mem)
+	answer, metrics := me.modelService.Chat(x, x.Config.Test.ModelId, mem, c)
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}

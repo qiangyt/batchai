@@ -14,21 +14,24 @@ import (
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 	"github.com/pkg/errors"
+	"github.com/qiangyt/batchai/comm"
 )
 
 type ModelClientT struct {
-	config       ModelConfig
-	openAiClient *openai.Client
-	semaphore    chan struct{}
+	config                ModelConfig
+	openAiClient          *openai.Client
+	openAiStreamingClient *openai.Client
+	semaphore             chan struct{}
 }
 
 type ModelClient = *ModelClientT
 
 func NewModelClient(config ModelConfig) ModelClient {
 	return &ModelClientT{
-		config:       config,
-		openAiClient: buildOpenAiClient(config),
-		semaphore:    make(chan struct{}, 1),
+		config:                config,
+		openAiClient:          buildOpenAiClient(config, false),
+		openAiStreamingClient: buildOpenAiClient(config, true),
+		semaphore:             make(chan struct{}, 1),
 	}
 }
 
@@ -45,25 +48,81 @@ func (me ModelClient) release() {
 	<-me.semaphore
 }
 
-func (me ModelClient) Chat(x Kontext, memory ChatMemory) (*openai.ChatCompletion, time.Duration) {
+func (me ModelClient) Chat(x Kontext, memory ChatMemory, console comm.Console) (*openai.ChatCompletion, time.Duration) {
 	me.acquire()
 	defer me.release()
 
 	startTime := time.Now()
+
+	var r *openai.ChatCompletion
+	if console == nil {
+		r = me.chat(x, memory)
+	} else {
+		r = me.chatStream(x, memory, console)
+	}
+
+	content := r.Choices[0].Message.Content
+	memory.AddAssistantMessage(content)
+
+	return r, time.Since(startTime)
+}
+
+func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion {
 	r, err := me.openAiClient.Chat.Completions.New(x.Context, openai.ChatCompletionNewParams{
 		Messages:    openai.F(memory.ToChatCompletionMessageParamUnion()),
 		Temperature: openai.F(me.config.Temperature),
+		Seed:        openai.Int(1),
 		Model:       openai.F(me.config.Name),
 	})
 	if err != nil {
 		panic(errors.Wrap(err, "failed to call chat completions API"))
 	}
-
-	memory.AddAssistantMessage(r.Choices[0].Message.Content)
-	return r, time.Since(startTime)
+	return r
 }
 
-func buildOpenAiClient(model ModelConfig) *openai.Client {
+func (me ModelClient) chatStream(x Kontext, memory ChatMemory, console comm.Console) *openai.ChatCompletion {
+	stream := me.openAiStreamingClient.Chat.Completions.NewStreaming(x.Context, openai.ChatCompletionNewParams{
+		Messages:    openai.F(memory.ToChatCompletionMessageParamUnion()),
+		Temperature: openai.F(me.config.Temperature),
+		Seed:        openai.Int(0),
+		Model:       openai.F(me.config.Name),
+	})
+
+	// optionally, an accumulator helper can be used
+	acc := &openai.ChatCompletionAccumulator{}
+
+	for stream.Next() {
+		chunk := stream.Current()
+		acc.AddChunk(chunk)
+
+		// if content, ok := acc.JustFinishedContent(); ok {
+		// 	println("Content stream finished:", content)
+		// }
+
+		// if using tool calls
+		// if tool, ok := acc.JustFinishedToolCall(); ok {
+		// 	println("Tool call stream finished:", tool.Index, tool.Name, tool.Arguments)
+		// }
+
+		if refusal, ok := acc.JustFinishedRefusal(); ok {
+			panic(errors.New("Refusalstream finished:" + refusal))
+		}
+
+		// it's best to use chunks after handling JustFinished events
+		if len(chunk.Choices) > 0 {
+			console.Print(chunk.Choices[0].Delta.Content)
+		}
+	}
+
+	if err := stream.Err(); err != nil {
+		panic(err)
+	}
+
+	// After the stream is finished, acc can be used like a ChatCompletion
+	return &acc.ChatCompletion
+}
+
+func buildOpenAiClient(model ModelConfig, streaming bool) *openai.Client {
 	options := []option.RequestOption{}
 	if len(model.ApiKey) > 0 {
 		options = append(options, option.WithAPIKey(model.ApiKey))
@@ -71,8 +130,11 @@ func buildOpenAiClient(model ModelConfig) *openai.Client {
 	if len(model.BaseUrl) > 0 {
 		options = append(options, option.WithBaseURL(model.BaseUrl))
 	}
-	if model.Timeout.Seconds() > 0 {
-		options = append(options, option.WithRequestTimeout(model.Timeout))
+
+	if !streaming {
+		if model.Timeout.Seconds() > 0 {
+			options = append(options, option.WithRequestTimeout(model.Timeout))
+		}
 	}
 
 	if len(model.ProxyUrl) > 0 {

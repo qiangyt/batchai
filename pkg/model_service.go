@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/qiangyt/batchai/comm"
 	"github.com/tiktoken-go/tokenizer"
 )
 
@@ -47,7 +48,7 @@ func (me ModelService) Decode(tokens []uint) string {
 	return text
 }
 
-func (me ModelService) Chat(x Kontext, modelId string, memory ChatMemory) (string, ModelUsageMetrics) {
+func (me ModelService) Chat(x Kontext, modelId string, memory ChatMemory, console comm.Console) (string, ModelUsageMetrics) {
 	metrics := NewModelUsageMetrics()
 
 	modelClient, exists := me.clients[modelId]
@@ -67,7 +68,7 @@ func (me ModelService) Chat(x Kontext, modelId string, memory ChatMemory) (strin
 		}
 	}
 
-	chatCompletion, duration := modelClient.Chat(x, memory)
+	chatCompletion, duration := modelClient.Chat(x, memory, console)
 
 	metrics.Duration = duration
 	metrics.OpenAiUsage = &chatCompletion.Usage

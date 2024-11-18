@@ -31,7 +31,7 @@ func (me TestReport) Print(console comm.Console) {
 
 	console.NewLine().Printf("Code Path: %s", me.Path)
 	console.NewLine().Printf("Test File Path: %s", me.TestFilePath)
-	console.NewLine().Printf("Amoutn of Generated Test Cases: %d", me.AmountOfGeneratedTestCases)
+	console.NewLine().Printf("Amount of Generated Test Cases: %d", me.AmountOfGeneratedTestCases)
 	console.NewLine().Printf("Test Code: %s", me.TestCode)
 	console.NewLine().Printf("Test Command: %s", me.SingleTestRunCommand)
 }
