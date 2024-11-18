@@ -20,7 +20,6 @@ type ModelConfigT struct {
 	ProxyInsecureSkipVerify bool          `mapstructure:"proxy_insecure_skip_verify" default:"false"`
 	CheckPrompt             CheckPrompt   `mapstructure:"check_prompt"`
 	TestPrompt              TestPrompt    `mapstructure:"test_prompt"`
-	MaxConcurrentRequests   int           `mapstructure:"max_concurrent_requests"`
 }
 
 type ModelConfig = *ModelConfigT

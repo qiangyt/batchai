@@ -127,7 +127,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ${OPENAI_PROXY_USER}
     proxy_pass: ${OPENAI_PROXY_PASS}
-    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
 
   - id: openai/gpt-4o-mini
     name: gpt-4o-mini
@@ -142,7 +141,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ${OPENAI_PROXY_USER}
     proxy_pass: ${OPENAI_PROXY_PASS}
-    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
 
   - id: openai/gpt-4-turbo
     name: gpt-4-turbo
@@ -157,7 +155,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ${OPENAI_PROXY_USER}
     proxy_pass: ${OPENAI_PROXY_PASS}
-    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
 
   - id: openai/gpt-4
     name: gpt-4
@@ -172,7 +169,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ${OPENAI_PROXY_USER}
     proxy_pass: ${OPENAI_PROXY_PASS}
-    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
 
   - id: openai/gpt-3.5-turbo
     name: gpt-3.5-turbo
@@ -187,7 +183,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ${OPENAI_PROXY_USER}
     proxy_pass: ${OPENAI_PROXY_PASS}
-    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
 
   - id: openai/gpt-3.5-turbo-instruct
     name: gpt-3.5-turbo-instruct
@@ -202,7 +197,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ${OPENAI_PROXY_USER}
     proxy_pass: ${OPENAI_PROXY_PASS}
-    max_concurrent_requests: ${OPENAI_MAX_CONCURRENT_REQUESTS}
 
   - id: tongyi/qwen2.5-coder-7b-instruct
     name: qwen2.5-coder-7b-instruct
@@ -217,7 +211,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ''
     proxy_pass: ''
-    max_concurrent_requests: ${QWEN_MAX_CONCURRENT_REQUESTS}
 
   - id: ollama/qwen2.5-coder:7b-instruct-fp16
     name: qwen2.5-coder:7b-instruct-fp16
@@ -232,7 +225,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ''
     proxy_pass: ''
-    max_concurrent_requests: ${OLLAMA_MAX_CONCURRENT_REQUESTS}
 
   - id: ollama/qwen2.5-coder:7b-instruct-q4_0
     name: qwen2.5-coder:7b-instruct-q4_0
@@ -247,7 +239,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ''
     proxy_pass: ''
-    max_concurrent_requests: ${OLLAMA_MAX_CONCURRENT_REQUESTS}
 
   - id: ollama/qwen2.5-coder:7b-instruct-q8_0
     name: qwen2.5-coder:7b-instruct-q8_0
@@ -262,7 +253,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ''
     proxy_pass: ''
-    max_concurrent_requests: ${OLLAMA_MAX_CONCURRENT_REQUESTS}
 
   - id: ollama/qwen2.5-coder:14b-instruct-fp16
     name: qwen2.5-coder:14b-instruct-fp16
@@ -277,7 +267,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ''
     proxy_pass: ''
-    max_concurrent_requests: ${OLLAMA_MAX_CONCURRENT_REQUESTS}
 
   - id: ollama/qwen2.5-coder:14b-instruct-q4_1
     name: qwen2.5-coder:14b-instruct-q4_1
@@ -292,7 +281,6 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ''
     proxy_pass: ''
-    max_concurrent_requests: ${OLLAMA_MAX_CONCURRENT_REQUESTS}
 
   - id: ollama/qwen2.5-coder:14b-instruct-q8_0
     name: qwen2.5-coder:14b-instruct-q8_0
@@ -307,4 +295,3 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ''
     proxy_pass: ''
-    max_concurrent_requests: ${OLLAMA_MAX_CONCURRENT_REQUESTS}
