@@ -47,7 +47,7 @@ func (me CheckAgent) Run(x Kontext, checkArgs CheckArgs, resultChan chan<- Check
 	go func() {
 		defer wg.Done()
 
-		c := comm.NewConsole()
+		c := comm.NewConsole(x.Args.Concurrent == 1)
 
 		c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
 		c.Begin()

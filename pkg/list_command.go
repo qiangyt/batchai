@@ -17,7 +17,7 @@ func NewListCommand() ListCommand {
 }
 
 func (me ListCommand) List(x Kontext) {
-	c := comm.NewConsole()
+	c := comm.NewConsole(true)
 
 	targetFiles, _, _, _ := me.CollectWorkingFiles(x, c)
 	for _, f := range targetFiles {
@@ -40,6 +40,10 @@ func (me ListCommand) CollectWorkingFiles(x Kontext, c comm.Console) ([]string, 
 		if x.Args.NumberOfFilesToProcess < len(targetFiles) {
 			targetFiles = targetFiles[:x.Args.NumberOfFilesToProcess]
 		}
+	}
+
+	if len(targetFiles) == 1 {
+		x.Args.Concurrent = 1
 	}
 
 	return targetFiles, ignored, failed, repoFiles

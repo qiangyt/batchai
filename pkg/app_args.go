@@ -16,6 +16,7 @@ type AppArgsT struct {
 	Repository             string
 	Force                  bool
 	NumberOfFilesToProcess int
+	Concurrent             int
 }
 
 type AppArgs = *AppArgsT
@@ -26,6 +27,7 @@ func (me AppArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
 	me.Verbose = cliContext.IsSet("verbose")
 	me.Lang = cliContext.String("lang")
 	me.NumberOfFilesToProcess = cliContext.Int("num")
+	me.Concurrent = cliContext.Int("concurrent")
 
 	if len(me.Lang) > 0 {
 		x.Config.Lang = me.Lang

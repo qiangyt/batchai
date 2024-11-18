@@ -45,7 +45,7 @@ func (me TestAgent) Run(x Kontext, testArgs TestArgs, resultChan chan<- TestResu
 	go func() {
 		defer wg.Done()
 
-		c := comm.NewConsole()
+		c := comm.NewConsole(x.Args.Concurrent == 1)
 
 		c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
 		c.Begin()

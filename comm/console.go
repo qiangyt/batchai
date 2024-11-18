@@ -32,7 +32,8 @@ type ConsoleT struct {
 	linePrefix string
 	color      Color
 
-	buf []string
+	passThroughBuffer bool
+	buf               []string
 }
 
 type Console = *ConsoleT
@@ -175,11 +176,18 @@ func (me Console) print(msg string) {
 }
 
 func (me Console) Begin() {
+	if me.passThroughBuffer {
+		return
+	}
 	me.buf = []string{}
 }
 
 func (me Console) End() {
-	if len(me.buf) == 0 {
+	if me.passThroughBuffer {
+		return
+	}
+
+	if me.buf == nil || len(me.buf) == 0 {
 		return
 	}
 
@@ -187,14 +195,15 @@ func (me Console) End() {
 	me.buf = nil
 }
 
-func NewConsole() Console {
+func NewConsole(passThroughBuffer bool) Console {
 	return &ConsoleT{
-		indent:     0,
-		left:       nil,
-		prefix:     "",
-		linePrefix: "\n",
-		color:      DEFAULT_COLOR,
-		buf:        nil,
+		indent:            0,
+		left:              nil,
+		prefix:            "",
+		linePrefix:        "\n",
+		color:             DEFAULT_COLOR,
+		passThroughBuffer: passThroughBuffer,
+		buf:               nil,
 	}
 }
 
@@ -203,11 +212,12 @@ func (me Console) NewIndented() Console {
 	prefix := strings.Repeat(" ", indent)
 
 	return &ConsoleT{
-		indent:     indent,
-		left:       me,
-		prefix:     prefix,
-		linePrefix: "\n" + prefix,
-		color:      DEFAULT_COLOR,
-		buf:        nil,
+		indent:            indent,
+		left:              me,
+		prefix:            prefix,
+		linePrefix:        "\n" + prefix,
+		color:             DEFAULT_COLOR,
+		passThroughBuffer: me.passThroughBuffer,
+		buf:               nil,
 	}
 }

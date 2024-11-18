@@ -76,6 +76,7 @@ func main() {
 			&cli.BoolFlag{Name: "enable-symbol-reference", Usage: "Enables symbol collection to examine code references across the entire project"},
 			&cli.BoolFlag{Name: "force", DefaultText: "false", Usage: "Ignores the cache"},
 			&cli.IntFlag{Name: "num", Aliases: []string{"n"}, DefaultText: "0", Usage: "Limits the number of file to process"},
+			&cli.IntFlag{Name: "concurrent", DefaultText: "1", Usage: "Limits concurrency"},
 			&cli.BoolFlag{Name: "verbose", Hidden: true},
 			&cli.StringFlag{
 				Name:        "lang",
@@ -89,7 +90,7 @@ func main() {
 		ArgsUsage: "<repository directory>  [target files/directories in the repository]",
 	}
 
-	c := comm.NewConsole()
+	c := comm.NewConsole(true)
 	if err := app.Run(os.Args); err != nil {
 		c.Redf("%+v\n", err)
 	}

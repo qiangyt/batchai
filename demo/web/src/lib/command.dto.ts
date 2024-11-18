@@ -133,7 +133,7 @@ export class CommandDetail extends CommandBasic {
 	}
 
 	globalOptions(): string[] {
-		const r = [];
+		const r = ['--concurrent', '1'];
 		if (this.enableSymbolReference) {
 			r.push('--enable-symbol-reference');
 		}
