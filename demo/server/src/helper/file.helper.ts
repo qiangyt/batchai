@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import * as fsExtra from 'fs-extra';
+import { mkdirp } from 'mkdirp';
 import * as path from 'path';
 
 export async function removeFileOrDir(p: string): Promise<void> {
@@ -11,6 +12,11 @@ export async function removeFileOrDir(p: string): Promise<void> {
 			resolve();
 		});
 	});
+}
+
+export async function copyFile(srcFile: string, destFile: string) {
+	await mkdirp(path.basename(destFile));
+	return fsExtra.copy(srcFile, destFile);
 }
 
 export async function renameFileOrDir(oldPath: string, newPath: string): Promise<void> {

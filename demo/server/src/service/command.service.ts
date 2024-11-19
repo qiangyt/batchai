@@ -12,6 +12,7 @@ import { Kontext } from '../framework';
 import AdmZip from 'adm-zip';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { ArtifactFiles } from './artifact.files';
 
 @Injectable()
 @WebSocketGateway({ cors: '*' /*, namespace: 'ws/v1/commands'*/ })
@@ -24,8 +25,9 @@ export class CommandService {
 	websocket: Server;
 
 	constructor(
-		private scheduler: SchedulerRegistry,
-		@InjectRepository(Command) private dao: Repository<Command>,
+		private readonly scheduler: SchedulerRegistry,
+		@InjectRepository(Command) private readonly dao: Repository<Command>,
+		private readonly artifactFiles: ArtifactFiles,
 	) {}
 
 	async initCheck() {
@@ -206,13 +208,13 @@ export class CommandService {
 
 	async loadAuditLog(id: number): Promise<CommandLog[]> {
 		const c = await this.load(id);
-		const auditLogFile = await c.auditLogFile();
+		const auditLogFile = await this.artifactFiles.commandAuditLog(c);
 		return readJsonLogFile(auditLogFile);
 	}
 
 	async loadExecutionLog(id: number): Promise<CommandLog[]> {
 		const c = await this.load(id);
-		const executionLogFile = await c.executionLogFile();
+		const executionLogFile = await this.artifactFiles.commandAuditLog(c);
 		return readJsonLogFile(executionLogFile);
 	}
 
@@ -228,10 +230,8 @@ export class CommandService {
 
 		c = await this.updateStatus(x, c, CommandStatus.Running);
 
-		const auditLogFile = await c.auditLogFile();
-
 		try {
-			await this.auditLog(c.id, auditLogFile, `begin to run command`);
+			await this.auditLog(c, `begin to run command`);
 
 			await this.doRun(c, auditLogFile);
 
@@ -282,28 +282,22 @@ export class CommandService {
 		client.join(`status-${id}`);
 	}
 
-	private async log(id: number, logFile: string, logEventName: string, message: string): Promise<void> {
+	private async log(cmd: Command, logFile: string, logEventName: string, message: string): Promise<void> {
 		const v = new CommandLog(new Date().toISOString(), message);
 		const jsonLine = JSON.stringify(v);
 		await fs.appendFile(logFile, jsonLine + `\n`, { encoding: 'utf8' });
 
-		this.websocket.to(`log-${id}`).emit(logEventName, v);
+		this.websocket.to(`log-${cmd.id}`).emit(logEventName, v);
 	}
 
-	private async auditLog(id: number, auditLogFile: string, message: string): Promise<void> {
-		return this.log(id, auditLogFile, `auditLog-${id}`, message);
+	private async auditLog(cmd: Command, message: string): Promise<void> {
+		const auditLog = await this.artifactFiles.commandAuditLog(cmd);
+		return this.log(cmd, auditLog, `auditLog-${cmd.id}`, message);
 	}
 
-	private async executionLog(
-		id: number,
-		executionLogFile: string,
-		auditLogFile: string,
-		message: string,
-	): Promise<void> {
-		await Promise.all([
-			this.auditLog(id, auditLogFile, message),
-			this.log(id, executionLogFile, `executionLog-${id}`, message),
-		]);
+	private async executionLog(cmd: Command, message: string): Promise<void> {
+		const executionLog = await this.artifactFiles.commandExecutionLog(cmd);
+		await Promise.all([this.auditLog(cmd, message),	this.log(cmd, executionLog, `executionLog-${cmd.id}`, message)]);
 	}
 
 	@SubscribeMessage('subscribeLogEvent')
@@ -422,7 +416,7 @@ export class CommandService {
 		);
 	}
 
-	private async doRun(c: Command, auditLogFile: string) {
+	private async doRun(c: Command) {
 		const repo = await c.repo;
 		const repoObj = await this.newRepoObject(c);
 

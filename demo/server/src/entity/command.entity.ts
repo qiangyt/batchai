@@ -1,6 +1,5 @@
 import { Entity, Column, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { CommandStatus, CommandRunStatus } from '../constants';
-import path from 'path';
 import { BadRequestException } from '@nestjs/common';
 import { Repo } from '.';
 import { AuditableEntity } from '../framework';
@@ -53,36 +52,6 @@ export class Command extends AuditableEntity {
 
 	commitUrl(): string {
 		return `https://github.com/batchai-examples/batchai/commit/${this.commitId}`;
-	}
-
-	private _auditLogFile: string;
-
-	async auditLogFile(): Promise<string> {
-		if (!this._auditLogFile) {
-			const p = await (await this.repo).logDir();
-			this._auditLogFile = path.join(p, `${this.id}.audit.log`);
-		}
-		return this._auditLogFile;
-	}
-
-	async auditLogArchiveFile(ts: string): Promise<string> {
-		const p = await (await this.repo).logArchiveDir();
-		return path.join(p, `${this.id}.${ts}.audit.log`);
-	}
-
-	private _executionLogFile: string;
-
-	async executionLogFile(): Promise<string> {
-		if (!this._executionLogFile) {
-			const p = await (await this.repo).logDir();
-			this._executionLogFile = path.join(p, `${this.id}.execution.log`);
-		}
-		return this._executionLogFile;
-	}
-
-	async executionLogArchiveFile(ts: string): Promise<string> {
-		const p = await (await this.repo).logArchiveDir();
-		return path.join(p, `${this.id}.${ts}.execution.log`);
 	}
 
 	nextRunStatus(): CommandRunStatus {
