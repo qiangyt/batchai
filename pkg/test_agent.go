@@ -42,7 +42,7 @@ func NewTestAgent(reportManager TestReportManager,
 func (me TestAgent) run(x Kontext, testArgs TestArgs, resultChan chan<- TestResult) {
 	c := comm.NewConsole(!x.Args.Concurrent)
 
-	c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
+	c.Greenf("\n\n▹▹▹▹▹ processing: %s\n", me.file)
 	c.Begin()
 	defer c.End()
 
@@ -129,7 +129,7 @@ func (me TestCodeWriter) Write(p []byte) (n int, err error) {
 		if strings.Contains(s, TEST_END) {
 			me.inTestCode = false
 		} else {
-			me.console.Print(s)
+			me.console.Default(s)
 		}
 	} else {
 		if strings.Contains(s, TEST_BEGIN) {

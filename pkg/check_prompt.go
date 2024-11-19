@@ -61,7 +61,7 @@ type CheckPrompt = *CheckPromptT
 func (me CheckPrompt) Init(config AppConfig) {
 	me.Rules = comm.StringArrayTrimSpace(me.Rules)
 	for i, rule := range me.Rules {
-		me.Rules[i] = fmt.Sprintf("%d) %s.", i, rule)
+		me.Rules[i] = fmt.Sprintf("## %s\n", rule)
 	}
 
 	me.Template = strings.TrimSpace(me.Template)

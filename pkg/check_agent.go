@@ -44,7 +44,7 @@ func NewCheckAgent(reportManager CheckReportManager,
 func (me CheckAgent) run(x Kontext, checkArgs CheckArgs, resultChan chan<- CheckResult) {
 	c := comm.NewConsole(!x.Args.Concurrent)
 
-	c.Greenf("▹▹▹▹▹ processing: %s\n", me.file)
+	c.Greenf("\n\n▹▹▹▹▹ processing: %s\n", me.file)
 	c.Begin()
 	defer c.End()
 
@@ -106,6 +106,39 @@ func (me CheckAgent) checkFile(x Kontext, checkArgs CheckArgs, c comm.Console) C
 	return &CheckResultT{Report: r, Skipped: false}
 }
 
+type FixCodeWriterT struct {
+	console   comm.Console
+	inFixCode bool
+}
+
+type FixCodeWriter = *FixCodeWriterT
+
+func NewFixCodeWriter(console comm.Console) FixCodeWriter {
+	return &FixCodeWriterT{
+		console:   console,
+		inFixCode: false,
+	}
+}
+
+// Write method to implement io.Writer
+func (me FixCodeWriter) Write(p []byte) (n int, err error) {
+	s := string(p)
+
+	if me.inFixCode {
+		if strings.Contains(s, FIX_END) {
+			me.inFixCode = false
+		} else {
+			me.console.Default(s)
+		}
+	} else {
+		if strings.Contains(s, FIX_BEGIN) {
+			me.inFixCode = true
+		}
+	}
+
+	return len(p), nil
+}
+
 func (me CheckAgent) checkCode(x Kontext, c comm.Console, code string) CheckReport {
 	verbose := x.Args.Verbose
 
@@ -124,7 +157,7 @@ func (me CheckAgent) checkCode(x Kontext, c comm.Console, code string) CheckRepo
 		c.NewLine().Gray("chat: ").Default("check the code")
 	}
 
-	answer, metrics := me.modelService.Chat(x, x.Config.Check.ModelId, mem, c)
+	answer, metrics := me.modelService.Chat(x, x.Config.Check.ModelId, mem, NewFixCodeWriter(c))
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}
