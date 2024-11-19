@@ -334,6 +334,8 @@ export class CommandService {
 			throw new ConflictException(`cannot restart a running command: ${JSON.stringify(c)}`);
 		}
 
+		this.archiveArtifacts(c);
+
 		c.hasChanges = false;
 		c.status = CommandStatus.Pending;
 		c.runStatus = CommandRunStatus.Begin;

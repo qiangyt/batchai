@@ -199,9 +199,12 @@ export default function CommandHome({ params }) {
       setExecutionLogs(prevExecutionLogs => [...prevExecutionLogs, newLog]);
     }
 
-    if (!socket.connected) {
+    //if (!socket.connected) {
+    //  alert('connecting...');
       socket.connect();
-    }
+    //} else {
+    //  alert('already connected');
+    //}
 
     socket.on(`status-${id}`, onStatusEvent);
     socket.emit("subscribeStatusEvent", id);
@@ -232,6 +235,7 @@ export default function CommandHome({ params }) {
     const c = await commandApi.restartCommand(s, ui, id);
 
     setExecutionLogs([]);
+    setAuditLogs([]);
     refreshActiveStep(c.runStatus, setActiveStep);
     setCommand(c);
   };
