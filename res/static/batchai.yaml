@@ -48,6 +48,7 @@ test:
       - "${MY_TEST_RULE_20}"
     template: |
         As an developer expert, you're requested to write test cases provided code following belows rules:
+
         {{.test_rules}}
         
         Path of code to test: {{.path}}
@@ -56,7 +57,10 @@ test:
         {{.existing_test_code}}
         
         Content of code to test:
+
+        ```
         {{.code_to_test}}
+        ```
 check:
   model_id: ${BATCHAI_CHECK_MODEL}
   includes: ['Dockerfile','*.xml','*.py', '*.python', '*.cs', '*.cpp', '*.cc', '*.h', '*.hpp', '*.c', '*.ruby', '*.go', '*.html', '*.htm', '*.java', '*.json', '*.kt', '*.lua', '*.rs', '*.scala', '*.ts', '*.php', '*.proto', '*.swift', '*.md', '*.pl','*.sh','*.yaml','*.yml']
@@ -104,14 +108,17 @@ check:
       - "${MY_CHECK_RULE_19}"
       - "${MY_CHECK_RULE_20}"
     template: |
-        As an developer expert, you're requested by users to check provided code:
+        As an developer expert, you're requested by users to check provided file:
+
         {{.check_rules}}
         
-        Code to check: 
+        Path of file to check: {{.path}}
+
+        Content of file to check:
         
-        path: {{.path}}
-        
+        ```
         {{.code_to_check}}
+        ```
 
 models:
   - id: openai/gpt-4o
