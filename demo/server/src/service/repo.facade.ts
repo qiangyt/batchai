@@ -5,6 +5,7 @@ import { RepoService } from './repo.service';
 import { CommandService } from './command.service';
 import { UserService, Page, Transactional, Kontext } from '../framework';
 import { RepoApi } from '../api';
+import { ArtifactFiles } from './artifact.files';
 
 @Injectable()
 export class RepoFacade implements RepoApi {
@@ -12,6 +13,7 @@ export class RepoFacade implements RepoApi {
 		private service: RepoService,
 		private commandService: CommandService,
 		private userService: UserService,
+		private readonly artifactFiles: ArtifactFiles,
 		private readonly dataSource?: DataSource,
 	) {}
 
@@ -19,27 +21,27 @@ export class RepoFacade implements RepoApi {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async searchRepo(x: Kontext, params: RepoSearchParams): Promise<Page<RepoBasic>> {
 		const result = await this.service.search(params);
-		return RepoBasic.fromPage(result);
+		return RepoBasic.fromPage(result, this.artifactFiles);
 	}
 
 	@Transactional({ readOnly: true })
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async getRepoByOwnerAndName(x: Kontext, ownerName: string, name: string): Promise<RepoDetail> {
 		const repo = await this.service.getByOwnerAndName(ownerName, name);
-		return RepoDetail.from(repo);
+		return RepoDetail.from(repo, this.artifactFiles);
 	}
 
 	@Transactional({ readOnly: true })
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async listAllRepo(x: Kontext): Promise<RepoBasic[]> {
-		return RepoBasic.fromMany(await this.service.listAll());
+		return RepoBasic.fromMany(await this.service.listAll(), this.artifactFiles);
 	}
 
 	@Transactional({ readOnly: true })
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async loadRepo(x: Kontext, id: number): Promise<RepoDetail> {
 		const repo = await this.service.load(id);
-		return RepoDetail.from(repo);
+		return RepoDetail.from(repo, this.artifactFiles);
 	}
 
 	@Transactional()
@@ -55,7 +57,7 @@ export class RepoFacade implements RepoApi {
 		const { ownerName } = params.parsePath();
 		const owner = await this.userService.resolve(x, ownerName);
 		const repo = await this.service.create(x, params, owner);
-		return RepoDetail.from(repo);
+		return RepoDetail.from(repo, this.artifactFiles);
 	}
 
 	@Transactional({ readOnly: true })

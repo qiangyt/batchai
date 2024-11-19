@@ -12,12 +12,13 @@ export abstract class AuditableDto {
 
 	updater: UserBasic;
 
-	render(entity: AuditableEntity): AuditableDto {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async render(entity: AuditableEntity, ...deps: any[]): Promise<AuditableDto> {
 		this.id = entity.id;
 		this.createdAt = entity.createdAt;
-		this.creater = UserBasic.from(entity.creater);
+		this.creater = await UserBasic.from(entity.creater);
 		this.updatedAt = entity.updatedAt;
-		this.updater = UserBasic.from(entity.updater);
+		this.updater = await UserBasic.from(entity.updater);
 		return this;
 	}
 }

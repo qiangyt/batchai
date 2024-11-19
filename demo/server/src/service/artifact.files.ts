@@ -3,7 +3,7 @@ import { mkdirp } from 'mkdirp';
 import path from 'path';
 import { DATA_DIR } from 'src/constants';
 import AdmZip from 'adm-zip';
-import { copyFile, removeFileOrDir } from 'src/helper';
+import { copyFileOrDir, removeFileOrDir } from 'src/helper';
 import { Command, Repo } from 'src/entity';
 
 @Injectable()
@@ -14,13 +14,13 @@ export class ArtifactFiles {
 		return path.join(DATA_DIR, 'work', ...elements);
 	}
 
-	private async workFolder(mk: boolean, ...elements: string[]) {
+	async workFolder(mk: boolean, ...elements: string[]) {
 		const r = this.workPath(...elements);
 		if (mk) await mkdirp(r);
 		return r;
 	}
 
-	private async workFile(mk: boolean, ...elements: string[]) {
+	async workFile(mk: boolean, ...elements: string[]) {
 		const r = this.workPath(...elements);
 		if (mk) await mkdirp(path.basename(r));
 		return r;
@@ -53,6 +53,11 @@ export class ArtifactFiles {
 		return this.workFolder(true, repo.owner.name, repo.name);
 	}
 
+	async forkedRepoFolder(repo: Repo) {
+		const owner = repo.owner;
+		return this.workFolder(false, owner.name, repo.name, 'forked');
+	}
+
 	async repoArchive(repo: Repo) {
 		const ownerName = repo.owner.name;
 		const name = `${ownerName}.${repo.name}.zip`;
@@ -80,7 +85,7 @@ export class ArtifactFiles {
 		this.logger.log(
 			`copy repository archive file: repoId=${repoId}, archiveFile=${archiveFile}, copy=${timestampedArchiveFile}`,
 		);
-		await copyFile(archiveFile, timestampedArchiveFile);
+		await copyFileOrDir(archiveFile, timestampedArchiveFile);
 
 		this.logger.log(`finish archiving repository folder: repoId=${repoId}, repoFolder=${repoFolder}`);
 	}
@@ -127,7 +132,7 @@ export class ArtifactFiles {
 		this.logger.log(
 			`copy command archive file: commandId=${cmdId}, archiveFile=${archiveFile}, copy=${timestampedArchiveFile}`,
 		);
-		await copyFile(archiveFile, timestampedArchiveFile);
+		await copyFileOrDir(archiveFile, timestampedArchiveFile);
 
 		this.logger.log(`finish archiving command folder: commandId=${cmdId}, commandFolder=${cmdFolder}`);
 	}

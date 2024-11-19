@@ -1,18 +1,33 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommandStatus, CommandRunStatus } from '../constants';
 import { promises as fs } from 'fs';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
-import { spawnAsync, GithubRepo, renameFileOrDir, readJsonLogFile, removeFileOrDir } from '../helper';
-import { Repo, Command } from '../entity';
+import { spawnAsync, GithubRepo, readJsonLogFile, copyFileOrDir } from '../helper';
+import { Repo, Command, EXAMPLES_ORG } from '../entity';
 import { CommandCreateReq, CommandLog, CommandUpdateReq } from '../dto';
 import { Kontext } from '../framework';
-import AdmZip from 'adm-zip';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ArtifactFiles } from './artifact.files';
+
+class CommandExecutionContext {
+	constructor(
+		public command: Command,
+		readonly auditLog: string,
+		readonly executionLog: string,
+	) {}
+
+	static async build(command: Command, artifactFiles: ArtifactFiles): Promise<CommandExecutionContext> {
+		const [auditLog, executionLog] = await Promise.all([
+			artifactFiles.commandAuditLog(command),
+			artifactFiles.commandExecutionLog(command),
+		]);
+		return new CommandExecutionContext(command, auditLog, executionLog);
+	}
+}
 
 @Injectable()
 @WebSocketGateway({ cors: '*' /*, namespace: 'ws/v1/commands'*/ })
@@ -230,22 +245,21 @@ export class CommandService {
 
 		c = await this.updateStatus(x, c, CommandStatus.Running);
 
+		const exeCtx = await CommandExecutionContext.build(c, this.artifactFiles);
 		try {
-			await this.auditLog(c, `begin to run command`);
+			await this.auditLog(exeCtx, `begin to run command`);
 
-			await this.doRun(c, auditLogFile);
+			await this.doRun(exeCtx);
 
-			await this.auditLog(c.id, auditLogFile, `end to run command (succeeded)\n\n\n\n`);
+			await this.auditLog(exeCtx, `end to run command (succeeded)\n\n\n\n`);
 			c = await this.updateStatus(x, c, CommandStatus.Succeeded);
 			this.logger.log(`run command: succeeded: ${JSON.stringify(c)}`);
 		} catch (err) {
-			if (auditLogFile) {
-				try {
-					await this.auditLog(c.id, auditLogFile, err.toString());
-					await this.auditLog(c.id, auditLogFile, `end to run command (failed)\n\n\n\n`);
-				} catch (err) {
-					this.logger.error(`run command: failed to log: err=${err}, ${JSON.stringify(c)}`);
-				}
+			try {
+				await this.auditLog(exeCtx, err.toString());
+				await this.auditLog(exeCtx, `end to run command (failed)\n\n\n\n`);
+			} catch (err) {
+				this.logger.error(`run command: failed to log: err=${err}, ${JSON.stringify(c)}`);
 			}
 
 			c = await this.updateStatus(x, c, CommandStatus.Failed);
@@ -290,14 +304,17 @@ export class CommandService {
 		this.websocket.to(`log-${cmd.id}`).emit(logEventName, v);
 	}
 
-	private async auditLog(cmd: Command, message: string): Promise<void> {
-		const auditLog = await this.artifactFiles.commandAuditLog(cmd);
-		return this.log(cmd, auditLog, `auditLog-${cmd.id}`, message);
+	private async auditLog(exeCtx: CommandExecutionContext, message: string) {
+		const cmd = exeCtx.command;
+		return this.log(cmd, exeCtx.auditLog, `auditLog-${cmd.id}`, message);
 	}
 
-	private async executionLog(cmd: Command, message: string): Promise<void> {
-		const executionLog = await this.artifactFiles.commandExecutionLog(cmd);
-		await Promise.all([this.auditLog(cmd, message),	this.log(cmd, executionLog, `executionLog-${cmd.id}`, message)]);
+	private async executionLog(exeCtx: CommandExecutionContext, message: string) {
+		const cmd = exeCtx.command;
+		await Promise.all([
+			this.auditLog(exeCtx, message),
+			this.log(cmd, exeCtx.executionLog, `executionLog-${cmd.id}`, message),
+		]);
 	}
 
 	@SubscribeMessage('subscribeLogEvent')
@@ -310,7 +327,10 @@ export class CommandService {
 			return [[], []];
 		}
 
-		const [auditLogFile, executionLogFile] = await Promise.all([c.auditLogFile(), c.executionLogFile()]);
+		const [auditLogFile, executionLogFile] = await Promise.all([
+			this.artifactFiles.commandAuditLog(c),
+			this.artifactFiles.commandExecutionLog(c),
+		]);
 		const [auditLogLines, executionLogLines] = await Promise.all([
 			readJsonLogFile(auditLogFile),
 			readJsonLogFile(executionLogFile),
@@ -380,69 +400,63 @@ export class CommandService {
 	async archiveArtifacts(c: Command): Promise<void> {
 		this.logger.warn(`archiving command: ${JSON.stringify(c)}`);
 
-		const date = new Date();
-
-		const y = date.getFullYear();
-		const mon = String(date.getMonth() + 1).padStart(2, '0');
-		const d = String(date.getDate()).padStart(2, '0');
-		const h = String(date.getHours()).padStart(2, '0');
-		const min = String(date.getMinutes()).padStart(2, '0');
-		const ms = String(date.getMilliseconds()).padStart(3, '0');
-
-		const ts = `${y}_${mon}${d}_${h}${min}_${ms}`;
-
-		const [auditLogFile, auditLogArchiveFile] = await Promise.all([c.auditLogFile(), c.auditLogArchiveFile(ts)]);
-		await renameFileOrDir(auditLogFile, auditLogArchiveFile);
-
-		const [executionLogFile, executionLogArchiveFile] = await Promise.all([
-			c.executionLogFile(),
-			c.executionLogArchiveFile(ts),
-		]);
-		await renameFileOrDir(executionLogFile, executionLogArchiveFile);
+		await this.artifactFiles.archiveCommand(c);
 
 		this.logger.warn(`successfully archived command: ${JSON.stringify(c)}`);
 	}
 
-	private async newRepoObject(c: Command): Promise<GithubRepo> {
-		const auditLogFile = await c.auditLogFile();
-		const repo = await c.repo;
+	private async doRun(exeCtx: CommandExecutionContext) {
+		let c = exeCtx.command;
 
-		return new GithubRepo(
-			(output) => this.auditLog(c.id, auditLogFile, output),
-			`/data/batchai-examples/repo`,
-			repo.owner.name,
+		await this.artifactFiles.removeCommand(c);
+
+		const repo = await c.repo;
+		const forkedDir = await this.artifactFiles.forkedRepoFolder(repo);
+
+		const forked = new GithubRepo(
+			(output) => this.auditLog(exeCtx, output),
+			forkedDir,
+			EXAMPLES_ORG,
 			repo.name,
 			false,
+			null,
 		);
-	}
+		if (!(await forked.checkRemote())) {
+			throw new BadRequestException(`invalid github repository: ${forked.url()}`);
+		}
 
-	private async doRun(c: Command) {
-		const repo = await c.repo;
-		const repoObj = await this.newRepoObject(c);
+		await forked.pull('forked_from');
+		await forked.push('origin');
+		this.logger.log(`updated the forked repository ${forked.url()}`);
 
-		const fork = repoObj.forkedRepo();
-		const workDir = fork.repoDir();
+		const cmdRepoFolder = await this.artifactFiles.commandRepoFolder(c);
+		const cmdRepoObj = new GithubRepo(
+			(output) => this.auditLog(exeCtx, output),
+			cmdRepoFolder,
+			forked.owner,
+			forked.name(),
+			forked.ssh,
+			forked.branch(),
+		);
 
 		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.CheckedOut) {
-			await fork.checkout(`batchai/${c.command}`, true);
-			c = await this.updateRunStatus(c, CommandRunStatus.CheckedOut);
+			await copyFileOrDir(forkedDir, cmdRepoFolder);
+			await cmdRepoObj.checkout(`batchai/${c.command}`, true);
+			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.CheckedOut);
 		}
 
 		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.BatchAIExecuted) {
-			const cmdLine = c.commandLine(workDir);
+			const cmdLine = c.commandLine(cmdRepoFolder);
 			this.logger.log(`exec begin: ${cmdLine}`);
 
-			const executionLogFile = await c.executionLogFile();
-			await removeFileOrDir(executionLogFile);
-
 			const code = await spawnAsync(
-				workDir,
+				cmdRepoFolder,
 				'batchai',
-				c.commandLineArgs(workDir),
-				(stdout) => this.executionLog(c.id, executionLogFile, auditLogFile, stdout),
-				(stderr) => this.executionLog(c.id, executionLogFile, auditLogFile, stderr),
+				c.commandLineArgs(cmdRepoFolder),
+				(stdout) => this.executionLog(exeCtx, stdout),
+				(stderr) => this.executionLog(exeCtx, stderr),
 			);
 			this.logger.log(`exec end: exitCode=${code}, command=${cmdLine}`);
 
@@ -450,56 +464,52 @@ export class CommandService {
 				throw new Error(`batchai execution failed: command=${cmdLine}`);
 			}
 			this.logger.log(`exec succeeded: command=${cmdLine}`);
-			c = await this.updateRunStatus(c, CommandRunStatus.BatchAIExecuted);
+			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.BatchAIExecuted);
 		}
 
 		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.ChangesAdded) {
-			await fork.add();
-			c = await this.updateRunStatus(c, CommandRunStatus.ChangesAdded);
+			await cmdRepoObj.add();
+			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesAdded);
 		}
 
 		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.ChangesCommited) {
-			const hasChanges = await fork.commit(`changes by batchai "${c.command}"`);
+			const hasChanges = await cmdRepoObj.commit(`changes by batchai "${c.command}"`);
 			c.hasChanges = hasChanges;
-			c = await this.updateRunStatus(c, CommandRunStatus.ChangesCommited);
+			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesCommited);
 		}
 
 		if (c.hasChanges) {
 			this.logger.log(`run: no changs found: command=${c.id}`);
 			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.ChangesPushed) {
-				await fork.removeRemoteBranch(); // removes existing remote branch, if possible
-				await fork.push();
-				c = await this.updateRunStatus(c, CommandRunStatus.ChangesPushed);
+				await cmdRepoObj.removeRemoteBranch(); // removes existing remote branch, if possible
+				await cmdRepoObj.push('origin');
+				c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesPushed);
 			}
 
 			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.ChangesArchived) {
 				this.logger.log(`run: zipping the folder: command=${c.id}`);
-				const zip = new AdmZip();
-				zip.addLocalFolder(workDir);
-				zip.writeZip(repo.artifactArchiveFile());
+				this.artifactFiles.archiveCommand(c);
 				this.logger.log(`run: zipped the folder: command=${c.id}`);
 
-				c = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
+				c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
 			}
 
 			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.GetCommitId) {
-				c.commitId = await fork.getLastCommitId();
+				c.commitId = await cmdRepoObj.getLastCommitId();
 				c.runStatus = CommandRunStatus.GetCommitId;
-				c = await this.dao.save(c);
+				c = exeCtx.command = await this.dao.save(c);
 			}
 		} else {
 			this.logger.log(`run: found changs: command=${c.id}`);
-			const zip = new AdmZip();
-			zip.addLocalFolder(workDir);
-			zip.writeZip(repo.artifactArchiveFile());
+			this.artifactFiles.archiveCommand(c);
 			this.logger.log(`run: zipped the folder: command=${c.id}`);
 
-			c = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
+			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
 		}
 
 		// if (c.status !== CommandStatus.Running) return;
@@ -509,6 +519,6 @@ export class CommandService {
 		//   c = await this.updateRunStatus(c, CommandRunStatus.CreatedPR);
 		// }
 
-		c = await this.updateRunStatus(c, CommandRunStatus.End);
+		c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.End);
 	}
 }

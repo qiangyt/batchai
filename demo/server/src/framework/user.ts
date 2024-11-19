@@ -8,8 +8,6 @@ import {
 	UpdateDateColumn,
 	JoinColumn,
 } from 'typeorm';
-import path from 'path';
-import { mkdirp } from 'mkdirp';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Page } from './page';
 import {
@@ -35,7 +33,6 @@ import { DataSource } from 'typeorm';
 import { Kontext, RequestKontext } from './kontext';
 import { RequiredRoles, Role } from './role';
 import { Profile } from 'passport-github2';
-import { REPO_ARCHIVE_DIR, REPO_DIR } from '../constants';
 import { Octokit } from '@octokit/rest';
 
 export enum GrantLevel {
@@ -99,24 +96,6 @@ export class User {
 	@JoinColumn({ name: 'updater_id' })
 	@ManyToOne(() => User, { eager: false, createForeignKeyConstraints: false })
 	updater?: User;
-
-	private dirPath: string;
-
-	async dir(): Promise<string> {
-		if (!this.dirPath) {
-			const p = path.join(REPO_DIR, this.name);
-			await mkdirp(p);
-
-			this.dirPath = p;
-		}
-		return this.dirPath;
-	}
-
-	async archiveDir(): Promise<string> {
-		const p = path.join(REPO_ARCHIVE_DIR, this.name);
-		await mkdirp(p);
-		return p;
-	}
 
 	num(): number {
 		switch (this.grantLevel) {
@@ -195,7 +174,7 @@ export class UserBasic {
 		}
 	}
 
-	render(u: User): UserBasic {
+	async render(u: User): Promise<UserBasic> {
 		this.id = u.id;
 		this.name = u.name;
 		this.email = u.email;
@@ -209,17 +188,18 @@ export class UserBasic {
 		return this;
 	}
 
-	static from(u: User): UserBasic {
+	static async from(u: User): Promise<UserBasic> {
 		if (!u) return null;
 		return new UserBasic().render(u);
 	}
 
-	static fromMany(users: User[]): UserBasic[] {
-		return users.map(UserBasic.from);
+	static async fromMany(users: User[]): Promise<UserBasic[]> {
+		return Promise.all(users.map(UserBasic.from));
 	}
 
-	static fromPage(p: Page<User>): Page<UserBasic> {
-		return new Page<UserBasic>(p.page, p.limit, UserBasic.fromMany(p.elements), p.total);
+	static async fromPage(p: Page<User>): Promise<Page<UserBasic>> {
+		const elements = await UserBasic.fromMany(p.elements);
+		return new Page<UserBasic>(p.page, p.limit, elements, p.total);
 	}
 }
 
@@ -230,15 +210,17 @@ export class UserDetail extends UserBasic {
 
 	updater: UserBasic;
 
-	render(u: User): UserDetail {
-		super.render(u);
+	async render(u: User): Promise<UserDetail> {
+		await super.render(u);
+
 		this.grantLevel = u.grantLevel;
-		this.creater = UserBasic.from(u.creater);
-		this.updater = UserBasic.from(u.updater);
+		this.creater = await UserBasic.from(u.creater);
+		this.updater = await UserBasic.from(u.updater);
+
 		return this;
 	}
 
-	static from(u: User): UserDetail {
+	static async from(u: User): Promise<UserDetail> {
 		if (!u) return null;
 		return new UserDetail().render(u);
 	}
@@ -334,7 +316,12 @@ export class UserService {
 		await this.dao.remove(u);
 	}
 
-	buildSignInDetail(x: Kontext, u: User, githubAccessToken: string, githubRefreshToken: string): SignInDetail {
+	async buildSignInDetail(
+		x: Kontext,
+		u: User,
+		githubAccessToken: string,
+		githubRefreshToken: string,
+	): Promise<SignInDetail> {
 		x.user = u;
 
 		const payload = { sub: u.id }; //, adm: u.admin, usr: u.name };
@@ -342,7 +329,7 @@ export class UserService {
 		x.accessToken = accessToken;
 
 		return {
-			user: UserDetail.from(u),
+			user: await UserDetail.from(u),
 			accessToken,
 			refreshToken: this.jwtService.sign(payload, {
 				secret: process.env.JWT_SECRET,

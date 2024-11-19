@@ -1,16 +1,21 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { dirExists, GithubRepo, listPathsWithPrefix, remoteRepoExists, renameFileOrDir } from '../helper';
-import { Repo } from '../entity';
+import { dirExists, GithubRepo, listPathsWithPrefix } from '../helper';
+import { EXAMPLES_ORG, Repo } from '../entity';
 import { ListAvaiableTargetPathsParams, RepoCreateReq, RepoSearchParams } from '../dto';
 import { Page, Kontext, User } from '../framework';
-import moment from 'moment';
+import { ArtifactFiles } from './artifact.files';
+import path from 'path';
+
 @Injectable()
 export class RepoService {
 	private readonly logger = new Logger(RepoService.name);
 
-	constructor(@InjectRepository(Repo) private dao: Repository<Repo>) {}
+	constructor(
+		@InjectRepository(Repo) private dao: Repository<Repo>,
+		private readonly artifactFiles: ArtifactFiles,
+	) {}
 
 	async search(params: RepoSearchParams): Promise<Page<Repo>> {
 		params.normalize();
@@ -64,10 +69,6 @@ export class RepoService {
 			throw new ConflictException(`repository=${req.path}}`);
 		}
 
-		if (!(await remoteRepoExists(ownerName, repoName))) {
-			throw new BadRequestException(`invalid github repository: owner=${ownerName}, name=${repoName}`);
-		}
-
 		let r = new Repo();
 		r.owner = owner;
 		r.name = repoName;
@@ -75,31 +76,36 @@ export class RepoService {
 
 		r = await this.dao.save(r);
 
-		// check remote repository then clone/pull it
-		const repoObj = this.newRepoObject(r);
+		const workDir = await this.artifactFiles.forkedRepoFolder(r);
+
+		const repoObj = new GithubRepo((output) => this.logger.log(output), workDir, ownerName, repoName, false, null);
+		if (!(await repoObj.checkRemote())) {
+			throw new BadRequestException(`invalid github repository: ${repoObj.url()}`);
+		}
 		this.logger.log(`remote repository ${r.repoUrl()} is ok`);
 
-		let fork = repoObj.forkedRepo();
-		const workDir = fork.repoDir();
-		if (await dirExists(workDir)) {
-			this.logger.log(`found work directory ${workDir}`);
-			await fork.checkRemote();
-			this.logger.log(`remote repository (forked) ${fork.url()} is ok`);
-		} else {
-			this.logger.log(`not found work directory ${workDir}`);
+		const forked = repoObj.forkedRepo(true, EXAMPLES_ORG, repoName);
 
-			fork = await repoObj.fork();
-			this.logger.log(`forked repository ${r.repoUrl} as ${fork.url()}`);
+		let forkRepoExists = await dirExists(path.join(workDir, '.git'));
+		if (forkRepoExists) {
+			this.logger.log(`found fork directory ${workDir}`);
+			if (!(await repoObj.checkRemote())) {
+				this.logger.log(`remote repository ${r.repoUrl()} doesn't exist`);
+				forkRepoExists = false;
+			}
 		}
 
-		await fork.cloneOrPull();
-		this.logger.log(`cloned/pulled the forked repository ${fork.url()}`);
+		if (!forkRepoExists) {
+			this.logger.log(`not found work directory ${workDir}`);
+
+			repoObj.fork(true, EXAMPLES_ORG);
+			repoObj.addRemoteUrl('forked_from', r.repoUrl());
+			forked.clone(1);
+
+			this.logger.log(`forked repository ${r.repoUrl} as ${forked.url()}`);
+		}
 
 		return r;
-	}
-
-	private newRepoObject(repo: Repo): GithubRepo {
-		return repo.repoObject((output) => this.logger.log(output));
 	}
 
 	listAll(): Promise<Repo[]> {
@@ -120,29 +126,22 @@ export class RepoService {
 
 	async remove(repo: Repo): Promise<void> {
 		this.logger.log(`removing repository ${JSON.stringify(repo)}`);
-		await this.archiveArtifacts(repo);
+
+		await this.artifactFiles.removeRepo(repo);
 		await this.dao.remove(repo);
+
 		this.logger.log(`removing repository ${repo.id}`);
-	}
-
-	async archiveArtifacts(repo: Repo): Promise<void> {
-		const ts = moment().format('YYYY_MM_DD_HH_mm_ss');
-
-		const forkedRepoDir = repo.forkedRepoObject(null).repoDir();
-
-		const repoArchiveDir = await repo.repoArchiveDir(ts);
-		await renameFileOrDir(forkedRepoDir, repoArchiveDir);
 	}
 
 	async listAvaiableTargetPaths(id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
 		params.normalize();
 
 		const r = await this.load(id);
-		const repoDir = r.forkedRepoDir(null);
-		if (!(await dirExists(repoDir))) {
+		const forkedFolder = await this.artifactFiles.forkedRepoFolder(r);
+		if (!(await dirExists(forkedFolder))) {
 			return [];
 		}
 
-		return listPathsWithPrefix(repoDir, params.path);
+		return listPathsWithPrefix(forkedFolder, params.path);
 	}
 }

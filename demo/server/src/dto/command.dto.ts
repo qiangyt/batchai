@@ -5,6 +5,7 @@ import { CommandRunStatus, CommandStatus } from '../constants';
 import { AuditableDto } from '../framework';
 import { BadRequestException } from '@nestjs/common';
 import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ArtifactFiles } from 'src/service/artifact.files';
 
 export class SubscribeCommandLogReq {
 	constructor(
@@ -27,8 +28,9 @@ export class CommandBasic extends AuditableDto {
 	commitId: string;
 	commitUrl: string;
 
-	render(c: Command): CommandBasic {
-		super.render(c);
+	async render(c: Command): Promise<CommandBasic> {
+		await super.render(c);
+
 		this.command = c.command;
 		this.status = c.status;
 		this.commitId = c.commitId;
@@ -36,17 +38,18 @@ export class CommandBasic extends AuditableDto {
 		return this;
 	}
 
-	static from(c: Command): CommandBasic {
+	static async from(c: Command): Promise<CommandBasic> {
 		if (!c) return null;
 		return new CommandBasic().render(c);
 	}
 
-	static fromMany(cmds: Command[]): CommandBasic[] {
-		return cmds.map(CommandBasic.from);
+	static async fromMany(cmds: Command[]): Promise<CommandBasic[]> {
+		return Promise.all(cmds.map(CommandBasic.from));
 	}
 
-	static fromPage(p: Page<Command>): Page<CommandBasic> {
-		return new Page<CommandBasic>(p.page, p.limit, CommandBasic.fromMany(p.elements), p.total);
+	static async fromPage(p: Page<Command>): Promise<Page<CommandBasic>> {
+		const elements = await CommandBasic.fromMany(p.elements);
+		return new Page<CommandBasic>(p.page, p.limit, elements, p.total);
 	}
 }
 
@@ -67,9 +70,10 @@ export class CommandDetail extends CommandBasic {
 
 	targetPaths: string[];
 
-	async renderCommand(c: Command): Promise<CommandDetail> {
-		super.render(c);
-		this.repo = RepoBasic.from(await c.repo);
+	async renderCommand(c: Command, artifactFiles: ArtifactFiles): Promise<CommandDetail> {
+		await super.render(c);
+
+		this.repo = await RepoBasic.from(await c.repo, artifactFiles);
 		this.hasChanges = c.hasChanges;
 		this.runStatus = c.runStatus;
 		this.enableSymbolReference = c.enableSymbolReference;
@@ -80,13 +84,14 @@ export class CommandDetail extends CommandBasic {
 		this.testLibrary = c.testLibrary;
 		this.testUpdate = c.testUpdate;
 		this.targetPaths = c.targetPaths;
+
 		return this;
 	}
 
-	static async fromCommand(c: Command): Promise<CommandDetail> {
+	static async fromCommand(c: Command, artifactFiles: ArtifactFiles): Promise<CommandDetail> {
 		if (!c) return null;
 		const r = new CommandDetail();
-		return await r.renderCommand(c);
+		return r.renderCommand(c, artifactFiles);
 	}
 }
 

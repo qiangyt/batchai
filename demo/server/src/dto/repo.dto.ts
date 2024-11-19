@@ -3,6 +3,7 @@ import { Repo } from '../entity';
 import { CommandBasic, ParsedRepoPath } from './command.dto';
 import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ArtifactFiles } from 'src/service/artifact.files';
 
 export class RepoBasic extends AuditableDto {
 	owner: UserBasic;
@@ -17,17 +18,17 @@ export class RepoBasic extends AuditableDto {
 
 	artifactArchiveFile: string;
 
-	render(repo: Repo): RepoBasic {
-		super.render(repo);
+	async render(repo: Repo, artifactFiles: ArtifactFiles): Promise<RepoBasic> {
+		await super.render(repo);
 
-		this.owner = UserBasic.from(repo.owner);
+		this.owner = await UserBasic.from(repo.owner);
 		this.name = repo.name;
 		this.repoUrl = repo.repoUrl();
-		this.artifactArchiveFile = repo.artifactArchiveFile();
+		this.artifactArchiveFile = await artifactFiles.repoArchive(repo);
 
 		if (repo.commands) {
-			repo.commands.forEach((c_) => {
-				const c = CommandBasic.from(c_);
+			repo.commands.forEach(async (c_) => {
+				const c = await CommandBasic.from(c_);
 				if (c.command === 'check') {
 					this.checkCommand = c;
 				} else if (c.command === 'test') {
@@ -39,29 +40,30 @@ export class RepoBasic extends AuditableDto {
 		return this;
 	}
 
-	static from(repo: Repo): RepoBasic {
+	static async from(repo: Repo, artifactFiles: ArtifactFiles): Promise<RepoBasic> {
 		if (!repo) return null;
-		return new RepoBasic().render(repo);
+		return new RepoBasic().render(repo, artifactFiles);
 	}
 
-	static fromMany(repos: Repo[]): RepoBasic[] {
-		return repos.map((r) => RepoBasic.from(r));
+	static async fromMany(repos: Repo[], artifactFiles: ArtifactFiles): Promise<RepoBasic[]> {
+		return Promise.all(repos.map((r) => RepoBasic.from(r, artifactFiles)));
 	}
 
-	static fromPage(p: Page<Repo>): Page<RepoBasic> {
-		return new Page<RepoBasic>(p.page, p.limit, RepoBasic.fromMany(p.elements), p.total);
+	static async fromPage(p: Page<Repo>, artifactFiles: ArtifactFiles): Promise<Page<RepoBasic>> {
+		const elements = await RepoBasic.fromMany(p.elements, artifactFiles);
+		return new Page<RepoBasic>(p.page, p.limit, elements, p.total);
 	}
 }
 
 export class RepoDetail extends RepoBasic {
-	render(repo: Repo): RepoDetail {
-		super.render(repo);
+	async render(repo: Repo, artifactFiles: ArtifactFiles): Promise<RepoDetail> {
+		await super.render(repo, artifactFiles);
 		return this;
 	}
 
-	static from(repo: Repo): RepoDetail {
+	static async from(repo: Repo, artifactFiles: ArtifactFiles): Promise<RepoDetail> {
 		if (!repo) return null;
-		return new RepoDetail().render(repo);
+		return new RepoDetail().render(repo, artifactFiles);
 	}
 }
 

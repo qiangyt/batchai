@@ -14,7 +14,7 @@ export async function removeFileOrDir(p: string): Promise<void> {
 	});
 }
 
-export async function copyFile(srcFile: string, destFile: string) {
+export async function copyFileOrDir(srcFile: string, destFile: string) {
 	await mkdirp(path.basename(destFile));
 	return fsExtra.copy(srcFile, destFile);
 }
