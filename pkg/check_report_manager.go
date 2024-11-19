@@ -62,5 +62,5 @@ func ResolveCheckReportFile(cacheDir string, repository string, file string) str
 	// the file is relative to working directory, so take the relative path
 	relativePath := file[len(repository):]
 	repoName := path.Base(repository)
-	return path.Join(cacheDir, repoName, relativePath+".check.json")
+	return path.Join(cacheDir, repoName, relativePath+".check.batchai.json")
 }
