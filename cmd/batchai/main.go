@@ -76,7 +76,7 @@ func main() {
 			&cli.BoolFlag{Name: "enable-symbol-reference", Usage: "Enables symbol collection to examine code references across the entire project"},
 			&cli.BoolFlag{Name: "force", DefaultText: "false", Usage: "Ignores the cache"},
 			&cli.IntFlag{Name: "num", Aliases: []string{"n"}, DefaultText: "0", Usage: "Limits the number of file to process"},
-			&cli.IntFlag{Name: "concurrent", DefaultText: "false", Usage: "If or not concurrent processing"},
+			&cli.BoolFlag{Name: "concurrent", DefaultText: "false", Usage: "If or not concurrent processing"},
 			&cli.BoolFlag{Name: "verbose", Hidden: true},
 			&cli.StringFlag{
 				Name:        "lang",
