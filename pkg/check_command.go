@@ -58,6 +58,8 @@ func (me CheckCommand) Check(x Kontext, checkArgs CheckArgs) {
 	metrics := NewCheckMetrics()
 	c := comm.NewConsole(!x.Args.Concurrent)
 
+	c.NewLine().Default("test command uses model ").Yellowf("'%s'\n\n", x.Config.Check.ModelId)
+
 	targetFiles, _, _, repoFiles := me.listCommand.CollectWorkingFiles(x, c)
 	if len(targetFiles) > 0 {
 		if x.Args.EnableSymbolReference {
