@@ -18,11 +18,11 @@ func DefaultConfigDir() string {
 }
 
 func LoadEnv(fs afero.Fs) {
+	comm.OverloadEnv(fs)
+
 	batchaiEnvText := res.FromPath("/batchai.env").ReadText()
 	batchaiEnvMap, _ := comm.ParseEnv(strings.NewReader(batchaiEnvText))
 	comm.LoadEnvMap(batchaiEnvMap)
-
-	comm.OverloadEnv(fs)
 }
 
 type AppConfigT struct {
