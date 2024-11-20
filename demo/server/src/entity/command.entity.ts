@@ -84,7 +84,7 @@ export class Command extends AuditableEntity {
 
 	globalOptions(): string[] {
 		if (this._globalOptions === null || this._globalOptions === undefined) {
-			const options = ['--concurrent', '1'];
+			const options = [];
 			if (this.enableSymbolReference) {
 				options.push('--enable-symbol-reference');
 			}

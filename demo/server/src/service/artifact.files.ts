@@ -22,7 +22,7 @@ export class ArtifactFiles {
 
 	async workFile(mk: boolean, ...elements: string[]) {
 		const r = this.workPath(...elements);
-		if (mk) await mkdirp(path.basename(r));
+		if (mk) await mkdirp(path.dirname(r));
 		return r;
 	}
 
@@ -45,7 +45,7 @@ export class ArtifactFiles {
 
 	private async archiveFile(...elements: string[]) {
 		const r = this.archivePath(...elements);
-		await mkdirp(path.basename(r));
+		await mkdirp(path.dirname(r));
 		return r;
 	}
 
@@ -137,8 +137,8 @@ export class ArtifactFiles {
 		this.logger.log(`finish archiving command folder: commandId=${cmdId}, commandFolder=${cmdFolder}`);
 	}
 
-	async removeCommand(cmd: Command) {
-		await this.archiveCommand(cmd);
+	async removeCommand(cmd: Command, archive: boolean) {
+		if (archive) await this.archiveCommand(cmd);
 
 		const cmdFolder = await this.commandFolder(cmd);
 		await removeFileOrDir(cmdFolder);

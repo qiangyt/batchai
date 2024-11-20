@@ -7,6 +7,7 @@ import { ListAvaiableTargetPathsParams, RepoCreateReq, RepoSearchParams } from '
 import { Page, Kontext, User } from '../framework';
 import { ArtifactFiles } from './artifact.files';
 import path from 'path';
+import { mkdirp } from 'mkdirp';
 
 @Injectable()
 export class RepoService {
@@ -98,11 +99,14 @@ export class RepoService {
 		if (!forkRepoExists) {
 			this.logger.log(`not found work directory ${workDir}`);
 
-			repoObj.fork(true, EXAMPLES_ORG);
-			repoObj.addRemoteUrl('forked_from', r.repoUrl());
-			forked.clone(1);
+			await mkdirp(path.dirname(workDir));
 
-			this.logger.log(`forked repository ${r.repoUrl} as ${forked.url()}`);
+			await repoObj.fork(true, EXAMPLES_ORG);
+
+			await forked.clone(1);
+			await forked.addRemoteUrl('forked_from', r.repoUrl());
+
+			this.logger.log(`forked repository ${r.repoUrl()} as ${forked.url()}`);
 		}
 
 		return r;

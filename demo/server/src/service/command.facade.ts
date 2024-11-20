@@ -92,6 +92,6 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async removeCommand(x: Kontext, id: number): Promise<void> {
 		const c = await this.service.load(id);
-		return this.service.remove(c);
+		return this.service.remove(c, true);
 	}
 }

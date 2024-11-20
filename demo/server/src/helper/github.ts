@@ -25,7 +25,11 @@ export class GithubRepo {
 		readonly ssh: boolean,
 		private _branch: string,
 	) {
-		this._url = this.ssh ? `git@github.com:${owner}/${name}.git` : `https://github.com/${owner}/${_name}`;
+		this._url = GithubRepo.buildUrl(ssh, owner, _name);
+	}
+
+	static buildUrl(ssh: boolean, owner: string, name: string) {
+		return ssh ? `git@github.com:${owner}/${name}.git` : `https://github.com/${owner}/${name}`;
 	}
 
 	url(): string {
@@ -36,7 +40,15 @@ export class GithubRepo {
 		return this._name;
 	}
 
-	branch(): string {
+	async branch() {
+		if (!this._branch) {
+			const args = ['branch', '--show-current'];
+			const { stdout, stderr, exitCode } = await execAsync(this.repoDir, 'git', args, this.log);
+			if (exitCode !== 0) {
+				throw new Error(`git branch --show-current: exitCode=${exitCode}, stdout=${stdout}, stderr=${stderr}`);
+			}
+			this._branch = stdout.trim();
+		}
 		return this._branch;
 	}
 
@@ -72,10 +84,16 @@ export class GithubRepo {
 		this.log(`cloned ${this.url()} to ${this.repoDir}`);
 	}
 
-	async pull(remoteName: string): Promise<void> {
+	async pull(remoteName: string, depth: number = 1): Promise<void> {
 		this.log(`pulling ${remoteName} for ${this.url()} in ${this.repoDir}...`);
 
-		const code = await spawnAsync(this.repoDir, 'git', ['pull', remoteName], this.log, this.log);
+		const code = await spawnAsync(
+			this.repoDir,
+			'git',
+			['pull', remoteName, this.defaultBranch(), '--depth', `${depth}`],
+			this.log,
+			this.log,
+		);
 		if (code !== 0) {
 			throw new Error(`git pull failed: exitCode=${code}, command line="git pull ${remoteName}"}`);
 		}
@@ -100,7 +118,7 @@ export class GithubRepo {
 			await getOctokit().rest.repos.getBranch({
 				owner: this.owner,
 				repo: this.name(),
-				branch: this.branch(),
+				branch: await this.branch(),
 			});
 		} catch (err) {
 			if (err.status === 404) {
@@ -120,7 +138,7 @@ export class GithubRepo {
 		const code = await spawnAsync(
 			this.repoDir,
 			'git',
-			['push', 'origin', '--delete', this.branch()],
+			['push', 'origin', '--delete', await this.branch()],
 			this.log,
 			this.log,
 		);
@@ -136,7 +154,7 @@ export class GithubRepo {
 		const code = await spawnAsync(
 			this.repoDir,
 			'git',
-			['push', '--set-upstream', remoteName, this.branch()],
+			['push', '--set-upstream', remoteName, await this.branch()],
 			this.log,
 			this.log,
 		);
@@ -176,14 +194,13 @@ export class GithubRepo {
 	}
 
 	async rename(newName: string): Promise<void> {
-		this.log(`renaming ${this.owner}/${this.name} to ${this.owner}/${newName}...`);
+		this.log(`renaming ${this.owner}/${this.name()} to ${this.owner}/${newName}...`);
 
 		await getOctokit().repos.update({ owner: this.owner, repo: this.name(), name: newName });
 
+		const newUrl = GithubRepo.buildUrl(this.ssh, this.owner, newName);
+		this.setRemoteUrl('origin', newUrl);
 		this._name = newName;
-		this._url = this.ssh
-			? `git@github.com:${this.owner}/${newName}.git`
-			: `https://github.com/${this.owner}/${newName}`;
 
 		this.log(`successfully renamed ${this.owner}/${newName} to ${this.owner}/${newName}`);
 	}
@@ -273,8 +290,12 @@ export class GithubRepo {
 		this.log(`successfully created fork: ${this.url()} to ${r.url()}`);
 
 		for (let i = 0; i < 10; i++) {
-			if (await r.checkRemote()) {
-				break;
+			try {
+				if (await r.checkRemote()) {
+					break;
+				}
+			} catch (err) {
+				this.log(`${err}`);
 			}
 			await sleepSecondds(5);
 		}
@@ -291,6 +312,22 @@ export class GithubRepo {
 		}
 
 		this.log(`successfully added remote url ${remoteUrl} as ${remoteName}`);
+	}
+
+	async setRemoteUrl(remoteName: string, remoteUrl: string) {
+		this.log(`updating ${remoteName} remote url to ${remoteUrl}`);
+
+		const args = ['remote', 'set-url', remoteName, remoteUrl];
+		const code = await spawnAsync(this.repoDir, 'git', args, this.log, this.log);
+		if (code !== 0) {
+			throw new Error(`git remote set-url failed: exitCode=${code}, command line="${['git', ...args].join(' ')}"`);
+		}
+
+		if (remoteName === 'origin') {
+			this._url = remoteUrl;
+		}
+
+		this.log(`successfully updated remote url ${remoteUrl} as ${remoteName}`);
 	}
 
 	// async createPR(title: string, desc: string): Promise<string> {

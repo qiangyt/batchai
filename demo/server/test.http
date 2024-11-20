@@ -9,34 +9,54 @@ GET http://localhost:4080/rest/v1/repos/query?page=1&repoName=batch
 
 ###
 GET http://localhost:4080/rest/v1/repos
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTcyOTY1NTIyNSwiZXhwIjoxNzMzMjU1MjI1fQ.zL9kaFdlWQ-PKujhjU5MhcRJtUG55C1DocvXsYN_gOM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 ###
-GET http://localhost:4080/rest/v1/repos/id/1
+DELETE http://localhost:4080/rest/v1/repos/id/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
+
+
+###
+GET http://localhost:4080/rest/v1/repos/id/4
 
 ###
 GET http://localhost:4080/rest/v1/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMTY1OTUwMSwiZXhwIjoxNzM1MjU5NTAxfQ.CjW208ll_8CVmQ45vE9aU9nTROpJ5QEfo4Q9CzFBtNw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 ###
 GET http://localhost:4080/rest/v1/users/id/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMTY1OTUwMSwiZXhwIjoxNzM1MjU5NTAxfQ.CjW208ll_8CVmQ45vE9aU9nTROpJ5QEfo4Q9CzFBtNw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 ###
 DELETE http://localhost:4080/rest/v1/commands/id/3
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMTA4OTgxNiwiZXhwIjoxNzM0Njg5ODE2fQ.ZElSJgD3lwjrnw8eeVXMvGJulC9841FCIQRdfoAYxOs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 ###
-PATCH http://localhost:4080/rest/v1/commands/id/3/restart
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMTY1OTUwMSwiZXhwIjoxNzM1MjU5NTAxfQ.CjW208ll_8CVmQ45vE9aU9nTROpJ5QEfo4Q9CzFBtNw
+PATCH http://localhost:4080/rest/v1/commands/id/13/restart
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4Njcy OCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
+
+###
+POST http://localhost:4080/rest/v1/repos
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
+
+{
+  "path": "qiangyt/batchai"
+}
+
+
+###
+GET http://localhost:4080/rest/v1/commands
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 ###
 POST http://localhost:4080/rest/v1/commands
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMTY1OTUwMSwiZXhwIjoxNzM1MjU5NTAxfQ.CjW208ll_8CVmQ45vE9aU9nTROpJ5QEfo4Q9CzFBtNw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 {
-  "repoPath": "qiangyt/batchai",
+  "repoId": 6,
   "command": "check",
   "testLibraries": [
   ],

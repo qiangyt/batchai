@@ -145,7 +145,7 @@ export default function RepoList() {
       <Image src={"logo.svg"} alt="batchai" width={348} height={120}/>
       <Typography sx={{ fontSize: 18, color: 'white' }} noWrap>SEARCH REPOSITORY</Typography>
       <Box sx={{ width: '63.8%' }}><SearchBar onSearch={onSearch} /></Box>      
-      <Typography sx={{ fontSize: 14 }} color="gray">{page.total} REPOSITORIES</Typography>
+      <Typography sx={{ fontSize: 14 }} color="gray">totally {page.total} repositories for batchai demostration</Typography>
     </Box>
 
     <Masonry columns={3} spacing={2} sx={{mt:6}}>
