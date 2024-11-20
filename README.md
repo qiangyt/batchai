@@ -148,6 +148,7 @@ More detail:
   COMMANDS:
     check            Scans project codes to check issues. Report is outputed to console and also saved to 'build/batchai'
     list             Lists files to process
+    test             Generate unit test code
     explain (TODO)   Explains the code, output result to console or as comment
     comment (TODO)   Comments the code
     refactor (TODO)  Refactors the code
@@ -156,6 +157,8 @@ More detail:
   GLOBAL OPTIONS:
     --enable-symbol-reference  Enables symbol collection to examine code references across the entire project (default: false)
     --force                    Ignores the cache (default: false)
+    --num value, -n value      Limits the number of file to process (default: 0)
+    --concurrent               If or not concurrent processing (default: false)
     --lang value, -l value     language for generated text (default: en_US.UTF-8) [$LANG]
     --help, -h                 show help
     --version, -v              print the version
