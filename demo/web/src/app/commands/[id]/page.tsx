@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-import { CommandDetail, CommandEditData, CommandLog, CommandRunStatus, CommandStatus, CommandStatusUpdate, useSession } from "@/lib";
+import { CommandDetail, CommandEditData, CommandLog, CommandRunStatus, CommandStatus, UserBasic, useSession } from "@/lib";
 import * as commandApi from '@/api/command.api';
 import { useUIContext } from '@/lib/ui.context';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -134,11 +134,47 @@ export default function CommandHome({ params }) {
   const router = useRouter();
   const [command, setCommand] = useState<CommandDetail>(null);
   const [openCommandDialog, setOpenCommandDialog] = useState(false);
-  const [status, setStatus] = useState(command?.status);
   const [auditLogs, setAuditLogs] = useState<CommandLog[]>([]);
   const [executionLogs, setExecutionLogs] = useState<CommandLog[]>([]);
-  const repo = command?.repo;
-  const owner = repo?.owner;
+
+  
+  let enableRestart = false;
+  let enableDelete = false;
+  let enableEdit = false;
+  let enableDownload = false;
+  let title = '';
+  let status = CommandStatus.Pending;
+  let hasChanges = false;
+  let commitUrl = '';
+  let globalOptions: string[] = [];
+  let commandOptions: string[] = [];
+  let targetPaths: string[] = [];
+  let commandName = '';
+  let repoUrl = '';
+  let repoName = '';
+  let repoId = 0;
+  let ownerName = '';
+
+  if (command) {
+    enableRestart = (command.status !== CommandStatus.Running);
+    enableDelete = (command.status !== CommandStatus.Running);
+    enableEdit = (command.status !== CommandStatus.Running);
+    enableDownload = (command.status === CommandStatus.Succeeded);
+    title = command.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
+    status = command.status;
+    hasChanges = command.hasChanges;
+    commitUrl = command.commitId ? command.commitUrl : '';
+    globalOptions = command.globalOptions();
+    commandOptions = command.commandOptions();
+    targetPaths = command.targetPaths;
+    commandName = command.command;
+    
+    const repo = command.repo;
+    repoUrl = repo.repoUrl;
+    repoName = repo.name;
+    ownerName = repo.owner.name;
+  }
+
   const id = params.id;
   const s = useSession().state;
   const [activeStep, setActiveStep] = useState(0);
@@ -172,7 +208,6 @@ export default function CommandHome({ params }) {
       try {
         const c = await commandApi.loadCommand(s, ui, id);
 
-        setStatus(c.status);
         refreshActiveStep(c.runStatus, setActiveStep);
         setCommand(c);
       } catch (err) {
@@ -185,9 +220,9 @@ export default function CommandHome({ params }) {
   }, [s, ui, id]);
 
   useEffect(() => {
-    function onStatusEvent(c: CommandStatusUpdate) {
-      setStatus(c.status);
+    function onStatusEvent(c: CommandDetail) {
       refreshActiveStep(c.runStatus, setActiveStep);
+      setCommand(c);
     }
 
     function onAuditLogEvent(newLog: CommandLog) {
@@ -252,7 +287,7 @@ export default function CommandHome({ params }) {
     ui.confirm(
       {
         action: 'delete',
-        subject: `${owner.name}/${repo.name} ${command.command}`,
+        subject: `${ownerName}/${repoName} ${commandName}`,
         subjectType: 'command'
       },
       async () => {
@@ -274,13 +309,6 @@ export default function CommandHome({ params }) {
     setCommand(newCommand);
   };
 
-  const enableRestart = (status !== CommandStatus.Running);
-  const enableDelete = (status !== CommandStatus.Running);
-  const enableEdit = (status !== CommandStatus.Running);
-  const enableDownload = (status === CommandStatus.Succeeded);
-
-  const title = command?.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
-
   return (
     <>
       <Box display="flex" justifyContent="space-between" alignItems="center" width="100%" sx={{ mt: 3, mb: 4, color: 'white' }}>
@@ -288,22 +316,22 @@ export default function CommandHome({ params }) {
           <Typography variant="body2" color="lightgray">{title}</Typography>
           <Box sx={{ mt: 2, fontFamily: 'arial' }}>
             <span style={{ color: "gray", fontSize: 12, marginRight: 8 }}>for</span>
-            <Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
-            <Link sx={{ ml: 2 }} color='info' href={command?.repo.repoUrl}>( {command?.repo.repoUrl} )</Link>
+            <Typography variant="h5" component="a" href={repoUrl}>{ownerName} / {repoName}</Typography>
+            <Link sx={{ ml: 2 }} color='info' href={repoUrl}>( {repoUrl} )</Link>
 
             <Typography sx={{ mt: 2 }} variant="body2">
               {status}
-              <Link href={`/rest/v1/repos/id/${repo?.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: enableDownload ? '#4A90E2' : 'gray' }}>
+              <Link href={`/rest/v1/repos/id/${repoId}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: enableDownload ? '#4A90E2' : 'gray' }}>
                 <DownloadIcon sx={{ ml: 2, color: enableDownload ? '#4A90E2' : 'gray' }} />
               </Link>
             </Typography>
             <Button color='info' onClick={toggleProgress(true)}>Detailed progress</Button>
 
             <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-              {command?.hasChanges ?
+              {hasChanges ?
                 <>
                   <Typography variant="body2">Changes:</Typography>
-                  <Link sx={{ ml: 2 }} href={command?.commitId ? command.commitUrl : '#'}>{command?.commitId ? command.commitUrl : 'N/A'}</Link>
+                  <Link sx={{ ml: 2 }} href={commitUrl || '#'}>{commitUrl || 'N/A'}</Link>
                 </>
                 :
                 <Typography variant="body2">No changes</Typography>
@@ -337,11 +365,11 @@ export default function CommandHome({ params }) {
         >
           <div style={{ paddingLeft: 50 }}>
             $ <span style={{ color: '#80ff80' }}>batchai</span>
-            &nbsp;&nbsp;{command?.globalOptions().join(' ')}
-            <span style={{ color: '#80ff80' }}>&nbsp;&nbsp;{command?.command}</span>
-            &nbsp;&nbsp;{command?.commandOptions().join(' ')}
+            &nbsp;&nbsp;{globalOptions.join(' ')}
+            <span style={{ color: '#80ff80' }}>&nbsp;&nbsp;{commandName}</span>
+            &nbsp;&nbsp;{commandOptions.join(' ')}
             &nbsp;&nbsp;.
-            &nbsp;&nbsp;{command?.targetPaths.join(' ')}
+            &nbsp;&nbsp;{targetPaths.join(' ')}
           </div>
           <IconButton onClick={handleCopy} color="primary" aria-label="copy command">
             <ContentCopyIcon />
@@ -367,7 +395,7 @@ export default function CommandHome({ params }) {
         <Stepper sx={{ margin: 4 }} activeStep={activeStep} orientation="vertical">
           {steps.map((step, index) => {
             return (
-              <Step key={step.status} completed={index <= activeStep && (!step.needChanges || (step.needChanges && command?.hasChanges))}>
+              <Step key={step.status} completed={index <= activeStep && (!step.needChanges || (step.needChanges && hasChanges))}>
                 <StepLabel error={index === (activeStep + 1) && status == CommandStatus.Failed}>{step.label}</StepLabel>
               </Step>
             );

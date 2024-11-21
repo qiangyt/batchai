@@ -7,7 +7,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import PQueue from 'p-queue';
 import { spawnAsync, GithubRepo, readJsonLogFile, copyFileOrDir } from '../helper';
 import { Repo, Command, EXAMPLES_ORG } from '../entity';
-import { CommandCreateReq, CommandLog, CommandUpdateReq } from '../dto';
+import { CommandCreateReq, CommandDetail, CommandLog, CommandUpdateReq } from '../dto';
 import { Kontext } from '../framework';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -282,7 +282,8 @@ export class CommandService {
 		c.runStatus = runStatus;
 		c = await this.dao.save(c);
 
-		this.websocket.to(`status-${c.id}`).emit(`status-${c.id}`, { status: c.status, runStatus: c.runStatus });
+		const update = CommandDetail.from(c, this.artifactFiles);
+		this.websocket.to(`status-${c.id}`).emit(`status-${c.id}`, update);
 
 		return c;
 	}

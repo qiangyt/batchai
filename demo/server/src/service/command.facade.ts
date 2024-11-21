@@ -32,30 +32,30 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 	async createCommand(x: Kontext, params: CommandCreateReq): Promise<CommandDetail> {
 		const repo = await this.repoService.load(params.repoId);
 
-		return CommandDetail.fromCommand(await this.service.create(x, params, repo), this.artifactFiles);
+		return CommandDetail.from(await this.service.create(x, params, repo), this.artifactFiles);
 	}
 
 	@Transactional()
 	async updateCommand(x: Kontext, id: number, req: CommandUpdateReq): Promise<CommandDetail> {
-		return CommandDetail.fromCommand(await this.service.update(x, id, req), this.artifactFiles);
+		return CommandDetail.from(await this.service.update(x, id, req), this.artifactFiles);
 	}
 
 	@Transactional({ readOnly: true })
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async listAllCommand(x: Kontext): Promise<CommandBasic[]> {
-		return CommandBasic.fromMany(await this.service.listAll());
+		return CommandBasic.fromMany(await this.service.listAll(), this.artifactFiles);
 	}
 
 	@Transactional({ readOnly: true })
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async listCommandByStatus(x: Kontext, status: CommandStatus): Promise<CommandBasic[]> {
-		return CommandBasic.fromMany(await this.service.listByStatus(status));
+		return CommandBasic.fromMany(await this.service.listByStatus(status), this.artifactFiles);
 	}
 
 	@Transactional({ readOnly: true })
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async loadCommand(x: Kontext, id: number): Promise<CommandDetail> {
-		return CommandDetail.fromCommand(await this.service.load(id), this.artifactFiles);
+		return CommandDetail.from(await this.service.load(id), this.artifactFiles);
 	}
 
 	@Transactional({ readOnly: true })
@@ -73,19 +73,19 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 	@Transactional()
 	async restartCommand(x: Kontext, id: number): Promise<CommandDetail> {
 		const c = await this.service.load(id);
-		return CommandDetail.fromCommand(await this.service.restart(x, c), this.artifactFiles);
+		return CommandDetail.from(await this.service.restart(x, c), this.artifactFiles);
 	}
 
 	@Transactional()
 	async resumeCommand(x: Kontext, id: number): Promise<CommandDetail> {
 		const c = await this.service.load(id);
-		return CommandDetail.fromCommand(await this.service.resume(x, c), this.artifactFiles);
+		return CommandDetail.from(await this.service.resume(x, c), this.artifactFiles);
 	}
 
 	@Transactional()
 	async stopCommand(x: Kontext, id: number): Promise<CommandDetail> {
 		const c = await this.service.load(id);
-		return CommandDetail.fromCommand(await this.service.stop(x, c), this.artifactFiles);
+		return CommandDetail.from(await this.service.stop(x, c), this.artifactFiles);
 	}
 
 	@Transactional()

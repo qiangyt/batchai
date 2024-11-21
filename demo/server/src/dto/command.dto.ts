@@ -28,8 +28,8 @@ export class CommandBasic extends AuditableDto {
 	commitId: string;
 	commitUrl: string;
 
-	async render(c: Command): Promise<CommandBasic> {
-		await super.render(c);
+	async render(c: Command, artifactFiles: ArtifactFiles): Promise<CommandBasic> {
+		await super.render(c, artifactFiles);
 
 		this.command = c.command;
 		this.status = c.status;
@@ -38,17 +38,17 @@ export class CommandBasic extends AuditableDto {
 		return this;
 	}
 
-	static async from(c: Command): Promise<CommandBasic> {
+	static async from(c: Command, artifactFiles: ArtifactFiles): Promise<CommandBasic> {
 		if (!c) return null;
-		return new CommandBasic().render(c);
+		return new CommandBasic().render(c, artifactFiles);
 	}
 
-	static async fromMany(cmds: Command[]): Promise<CommandBasic[]> {
-		return Promise.all(cmds.map(CommandBasic.from));
+	static async fromMany(cmds: Command[], artifactFiles: ArtifactFiles): Promise<CommandBasic[]> {
+		return Promise.all(cmds.map((c) => CommandBasic.from(c, artifactFiles)));
 	}
 
-	static async fromPage(p: Page<Command>): Promise<Page<CommandBasic>> {
-		const elements = await CommandBasic.fromMany(p.elements);
+	static async fromPage(p: Page<Command>, artifactFiles: ArtifactFiles): Promise<Page<CommandBasic>> {
+		const elements = await CommandBasic.fromMany(p.elements, artifactFiles);
 		return new Page<CommandBasic>(p.page, p.limit, elements, p.total);
 	}
 }
@@ -70,8 +70,8 @@ export class CommandDetail extends CommandBasic {
 
 	targetPaths: string[];
 
-	async renderCommand(c: Command, artifactFiles: ArtifactFiles): Promise<CommandDetail> {
-		await super.render(c);
+	async render(c: Command, artifactFiles: ArtifactFiles): Promise<CommandDetail> {
+		await super.render(c, artifactFiles);
 
 		this.repo = await RepoBasic.from(await c.repo, artifactFiles);
 		this.hasChanges = c.hasChanges;
@@ -88,10 +88,10 @@ export class CommandDetail extends CommandBasic {
 		return this;
 	}
 
-	static async fromCommand(c: Command, artifactFiles: ArtifactFiles): Promise<CommandDetail> {
+	static async from(c: Command, artifactFiles: ArtifactFiles): Promise<CommandDetail> {
 		if (!c) return null;
 		const r = new CommandDetail();
-		return r.renderCommand(c, artifactFiles);
+		return r.render(c, artifactFiles);
 	}
 }
 

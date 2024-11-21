@@ -5,19 +5,6 @@ import { AuditableDto } from './dto';
 import { Page } from './page';
 
 
-
-export class CommandStatusUpdate {
-	status: CommandStatus;
-	runStatus: CommandRunStatus;
-
-	static with(obj: any): CommandStatusUpdate {
-		if (!obj) return obj;
-		Object.setPrototypeOf(obj, CommandStatusUpdate.prototype);
-		return obj;
-	}
-}
-
-
 export class CommandLog {
 	timestamp: string;
 	message: string;
