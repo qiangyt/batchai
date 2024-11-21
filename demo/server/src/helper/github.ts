@@ -75,7 +75,12 @@ export class GithubRepo {
 		const baseDir = path.dirname(this.repoDir);
 		const repoDirName = path.basename(this.repoDir);
 
-		const args = ['clone', '--depth', `${depth}`, this.url(), repoDirName];
+		const args = ['clone'];
+		if (depth >= 1) {
+			args.push('--depth', `${depth}`);
+		}
+		args.push(this.url(), repoDirName);
+
 		const code = await spawnAsync(baseDir, 'git', args, this.log, this.log);
 		if (code !== 0) {
 			throw new Error(`git clone failed: exitCode=${code}, command line="${['git', ...args].join(' ')}"`);
@@ -84,16 +89,27 @@ export class GithubRepo {
 		this.log(`cloned ${this.url()} to ${this.repoDir}`);
 	}
 
-	async pull(remoteName: string, depth: number = 1): Promise<void> {
+	async fetchUnshallow(): Promise<void> {
+		//git fetch --unshallow
+		this.log(`fetching unshallow for ${this.url()} in ${this.repoDir}...`);
+
+		const args = ['fetch', '--unshallow'];
+		const code = await spawnAsync(this.repoDir, 'git', args, this.log, this.log);
+		if (code !== 0) {
+			throw new Error(`git fetch --unshallow failed: exitCode=${code}, command line="git fetch --unshallow"}`);
+		}
+		this.log(`successfully fetched unshallow for ${this.url()} in ${this.repoDir}`);
+	}
+
+	async pull(remoteName: string, depth: number = 0): Promise<void> {
 		this.log(`pulling ${remoteName} for ${this.url()} in ${this.repoDir}...`);
 
-		const code = await spawnAsync(
-			this.repoDir,
-			'git',
-			['pull', remoteName, this.defaultBranch(), '--depth', `${depth}`],
-			this.log,
-			this.log,
-		);
+		const args = ['pull', remoteName, this.defaultBranch()];
+		if (depth >= 1) {
+			args.push('--depth', `${depth}`);
+		}
+
+		const code = await spawnAsync(this.repoDir, 'git', args, this.log, this.log);
 		if (code !== 0) {
 			throw new Error(`git pull failed: exitCode=${code}, command line="git pull ${remoteName}"}`);
 		}
