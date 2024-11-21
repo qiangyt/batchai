@@ -61,6 +61,10 @@ export class CommandBasic extends AuditableDto {
 		return this.command === 'test'
 	}
 
+	isCheck(): boolean {
+		return this.command === 'check'
+	}
+
 	static with(obj: any): CommandBasic {
 		if (!obj) return obj;
 		AuditableDto.with(obj);		
@@ -204,8 +208,14 @@ export class CommandEditData {
 
 	executeItRightNow: boolean;
 
+	checkFix: boolean;
+
 	isTest(): boolean {
 		return this.commandName === 'test'
+	}
+
+	isCheck(): boolean {
+		return this.commandName === 'check'
 	}
 
 	isUpdate(): boolean {
@@ -229,6 +239,7 @@ export class CommandEditData {
 		r.commandName = c.command;
 		r.repo = c.repo;
 		r.executeItRightNow = (c.status !== CommandStatus.Running && c.status !== CommandStatus.Queued);
+		r.checkFix = c.checkFix;
 
 		return r;
 	}
@@ -240,6 +251,7 @@ export class CommandEditData {
 		r.commandName = commandName;
 		r.repo = repo;
 		r.executeItRightNow = true;
+		r.checkFix = true;
 
 		return r;
 	}
@@ -279,6 +291,9 @@ export class CommandUpdateReq {
 			if (data.testLibrary) {
 				this.testLibrary = [data.testLibrary];
 			}
+		}
+		if (data.isCheck()) {
+			this.checkFix = data.checkFix;
 		}
 	}
 

@@ -52,29 +52,33 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
     setOpen(false);
   };
 
-  const onChangeTestLibrary = (newTestLibrary: string) => {
-    setData(CommandEditData.with({...data, testLibrary: newTestLibrary}));
+  const onChangeTestLibrary = (testLibrary: string) => {
+    setData(CommandEditData.with({...data, testLibrary}));
   };
 
-  const onChangeLang = (newLang: string) => {
-    setData(CommandEditData.with({...data, lang: newLang}));
+  const onChangeLang = (lang: string) => {
+    setData(CommandEditData.with({...data, lang}));
   };
 
-  const onChangeExecuteItRightNow = (e:ChangeEvent<HTMLInputElement>, checked: boolean) => {
+  const onChangeCheckFix = (e:ChangeEvent<HTMLInputElement>, checkFix: boolean) => {
+    setData(CommandEditData.with({...data, checkFix}));
+  }
+
+  const onChangeExecuteItRightNow = (e:ChangeEvent<HTMLInputElement>, executeItRightNow: boolean) => {
     otEvent(e);
-    setData(CommandEditData.with({...data, executeItRightNow: checked}));
+    setData(CommandEditData.with({...data, executeItRightNow}));
   };
 
   const onChangeNum = (e: ChangeEvent<HTMLInputElement>) => {
     otEvent(e);
-    const newNum = parseInt(e.target.value, 10);
-    if (isNaN(newNum)) {
+    const num = parseInt(e.target.value, 10);
+    if (isNaN(num)) {
       return;
     }
-    if (newNum < 0) {
+    if (num < 0) {
       return;
     }
-    setData(CommandEditData.with({...data, num: newNum}));
+    setData(CommandEditData.with({...data, num}));
   };
 
   const onSubmit = async (e: MouseEvent) => {    
@@ -105,6 +109,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
             },
           }} />
         {data.isTest() && <Box sx={{width: "64%", mt: 3}}><TestLibrarySelect value={data.testLibrary} onChange={onChangeTestLibrary}/></Box>}
+        {data.isCheck() && <Box sx={{width: "64%", mt: 3}}><FormControlLabel sx={{mt: 1}} control={<Checkbox size='small' checked={data.checkFix} onChange={onChangeCheckFix}/>} label="Fix detected issues"/></Box>}
         
         <FormControlLabel sx={{mt: 1}} control={<Checkbox size='small' checked={data.executeItRightNow} onChange={onChangeExecuteItRightNow}/>} label="Executes it right now"/>
         
