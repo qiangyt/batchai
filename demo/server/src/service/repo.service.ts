@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { dirExists, GithubRepo, listPathsWithPrefix } from '../helper';
+import { dirExists, GithubRepo, listPathsWithPrefix, removeFileOrDir } from '../helper';
 import { EXAMPLES_ORG, Repo } from '../entity';
 import { ListAvaiableTargetPathsParams, RepoCreateReq, RepoSearchParams } from '../dto';
 import { Page, Kontext, User } from '../framework';
@@ -90,8 +90,11 @@ export class RepoService {
 		let forkRepoExists = await dirExists(path.join(workDir, '.git'));
 		if (forkRepoExists) {
 			this.logger.log(`found fork directory ${workDir}`);
-			if (!(await repoObj.checkRemote())) {
-				this.logger.log(`remote repository ${r.repoUrl()} doesn't exist`);
+			if (!(await forked.checkRemote())) {
+				this.logger.log(`remote repository ${forked.url} doesn't exist`);
+				await removeFileOrDir(workDir);
+				this.logger.log(`removed folder: ${workDir}`);
+
 				forkRepoExists = false;
 			}
 		}
