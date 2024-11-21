@@ -30,6 +30,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import ReactDiffViewer from 'react-diff-viewer-continued';
 import { AuditLogViewer, ExecutionLogViewer } from './log-viewer';
+import { FileDiff } from '@/lib/diff';
 
 const oldCode = `
 const a = 10
@@ -140,7 +141,7 @@ export default function CommandHome({ params }) {
   const [openCommandDialog, setOpenCommandDialog] = useState(false);
   const [auditLogs, setAuditLogs] = useState<CommandLog[]>([]);
   const [executionLogs, setExecutionLogs] = useState<CommandLog[]>([]);
-
+  const [diffs, setDiffs] = useState<FileDiff[]>([]);
   
   let enableRestart = false;
   let enableDelete = false;
@@ -166,7 +167,7 @@ export default function CommandHome({ params }) {
     enableDownload = (command.status === CommandStatus.Succeeded);
     title = command.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
     status = command.status;
-    hasChanges = command.hasChanges;
+    hasChanges = command.hasChanges;  
     commitUrl = command.commitId ? command.commitUrl : '';
     globalOptions = command.globalOptions();
     commandOptions = command.commandOptions();
@@ -189,16 +190,20 @@ export default function CommandHome({ params }) {
     setLogTabIndex(newTabIndex);
   };
 
-
   const [showProgress, setShowProgress] = React.useState(false);
   const toggleProgress = (show: boolean) => () => {
     setShowProgress(show);
   };
 
   const handleCopy = () => {
-    navigator?.clipboard?.writeText(command?.commandLine()).then(
+    if (!navigator.clipboard) {
+      alert('Cannot access clipboard');
+      return;
+    }
+
+    navigator.clipboard?.writeText(command?.commandLine()).then(
       () => {
-        alert('Copied to clipboard!');//TODO
+        console.log('Copied to clipboard!');
       },
       (err) => {
         console.error('Failed to copy: ', err);
@@ -211,6 +216,14 @@ export default function CommandHome({ params }) {
     setAuditLogs([]);
     refreshActiveStep(c.runStatus, setActiveStep);
     setCommand(c);
+
+    let newLogTabIndex: number;
+    if (c.hasChanges) {
+      newLogTabIndex = 0;
+    } else {
+      newLogTabIndex = (c.status === CommandStatus.Succeeded) ? 1 : 2;
+    }
+    setLogTabIndex(newLogTabIndex);
   };
 
   useEffect(() => {
@@ -219,6 +232,14 @@ export default function CommandHome({ params }) {
       try {
         const c = await commandApi.loadCommand(s, ui, id);
         onRefreshPage(c);
+
+        if (c.isTest()) {
+          
+        }
+        if (c.isCheck()) {
+          const checkReports = await commandApi.loadCommandCheckReports(s, ui, id);
+          setDiffs(checkReports.map((report) => report.toDiff()));
+        }        
       } catch (err) {
         ui.setError(err);
       } finally {
@@ -279,6 +300,8 @@ export default function CommandHome({ params }) {
 
     const c = await commandApi.restartCommand(s, ui, id);
     onRefreshPage(c);
+
+    setLogTabIndex(2);
   };
 
   const onDelete = async () => {
@@ -333,11 +356,11 @@ export default function CommandHome({ params }) {
             <Box sx={{ display: 'flex', flexDirection: 'row' }}>
               {hasChanges ?
                 <>
-                  <Typography variant="body2">Changes:</Typography>
+                  <Typography variant="body2">Commit:</Typography>
                   <Link sx={{ ml: 2 }} href={commitUrl || '#'}>{commitUrl || 'N/A'}</Link>
                 </>
                 :
-                <Typography variant="body2">No changes</Typography>
+                <Typography variant="body2">No commit yet</Typography>
               }
             </Box>
           </Box>
@@ -362,7 +385,7 @@ export default function CommandHome({ params }) {
         <div
           style={{
             paddingTop: '5px', paddingBottom: '5px', paddingLeft: '12px', paddingRight: '12px',
-            width: '100%', background: '#2c2f3a', color: 'white', display: 'flex', alignItems: 'center',
+            width: '100%', background: '#121416', color: 'white', display: 'flex', alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
@@ -384,7 +407,7 @@ export default function CommandHome({ params }) {
           <Tab label="Audit Log" sx={{ color: 'gray' }} {...a11yProps(2)} />
         </Tabs>                
         <CustomTabPanel value={logTabIndex} index={0}>
-          <ReactDiffViewer useDarkTheme oldValue={oldCode} newValue={newCode} splitView />
+          {diffs.map((diff) => <ReactDiffViewer key={diff.path} useDarkTheme oldValue={diff.oldContent} newValue={diff.newContent} splitView />)}
         </CustomTabPanel>
         <CustomTabPanel value={logTabIndex} index={1}>
           <ExecutionLogViewer logs={executionLogs} />
