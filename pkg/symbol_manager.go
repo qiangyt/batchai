@@ -146,5 +146,5 @@ func ResolveSymbolFile(cacheDir string, repository string, file string) string {
 	// the file is relative to working directory, so take the relative path
 	relativePath := file[len(repository):]
 	repoName := path.Base(repository)
-	return path.Join(cacheDir, repoName, relativePath+".symbol.json")
+	return path.Join(cacheDir, repoName, relativePath+".symbol.batchai.json")
 }

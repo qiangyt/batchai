@@ -61,5 +61,6 @@ func (me TestReportManager) SaveReport(x Kontext, file string, report TestReport
 func ResolveTestReportFile(cacheDir string, repository string, file string) string {
 	// the file is relative to working directory, so take the relative path
 	relativePath := file[len(repository):]
-	return path.Join(cacheDir, relativePath+".test.batchai.json")
+	repoName := path.Base(repository)
+	return path.Join(cacheDir, repoName, relativePath+".test.batchai.json")
 }

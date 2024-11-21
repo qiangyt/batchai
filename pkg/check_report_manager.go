@@ -61,5 +61,6 @@ func (me CheckReportManager) SaveReport(x Kontext, file string, report CheckRepo
 func ResolveCheckReportFile(cacheDir string, repository string, file string) string {
 	// the file is relative to working directory, so take the relative path
 	relativePath := file[len(repository):]
-	return path.Join(cacheDir, relativePath+".check.batchai.json")
+	repoName := path.Base(repository)
+	return path.Join(cacheDir, repoName, relativePath+".check.batchai.json")
 }
