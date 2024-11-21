@@ -28,7 +28,7 @@ func (me TestCommand) launchTestAgents(x Kontext, testArgs TestArgs, targetFiles
 	for _, f := range targetFiles {
 		metrics.Processed++
 
-		agent := NewTestAgent(me.reportManager, me.codeFileManager, me.symbolManager, me.modelService, f)
+		agent := NewTestAgent(me.reportManager, me.symbolManager, me.modelService, f)
 		agent.Run(x, testArgs, resultChan, wg)
 	}
 

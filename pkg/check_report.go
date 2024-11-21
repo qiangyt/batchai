@@ -92,7 +92,7 @@ func ExtractFixedCode(input string) (string, string) {
 	}
 
 	remained := input[:begin] + block[end+len(FIX_END_LINE):]
-	return comm.NormalizeCode(result), remained
+	return result, remained
 }
 
 func ExtractCheckReport(answer string, isGolang bool) CheckReport {

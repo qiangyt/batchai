@@ -18,22 +18,21 @@ type TestResult = *TestResultT
 type TestAgentT struct {
 	SymbolAwareAgentT
 
-	reportManager   TestReportManager
-	codeFileManager CodeFileManager
-	file            string
+	reportManager TestReportManager
+
+	file         string
+	relativeFile string
 }
 
 type TestAgent = *TestAgentT
 
 func NewTestAgent(reportManager TestReportManager,
-	codeFileManager CodeFileManager,
 	symbolManager SymbolManager,
 	modelService ModelService,
 	codeFile string,
 ) TestAgent {
 	return &TestAgentT{
 		SymbolAwareAgentT: newSymbolAwareAgent(symbolManager, modelService),
-		codeFileManager:   codeFileManager,
 		reportManager:     reportManager,
 		file:              codeFile,
 	}
@@ -41,14 +40,15 @@ func NewTestAgent(reportManager TestReportManager,
 
 func (me TestAgent) run(x Kontext, testArgs TestArgs, resultChan chan<- TestResult) {
 	c := comm.NewConsole(!x.Args.Concurrent)
+	me.relativeFile = me.file[len(x.Args.Repository)+1:]
 
-	c.Greenf("\n\n▹▹▹▹▹ processing: %s\n", me.file)
+	c.Greenf("\n\n▹▹▹▹▹ processing: %s\n", me.relativeFile)
 	c.Begin()
 	defer c.End()
 
 	defer func() {
 		if e := recover(); e != nil {
-			c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.file, e)
+			c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.relativeFile, e)
 			resultChan <- &TestResultT{Failed: true}
 		}
 	}()
@@ -75,36 +75,32 @@ func (me TestAgent) Run(x Kontext, testArgs TestArgs, resultChan chan<- TestResu
 
 func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) TestResult {
 	c.NewLine().Green("--------------------")
-	c.NewLine().Greenln(me.file)
+	c.NewLine().Greenln(me.relativeFile)
 
-	cachedReport := me.reportManager.LoadReport(x, me.file)
+	newCode := comm.ReadFileCodeP(x.Fs, me.file)
 
-	code := me.codeFileManager.Load(x, me.file)
-	if !code.IsChanged() {
-		if cachedReport != nil {
+	lastReport := me.reportManager.LoadReport(x, me.file)
+	if lastReport != nil {
+		noCodeChanges := (newCode == lastReport.OriginalCode)
+		if noCodeChanges {
 			if !x.Args.Force {
-				c.NewLine().Default("✔ no code changes, skipped")
+				c.NewLine().Default("✔ no code changes since last execution, skipped")
 				return &TestResultT{Skipped: true}
 			}
 		}
 	}
 
 	exstingTestCode := ""
-	if cachedReport != nil && testArgs.Update {
-		if f := me.codeFileManager.Load(x, cachedReport.TestFilePath); f != nil {
-			exstingTestCode = f.Latest
-		}
-	}
 
-	r := me.generateTestCode(x, c, testArgs, code.Latest, exstingTestCode)
-	r.Print(c)
+	newReport := me.generateTestCode(x, c, testArgs, newCode, exstingTestCode)
+	newReport.Print(c)
 
-	me.codeFileManager.Save(x, r.TestFilePath, r.TestCode)
+	comm.WriteFileTextP(x.Fs, me.file, newReport.TestCode)
 
-	reportFile := me.reportManager.SaveReport(x, me.file, r)
-	c.NewLine().Blue("✔ report: ").Default(reportFile)
+	reportFile := me.reportManager.SaveReport(x, me.file, newReport)
+	c.NewLine().Blue("✔ report: ").Default(reportFile[len(x.Args.Repository)+1:])
 
-	return &TestResultT{Report: r, Skipped: false}
+	return &TestResultT{Report: newReport, Skipped: false}
 }
 
 type TestCodeWriterT struct {
@@ -143,7 +139,7 @@ func (me TestCodeWriter) Write(p []byte) (n int, err error) {
 func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string, exstingTestCode string) TestReport {
 	verbose := x.Args.Verbose
 
-	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Libraries, code, me.file, exstingTestCode)
+	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Libraries, code, me.relativeFile, exstingTestCode)
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
@@ -167,9 +163,10 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 	r, remainedAnswer := ExtractTestReport(answer, strings.HasSuffix(me.file, ".go"))
 	r.ModelUsageMetrics = metrics
 	r.Path = me.file
+	r.OriginalCode = code
 
 	testCode, _ := comm.ExtractMarkdownCodeBlocksP(remainedAnswer)
-	r.TestCode = testCode
+	r.TestCode = comm.NormalizeCode(testCode)
 
 	return r
 }

@@ -6,14 +6,12 @@ import (
 
 type TestArgsT struct {
 	Libraries []string
-	Update    bool
 }
 
 type TestArgs = *TestArgsT
 
 func (me TestArgs) WithCliContext(x Kontext, cliContext *cli.Context) error {
 	me.Libraries = cliContext.StringSlice("library")
-	me.Update = cliContext.Bool("update")
 	return nil
 }
 
@@ -23,7 +21,6 @@ func TestUrfaveCommand(x Kontext) *cli.Command {
 		Usage: "Generate unit test code",
 		Flags: []cli.Flag{
 			&cli.StringSliceFlag{Name: "library", Usage: "the test library to use, by default it will be detected automatically", DefaultText: "auto"},
-			&cli.BoolFlag{Name: "update", Usage: "update previously generated test code, if available"},
 		},
 		Action: TestFunc(x),
 	}

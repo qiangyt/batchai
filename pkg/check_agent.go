@@ -169,6 +169,8 @@ func (me CheckAgent) checkCode(x Kontext, c comm.Console, code string) CheckRepo
 	}
 
 	fixedCode, remainedAnswer := ExtractFixedCode(answer)
+	fixedCode = comm.NormalizeCode(fixedCode)
+
 	r := ExtractCheckReport(remainedAnswer, strings.HasSuffix(me.relativeFile, ".go"))
 	r.ModelUsageMetrics = metrics
 	r.FixedCode = fixedCode
