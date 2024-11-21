@@ -221,6 +221,8 @@ export default function CommandHome({ params }) {
 
   useEffect(() => {
     function onStatusEvent(c: CommandDetail) {
+      CommandDetail.with(c);
+
       refreshActiveStep(c.runStatus, setActiveStep);
       setCommand(c);
     }
