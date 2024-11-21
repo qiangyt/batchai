@@ -52,8 +52,12 @@ export class RepoRest implements RepoApi {
 
 	@RequiredRoles(Role.Admin)
 	@Delete('id/:id')
-	async removeRepo(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<void> {
-		return this.facade.removeRepo(x, id);
+	async removeRepo(
+		@RequestKontext() x: Kontext,
+		@Param('id') id: number,
+		@Query('removeWorkingCopy') removeWorkingCopy: boolean,
+	): Promise<void> {
+		return this.facade.removeRepo(x, id, removeWorkingCopy);
 	}
 
 	@RequiredRoles(Role.User)

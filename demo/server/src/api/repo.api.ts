@@ -12,7 +12,7 @@ export interface RepoApi {
 
 	loadRepo(x: Kontext, id: number): Promise<RepoDetail>;
 
-	removeRepo(x: Kontext, id: number): Promise<void>;
+	removeRepo(x: Kontext, id: number, removeWorkingCopy: boolean): Promise<void>;
 
 	listAvaiableTargetPaths(x: Kontext, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]>;
 }

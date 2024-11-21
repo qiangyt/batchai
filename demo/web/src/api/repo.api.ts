@@ -19,7 +19,7 @@ export async function createRepo(s: SessionState, ui: UIContextType, params: Rep
 
 // @RequiredRoles(Role.Admin)
 export async function removeRepo(s:SessionState, ui: UIContextType, id:number): Promise<void> {
-  return withAxios(s, ui).delete(`/repos/id/${id}`);
+  return withAxios(s, ui).delete(`/repos/id/${id}`, { params: { removeWorkingCopy: false } });
 }
 
 // @RequiredRoles(Role.User)

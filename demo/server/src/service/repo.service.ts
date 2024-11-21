@@ -131,10 +131,14 @@ export class RepoService {
 		return r;
 	}
 
-	async remove(repo: Repo): Promise<void> {
+	async remove(repo: Repo, removeWorkingCopy: boolean): Promise<void> {
 		this.logger.log(`removing repository ${JSON.stringify(repo)}`);
 
-		await this.artifactFiles.removeRepo(repo);
+		await this.artifactFiles.archiveRepo(repo);
+		if (removeWorkingCopy) {
+			await this.artifactFiles.removeRepo(repo);
+		}
+
 		await this.dao.remove(repo);
 
 		this.logger.log(`removing repository ${repo.id}`);

@@ -244,7 +244,8 @@ export class CommandService {
 		}
 
 		c = await this.updateStatus(x, c, CommandStatus.Running);
-		await this.artifactFiles.removeCommand(c, true);
+		await this.artifactFiles.archiveCommand(c);
+		await this.artifactFiles.removeCommand(c);
 
 		const exeCtx = await CommandExecutionContext.build(c, this.artifactFiles);
 		try {
@@ -392,14 +393,18 @@ export class CommandService {
 		return c;
 	}
 
-	async remove(c: Command, archive: boolean): Promise<void> {
+	async remove(c: Command, removeWorkingCopy: boolean): Promise<void> {
 		this.logger.log(`removing command: ${JSON.stringify(c)}`);
 
 		if (c.status === CommandStatus.Running) {
 			throw new ConflictException(`cannot remove a ${c.status} command`);
 		}
 
-		await this.artifactFiles.removeCommand(c, archive);
+		if (removeWorkingCopy) {
+			await this.artifactFiles.archiveCommand(c);
+		}
+		await this.artifactFiles.removeCommand(c);
+
 		await this.dao.remove(c);
 
 		this.logger.log(`successfully removed command: ${JSON.stringify(c)}`);

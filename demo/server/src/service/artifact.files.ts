@@ -91,8 +91,6 @@ export class ArtifactFiles {
 	}
 
 	async removeRepo(repo: Repo) {
-		await this.archiveRepo(repo);
-
 		const repoFolder = await this.repoFolder(repo);
 		await removeFileOrDir(repoFolder);
 
@@ -137,9 +135,7 @@ export class ArtifactFiles {
 		this.logger.log(`finish archiving command folder: commandId=${cmdId}, commandFolder=${cmdFolder}`);
 	}
 
-	async removeCommand(cmd: Command, archive: boolean) {
-		if (archive) await this.archiveCommand(cmd);
-
+	async removeCommand(cmd: Command) {
 		const cmdFolder = await this.commandFolder(cmd);
 		await removeFileOrDir(cmdFolder);
 		this.logger.log(`finish removing command folder: commandFolder=${cmdFolder}`);
