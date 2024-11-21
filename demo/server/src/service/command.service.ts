@@ -255,6 +255,8 @@ export class CommandService {
 			c = await this.updateStatus(x, c, CommandStatus.Succeeded);
 			this.logger.log(`run command: succeeded: ${JSON.stringify(c)}`);
 		} catch (err) {
+			this.logger.log(`run command: failed: err=${err}, ${JSON.stringify(c)}`);
+
 			try {
 				await this.auditLog(exeCtx, err.toString());
 				await this.auditLog(exeCtx, `end to run command (failed)\n\n\n\n`);
@@ -263,8 +265,6 @@ export class CommandService {
 			}
 
 			c = await this.updateStatus(x, c, CommandStatus.Failed);
-
-			this.logger.log(`run command: failed: err=${err}, ${JSON.stringify(c)}`);
 		}
 	}
 
@@ -297,7 +297,7 @@ export class CommandService {
 		client.join(`status-${id}`);
 	}
 
-	private async log(cmd: Command, logFile: string, logEventName: string, message: string): Promise<void> {
+	private async commandLog(cmd: Command, logFile: string, logEventName: string, message: string): Promise<void> {
 		const v = new CommandLog(new Date().toISOString(), message);
 		const jsonLine = JSON.stringify(v);
 		await fs.appendFile(logFile, jsonLine + `\n`, { encoding: 'utf8' });
@@ -307,14 +307,22 @@ export class CommandService {
 
 	private async auditLog(exeCtx: CommandExecutionContext, message: string) {
 		const cmd = exeCtx.command;
-		return this.log(cmd, exeCtx.auditLog, `auditLog-${cmd.id}`, message);
+		const id = cmd.id;
+
+		await Promise.all([
+			/* audit log */ this.commandLog(cmd, exeCtx.auditLog, `auditLog-${id}`, message),
+			/* server log */ this.logger.log(`command log(id=${cmd.id}: ${message}`),
+		]);
 	}
 
 	private async executionLog(exeCtx: CommandExecutionContext, message: string) {
 		const cmd = exeCtx.command;
+		const id = cmd.id;
+
 		await Promise.all([
-			this.auditLog(exeCtx, message),
-			this.log(cmd, exeCtx.executionLog, `executionLog-${cmd.id}`, message),
+			/* audit log */ this.commandLog(cmd, exeCtx.auditLog, `auditLog-${id}`, message),
+			/* execution log */ this.commandLog(cmd, exeCtx.executionLog, `executionLog-${id}`, message),
+			/* server log */ this.logger.log(`command log(id=${cmd.id}: ${message}`),
 		]);
 	}
 
@@ -413,10 +421,25 @@ export class CommandService {
 		if (!(await forked.checkRemote())) {
 			throw new BadRequestException(`invalid github repository: ${forked.url()}`);
 		}
+		this.auditLog(exeCtx, 'remote repository validation - succeeded');
 
-		await forked.pull('forked_from');
+		this.auditLog(exeCtx, 'syncing with fork source repository');
+		try {
+			await forked.pull('forked_from');
+			this.auditLog(exeCtx, 'pull the fork source repository - succeeded');
+		} catch (err) {
+			this.auditLog(exeCtx, `pull from forked_from failed, will try to fetch unshallow: err=${err}}`);
+
+			await forked.fetchUnshallow();
+			this.auditLog(exeCtx, `fetch unshallow - succeeded`);
+
+			await forked.pull('forked_from');
+			this.auditLog(exeCtx, 'pull the fork source repository - succeeded');
+		}
+
 		await forked.push('origin');
-		this.logger.log(`updated the forked repository ${forked.url()}`);
+		this.auditLog(exeCtx, `push changes to the forked repository ${forked.url()}`);
+		this.auditLog(exeCtx, 'synced with fork source repository');
 
 		const cmdRepoFolder = await this.artifactFiles.commandRepoFolder(c);
 		const cmdRepoObj = new GithubRepo(
@@ -432,13 +455,15 @@ export class CommandService {
 		if (c.nextRunStatus() === CommandRunStatus.CheckedOut) {
 			await copyFileOrDir(forkedDir, cmdRepoFolder);
 			await cmdRepoObj.checkout(`batchai/${c.command}`, true);
+			this.auditLog(exeCtx, `checked out branch: batchai/${c.command}`);
+
 			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.CheckedOut);
 		}
 
 		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.BatchAIExecuted) {
 			const cmdLine = c.commandLine(cmdRepoFolder);
-			this.logger.log(`exec begin: ${cmdLine}`);
+			this.auditLog(exeCtx, `exec begin: ${cmdLine}`);
 
 			const code = await spawnAsync(
 				cmdRepoFolder,
@@ -447,18 +472,20 @@ export class CommandService {
 				(stdout) => this.executionLog(exeCtx, stdout),
 				(stderr) => this.executionLog(exeCtx, stderr),
 			);
-			this.logger.log(`exec end: exitCode=${code}, command=${cmdLine}`);
+			this.auditLog(exeCtx, `exec end: exitCode=${code}, command=${cmdLine}`);
 
 			if (code !== 0) {
 				throw new Error(`batchai execution failed: command=${cmdLine}`);
 			}
-			this.logger.log(`exec succeeded: command=${cmdLine}`);
+			this.auditLog(exeCtx, `exec succeeded: command=${cmdLine}`);
 			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.BatchAIExecuted);
 		}
 
 		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.ChangesAdded) {
 			await cmdRepoObj.add();
+
+			this.auditLog(exeCtx, `added changes`);
 			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesAdded);
 		}
 
@@ -466,21 +493,30 @@ export class CommandService {
 		if (c.nextRunStatus() === CommandRunStatus.ChangesCommited) {
 			const hasChanges = await cmdRepoObj.commit(`changes by batchai "${c.command}"`);
 			c.hasChanges = hasChanges;
+			if (hasChanges) {
+				this.auditLog(exeCtx, 'found changes');
+			} else {
+				this.auditLog(exeCtx, 'no changes');
+			}
+
 			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesCommited);
 		}
 
 		if (c.hasChanges) {
-			this.logger.log(`run: no changs found: command=${c.id}`);
 			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.ChangesPushed) {
 				await cmdRepoObj.removeRemoteBranch(); // removes existing remote branch, if possible
 				await cmdRepoObj.push('origin');
+
+				this.auditLog(exeCtx, `removed existing remote branch`);
 				c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesPushed);
 			}
 
 			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.ChangesArchived) {
 				this.artifactFiles.archiveCommand(c);
+
+				this.auditLog(exeCtx, `archived current changes`);
 				c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
 			}
 
@@ -488,10 +524,14 @@ export class CommandService {
 			if (c.nextRunStatus() === CommandRunStatus.GetCommitId) {
 				c.commitId = await cmdRepoObj.getLastCommitId();
 				c.runStatus = CommandRunStatus.GetCommitId;
+
+				this.auditLog(exeCtx, `get last commit id: ${c.commitId}`);
 				c = exeCtx.command = await this.dao.save(c);
 			}
 		} else {
 			this.artifactFiles.archiveCommand(c);
+
+			this.auditLog(exeCtx, `archived without changes`);
 			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
 		}
 
