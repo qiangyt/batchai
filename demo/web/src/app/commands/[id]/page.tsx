@@ -206,14 +206,19 @@ export default function CommandHome({ params }) {
     );
   };
 
+  function onRefreshPage(c: CommandDetail) {
+    setExecutionLogs([]);
+    setAuditLogs([]);
+    refreshActiveStep(c.runStatus, setActiveStep);
+    setCommand(c);
+  };
+
   useEffect(() => {
     async function refreshPage(id) {
       ui.setLoading(true);
       try {
         const c = await commandApi.loadCommand(s, ui, id);
-
-        refreshActiveStep(c.runStatus, setActiveStep);
-        setCommand(c);
+        onRefreshPage(c);
       } catch (err) {
         ui.setError(err);
       } finally {
@@ -273,11 +278,7 @@ export default function CommandHome({ params }) {
     }
 
     const c = await commandApi.restartCommand(s, ui, id);
-
-    setExecutionLogs([]);
-    setAuditLogs([]);
-    refreshActiveStep(c.runStatus, setActiveStep);
-    setCommand(c);
+    onRefreshPage(c);
   };
 
   const onDelete = async () => {
@@ -309,10 +310,6 @@ export default function CommandHome({ params }) {
       return;
     }
     setOpenCommandDialog(true);
-  };
-
-  const onCommandUpdated = (newCommand: CommandDetail) => {
-    setCommand(newCommand);
   };
 
   return (
@@ -409,7 +406,7 @@ export default function CommandHome({ params }) {
         </Stepper>
       </Drawer>
 
-      {command && <CommandDialog data={CommandEditData.forUpdate(command)} open={openCommandDialog} setOpen={setOpenCommandDialog} onSubmited={onCommandUpdated} />}
+      {command && <CommandDialog data={CommandEditData.forUpdate(command)} open={openCommandDialog} setOpen={setOpenCommandDialog} onSubmited={onRefreshPage} />}
     </>
   );
 }
