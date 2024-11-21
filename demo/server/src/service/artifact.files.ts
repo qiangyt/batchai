@@ -159,7 +159,7 @@ export class ArtifactFiles {
 		const repo = await cmd.repo;
 		const owner = repo.owner;
 
-		return this.workFolder(false, owner.name, repo.name, cmd.command, 'repo', 'build', 'batchai');
+		return this.workFolder(false, owner.name, repo.name, cmd.command, 'repo', 'build', 'batchai', 'repo');
 	}
 
 	async commandRepoGitIgnore(cmd: Command) {

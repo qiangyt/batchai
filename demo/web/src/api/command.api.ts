@@ -1,6 +1,7 @@
 import { UIContextType } from '@/lib/ui.context';
 import withAxios from './request'
 import { SessionState, CommandDetail, CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams, CommandLog } from '@/lib';
+import { CheckReport } from '@/lib/check.report';
 
 // @RequiredRoles(Role.User)
 export async function createCommand(s:SessionState, ui: UIContextType, params: CommandCreateReq): Promise<CommandDetail> {
@@ -29,4 +30,9 @@ export async function updateCommand(s:SessionState, ui: UIContextType, id:number
 // @RequiredRoles(Role.Admin)
 export async function removeCommand(s:SessionState, ui: UIContextType, id:number): Promise<void> {
   return withAxios(s, ui).delete(`/commands/id/${id}`);
+}
+
+// @RequiredRoles(Role.None)
+export async function loadCommandCheckReports(s:SessionState, ui: UIContextType, id: number): Promise<CheckReport[]> {
+  return CheckReport.withMany(await withAxios(s, ui).get(`/commands/id/${id}/check_reports`));
 }

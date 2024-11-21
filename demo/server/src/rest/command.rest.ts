@@ -4,6 +4,7 @@ import { CommandFacade } from '../service';
 import { CommandApi } from '../api';
 import { RequiredRoles, Role, Kontext, RequestKontext } from '../framework';
 import { CommandDetail, CommandBasic, CommandCreateReq, CommandUpdateReq, CommandLog } from '../dto';
+import { CheckReport } from 'src/dto/check.report';
 
 @Controller('rest/v1/commands')
 export class CommandRest implements CommandApi {
@@ -38,7 +39,7 @@ export class CommandRest implements CommandApi {
 	}
 
 	@RequiredRoles(Role.None)
-	@Get('id/:id/history_log')
+	@Get('id/:id/audit_log')
 	loadCommandAuditLog(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandLog[]> {
 		return this.facade.loadCommandAuditLog(x, id);
 	}
@@ -47,6 +48,12 @@ export class CommandRest implements CommandApi {
 	@Get('id/:id/execution_log')
 	loadCommandExecutionLog(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandLog[]> {
 		return this.facade.loadCommandExecutionLog(x, id);
+	}
+
+	@RequiredRoles(Role.None)
+	@Get('id/:id/check_reports')
+	loadCommandCheckReports(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CheckReport[]> {
+		return this.facade.loadCommandCheckReports(x, id);
 	}
 
 	@RequiredRoles(Role.User)

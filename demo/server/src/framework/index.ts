@@ -4,6 +4,7 @@ export * from './dto';
 export * from './entity';
 export * from './kontext';
 export * from './module';
+export * from '../helper/openai';
 export * from './page';
 export * from './role';
 export * from './transaction';
