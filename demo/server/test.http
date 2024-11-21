@@ -32,8 +32,8 @@ DELETE http://localhost:4080/rest/v1/commands/id/3
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 ###
-PATCH http://localhost:4080/rest/v1/commands/id/13/restart
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4Njcy OCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
+PATCH http://localhost:4080/rest/v1/commands/id/14/restart
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 ###
 POST http://localhost:4080/rest/v1/repos

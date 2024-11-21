@@ -31,6 +31,7 @@ import { socket } from '@/socket';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import ReactDiffViewer from 'react-diff-viewer-continued';
+import { AuditLogViewer, ExecutionLogViewer } from './log-viewer';
 
 const oldCode = `
 const a = 10
@@ -287,7 +288,7 @@ export default function CommandHome({ params }) {
       <Box display="flex" justifyContent="space-between" alignItems="center" width="100%" sx={{ mt: 3, mb: 4, color: 'white' }}>
         <Box>
           <Typography variant="body2" color="lightgray">{title}</Typography>
-          <Box sx={{ mt: 2, fontFamily: 'arial', }}>
+          <Box sx={{ mt: 2, fontFamily: 'arial' }}>
             <span style={{ color: "gray", fontSize: 12, marginRight: 8 }}>for</span>
             <Typography variant="h5" component="a" href={repo?.repoUrl}>{owner?.name} / {repo?.name}</Typography>
             <Link sx={{ ml: 2 }} color='info' href={command?.repo.repoUrl}>( {command?.repo.repoUrl} )</Link>
@@ -332,7 +333,7 @@ export default function CommandHome({ params }) {
         <div
           style={{
             paddingTop: '5px', paddingBottom: '5px', paddingLeft: '12px', paddingRight: '12px',
-            width: '100%', background: '#363946', color: 'white', display: 'flex', alignItems: 'center',
+            width: '100%', background: '#2c2f3a', color: 'white', display: 'flex', alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
@@ -357,10 +358,10 @@ export default function CommandHome({ params }) {
           <ReactDiffViewer useDarkTheme oldValue={oldCode} newValue={newCode} splitView />
         </CustomTabPanel>
         <CustomTabPanel value={logTabIndex} index={1}>
-          <ReactAnsi log={executionLogs.map(log => `${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
+          <ExecutionLogViewer logs={executionLogs} />
         </CustomTabPanel>
         <CustomTabPanel value={logTabIndex} index={2}>
-          <ReactAnsi log={auditLogs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 12, backgroundColor: 'black' }} />
+        <AuditLogViewer logs={auditLogs} />
         </CustomTabPanel>
       </Box>
 
