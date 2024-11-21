@@ -2,20 +2,18 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import ReactAnsi from 'react-ansi';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-import { CommandDetail, CommandEditData, CommandLog, CommandRunStatus, CommandStatus, CommandStatusUpdate, SessionState, useSession } from "@/lib";
+import { CommandDetail, CommandEditData, CommandLog, CommandRunStatus, CommandStatus, CommandStatusUpdate, useSession } from "@/lib";
 import * as commandApi from '@/api/command.api';
-import { UIContextType, useUIContext } from '@/lib/ui.context';
+import { useUIContext } from '@/lib/ui.context';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import Divider from '@mui/material/Divider';
 //import RefreshIcon from '@mui/icons-material/RefreshOutlined';
 import Link from '@mui/material/Link';
 import Toolbar from '@mui/material/Toolbar';

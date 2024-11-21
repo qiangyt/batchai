@@ -3,26 +3,17 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { socket } from "@/socket";
-import { CommandDetail, CommandLog, CommandStatusUpdate } from '@/lib';
 
 export default function Home() {
   const router = useRouter(); 
 
-  const [isConnected, setIsConnected] = useState(false);
-  const [transport, setTransport] = useState("N/A");
+  const [, setIsConnected] = useState(false);
+  const [, setTransport] = useState("N/A");
 
   useEffect(() => {
     if (socket.connected) {
       onConnect();
     }
-  
-    // function onStatusEvent(c: CommandStatusUpdate) {
-    //   console.log('onStatusEvent: ' + JSON.stringify(c, null, 4));
-    // }
-
-    // function onLogEvent(v: CommandLog) {
-    //   console.log('onLogEvent: ' + JSON.stringify(v, null, 4));
-    // }
 
     function onConnect() {
       setIsConnected(true);
@@ -32,12 +23,6 @@ export default function Home() {
         setTransport(transport.name);
       });
       console.log("Connected to the server");
-
-      // socket.on("status", onStatusEvent);
-      // socket.emit("status", 3);
-
-      // socket.on("log", onLogEvent);
-      // socket.emit("log", 3);
     }
 
     function onDisconnect() {
@@ -61,8 +46,4 @@ export default function Home() {
   }, [router]);
 
   return null;
-  // return <div>
-  //   <p>Status: { isConnected ? "connected" : "disconnected" }</p>
-  //   <p>Transport: { transport }</p>
-  // </div>
 }
