@@ -12,7 +12,7 @@ GET http://localhost:4080/rest/v1/repos
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 ###
-DELETE http://localhost:4080/rest/v1/repos/id/5
+DELETE http://localhost:4080/rest/v1/repos/id/6?removeWorkingCopy=true
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMjA4NjcyOCwiZXhwIjoxNzM1Njg2NzI4fQ.tJemJVz3XKeuD7x_3VpYMWRj008KA3iI4sPLG0yPYX4
 
 

@@ -47,15 +47,18 @@ export default function TargetPathInput({ repoId, commandId, targetPaths, onChan
   };
 
   const onTargetPathInputChange = (e) => {
+    if (!e) return;
     //otEvent(e);
 
     const path: string = e.target.value;
-    setTargetPath(path);
+    if (path) {
+      setTargetPath(path);
 
-    if (path.endsWith('/')) {
-      refreshAvailableTargetPaths(s, ui, repoId, path, setAvailableTargetPaths);
+      if (path.endsWith('/')) {
+        refreshAvailableTargetPaths(s, ui, repoId, path, setAvailableTargetPaths);
+      }
     }
-  };
+    };
 
   const onTargetPathChange = (e) => {
     otEvent(e);
