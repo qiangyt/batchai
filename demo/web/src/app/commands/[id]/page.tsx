@@ -92,6 +92,10 @@ const steps: Step[] = [
     label: "Begin",
     needChanges: false
   }, {
+    status: CommandRunStatus.SyncRepo,
+    label: "Sync with remote repository",
+    needChanges: false
+  }, {
     status: CommandRunStatus.CheckedOut,
     label: "`git checkout -b batchai/...`",
     needChanges: false
@@ -113,7 +117,7 @@ const steps: Step[] = [
     needChanges: true
   }, {
     status: CommandRunStatus.ChangesArchived,
-    label: "Archives the artifact",
+    label: "Archives the changes",
     needChanges: true
   }, {
     status: CommandRunStatus.GetCommitId,

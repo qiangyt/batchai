@@ -57,6 +57,8 @@ export class Command extends AuditableEntity {
 	nextRunStatus(): CommandRunStatus {
 		switch (this.runStatus) {
 			case CommandRunStatus.Begin:
+				return CommandRunStatus.SyncRepo;
+			case CommandRunStatus.SyncRepo:
 				return CommandRunStatus.CheckedOut;
 			case CommandRunStatus.CheckedOut:
 				return CommandRunStatus.BatchAIExecuted;

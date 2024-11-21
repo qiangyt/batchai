@@ -10,6 +10,7 @@ export enum CommandStatus {
 
 export enum CommandRunStatus {
 	Begin = 'Begin',
+	SyncRepo = 'SyncRepo',
 	CheckedOut = 'CheckedOut',
 	BatchAIExecuted = 'BatchAIExecuted',
 	ChangesAdded = 'ChangesAdded',

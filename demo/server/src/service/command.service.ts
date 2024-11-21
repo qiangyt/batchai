@@ -424,28 +424,34 @@ export class CommandService {
 			false,
 			null,
 		);
-		if (!(await forked.checkRemote())) {
-			throw new BadRequestException(`invalid github repository: ${forked.url()}`);
+
+		if (c.status !== CommandStatus.Running) return;
+		if (c.nextRunStatus() === CommandRunStatus.SyncRepo) {
+			if (!(await forked.checkRemote())) {
+				throw new BadRequestException(`invalid github repository: ${forked.url()}`);
+			}
+			this.auditLog(exeCtx, 'remote repository validation - succeeded');
+
+			this.auditLog(exeCtx, 'syncing with fork source repository');
+			try {
+				await forked.pull('forked_from');
+				this.auditLog(exeCtx, 'pull the fork source repository - succeeded');
+			} catch (err) {
+				this.auditLog(exeCtx, `pull from forked_from failed, will try to fetch unshallow: err=${err}}`);
+
+				await forked.fetchUnshallow();
+				this.auditLog(exeCtx, `fetch unshallow - succeeded`);
+
+				await forked.pull('forked_from');
+				this.auditLog(exeCtx, 'pull the fork source repository - succeeded');
+			}
+
+			await forked.push('origin');
+			this.auditLog(exeCtx, `push changes to the forked repository ${forked.url()}`);
+			this.auditLog(exeCtx, 'synced with fork source repository');
+
+			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.SyncRepo);
 		}
-		this.auditLog(exeCtx, 'remote repository validation - succeeded');
-
-		this.auditLog(exeCtx, 'syncing with fork source repository');
-		try {
-			await forked.pull('forked_from');
-			this.auditLog(exeCtx, 'pull the fork source repository - succeeded');
-		} catch (err) {
-			this.auditLog(exeCtx, `pull from forked_from failed, will try to fetch unshallow: err=${err}}`);
-
-			await forked.fetchUnshallow();
-			this.auditLog(exeCtx, `fetch unshallow - succeeded`);
-
-			await forked.pull('forked_from');
-			this.auditLog(exeCtx, 'pull the fork source repository - succeeded');
-		}
-
-		await forked.push('origin');
-		this.auditLog(exeCtx, `push changes to the forked repository ${forked.url()}`);
-		this.auditLog(exeCtx, 'synced with fork source repository');
 
 		const cmdRepoFolder = await this.artifactFiles.commandRepoFolder(c);
 		const cmdRepoObj = new GithubRepo(
