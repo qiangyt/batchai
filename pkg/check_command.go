@@ -28,7 +28,7 @@ func (me CheckCommand) launchCheckAgents(x Kontext, checkArgs CheckArgs, targetF
 	for _, f := range targetFiles {
 		metrics.Processed++
 
-		agent := NewCheckAgent(me.reportManager, me.codeFileManager, me.symbolManager, me.modelService, f)
+		agent := NewCheckAgent(me.reportManager, me.symbolManager, me.modelService, f)
 		agent.Run(x, checkArgs, resultChan, wg)
 	}
 

@@ -18,24 +18,25 @@ type CheckResult = *CheckResultT
 type CheckAgentT struct {
 	SymbolAwareAgentT
 
-	reportManager   CheckReportManager
-	codeFileManager CodeFileManager
+	reportManager CheckReportManager
+	////codeFileManager CodeFileManager
 
-	file string
+	file         string
+	relativeFile string
 }
 
 type CheckAgent = *CheckAgentT
 
 func NewCheckAgent(reportManager CheckReportManager,
-	codeFileManager CodeFileManager,
+	//codeFileManager CodeFileManager,
 	symbolManager SymbolManager,
 	modelService ModelService,
 	codeFile string,
 ) CheckAgent {
 	return &CheckAgentT{
 		SymbolAwareAgentT: newSymbolAwareAgent(symbolManager, modelService),
-		codeFileManager:   codeFileManager,
-		reportManager:     reportManager,
+		//codeFileManager:   codeFileManager,
+		reportManager: reportManager,
 
 		file: codeFile,
 	}
@@ -43,14 +44,15 @@ func NewCheckAgent(reportManager CheckReportManager,
 
 func (me CheckAgent) run(x Kontext, checkArgs CheckArgs, resultChan chan<- CheckResult) {
 	c := comm.NewConsole(!x.Args.Concurrent)
+	me.relativeFile = me.file[len(x.Args.Repository)+1:]
 
-	c.Greenf("\n\n▹▹▹▹▹ processing: %s\n", me.file)
+	c.Greenf("\n\n▹▹▹▹▹ processing: %s\n", me.relativeFile)
 	c.Begin()
 	defer c.End()
 
 	defer func() {
 		if e := recover(); e != nil {
-			c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.file, e)
+			c.NewLine().Red("failed: ").Defaultf("%v, %+v", me.relativeFile, e)
 			resultChan <- &CheckResultT{Failed: true}
 		}
 	}()
@@ -77,33 +79,37 @@ func (me CheckAgent) Run(x Kontext, checkArgs CheckArgs, resultChan chan<- Check
 
 func (me CheckAgent) checkFile(x Kontext, checkArgs CheckArgs, c comm.Console) CheckResult {
 	c.NewLine().Green("--------------------")
-	c.NewLine().Greenln(me.file)
+	c.NewLine().Greenln(me.relativeFile)
 
-	code := me.codeFileManager.Load(x, me.file)
-	if !code.IsChanged() {
-		cachedReport := me.reportManager.LoadReport(x, me.file)
-		if cachedReport != nil {
+	newCode := comm.ReadFileCodeP(x.Fs, me.file)
+
+	lastReport := me.reportManager.LoadReport(x, me.file)
+	if lastReport != nil {
+		noCodeChanges := (newCode == lastReport.OriginalCode)
+		if noCodeChanges {
 			if !x.Args.Force {
-				c.NewLine().Default("✔ no code changes, skipped")
-				return &CheckResultT{Report: cachedReport, Skipped: true}
+				if !checkArgs.Fix || (newCode == lastReport.FixedCode) {
+					c.NewLine().Default("✔ no code changes since last execution, skipped")
+					return &CheckResultT{Report: lastReport, Skipped: true}
+				}
 			}
 		}
 	}
 
-	r := me.checkCode(x, c, code.Latest)
-	r.Print(c, code.Original)
+	newReport := me.checkCode(x, c, newCode)
+	newReport.Print(c)
 
-	if r.HasIssue {
+	if newReport.HasIssue {
 		if checkArgs.Fix {
 			// replace the original code file with checked code
-			me.codeFileManager.Save(x, me.file, r.FixedCode)
+			comm.WriteFileTextP(x.Fs, me.file, newReport.FixedCode)
 		}
 	}
 
-	reportFile := me.reportManager.SaveReport(x, me.file, r)
-	c.NewLine().Blue("✔ report: ").Default(reportFile)
+	reportFile := me.reportManager.SaveReport(x, me.file, newReport)
+	c.NewLine().Blue("✔ report: ").Default(reportFile[len(x.Args.Repository)+1:])
 
-	return &CheckResultT{Report: r, Skipped: false}
+	return &CheckResultT{Report: newReport, Skipped: false}
 }
 
 type FixCodeWriterT struct {
@@ -142,7 +148,7 @@ func (me FixCodeWriter) Write(p []byte) (n int, err error) {
 func (me CheckAgent) checkCode(x Kontext, c comm.Console, code string) CheckReport {
 	verbose := x.Args.Verbose
 
-	sysPrompt := x.Config.Check.RenderPrompt(code, me.file)
+	sysPrompt := x.Config.Check.RenderPrompt(code, me.relativeFile)
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
@@ -162,24 +168,23 @@ func (me CheckAgent) checkCode(x Kontext, c comm.Console, code string) CheckRepo
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}
 
-	fixeCode, remainedAnswer := ExtractFixedCode(answer)
-	r := ExtractCheckReport(remainedAnswer, strings.HasSuffix(me.file, ".go"))
+	fixedCode, remainedAnswer := ExtractFixedCode(answer)
+	r := ExtractCheckReport(remainedAnswer, strings.HasSuffix(me.relativeFile, ".go"))
 	r.ModelUsageMetrics = metrics
-	r.FixedCode = fixeCode
+	r.FixedCode = fixedCode
+	r.OriginalCode = code
+	r.Path = me.relativeFile
 
-	if r.HasIssue {
-		trimmedOriginalCode := strings.TrimSpace(code)
-		trimmedFixedCode := strings.TrimSpace(fixeCode)
-
-		if trimmedFixedCode == trimmedOriginalCode {
+	if !r.HasIssue {
+		r.Issues = []CheckIssue{}
+		r.FixedCode = code
+		r.OverallSeverity = ""
+	} else {
+		if fixedCode == code || len(fixedCode) == 0 {
 			r.HasIssue = false
 			r.Issues = []CheckIssue{}
 			r.FixedCode = code
 			r.OverallSeverity = ""
-		} else if len(trimmedFixedCode) == 0 {
-			r.FixedCode = code
-		} else if !strings.HasSuffix(fixeCode, "\n") {
-			r.FixedCode = fixeCode + "\n"
 		}
 	}
 

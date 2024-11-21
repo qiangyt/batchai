@@ -341,3 +341,11 @@ func SearchMultiple(text string, queries []string) []string {
 
 	return result
 }
+
+func NormalizeCode(code string) string {
+	code = strings.TrimSpace(code)
+	if !strings.HasSuffix(code, "\n") {
+		code = code + "\n"
+	}
+	return code
+}

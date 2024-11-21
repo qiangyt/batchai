@@ -254,6 +254,22 @@ func ReadFileBytes(fs afero.Fs, path string) ([]byte, error) {
 	return r, nil
 }
 
+func ReadFileCodeP(fs afero.Fs, path string) string {
+	r, err := ReadFileCode(fs, path)
+	if err != nil {
+		panic(err)
+	}
+	return r
+}
+
+func ReadFileCode(fs afero.Fs, path string) (string, error) {
+	str, err := ReadFileText(fs, path)
+	if err != nil {
+		return "", err
+	}
+	return NormalizeCode(str), nil
+}
+
 func ReadFileTextP(fs afero.Fs, path string) string {
 	r, err := ReadFileText(fs, path)
 	if err != nil {

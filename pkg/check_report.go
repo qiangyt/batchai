@@ -67,6 +67,7 @@ type CheckReportT struct {
 	OverallSeverity   string            `json:"overall_severity"`
 	Issues            []CheckIssue      `json:"issues"`
 	FixedCode         string            `json:"fixed_code"`
+	OriginalCode      string            `json:"original_code"`
 	Path              string            `json:"path"`
 	ModelUsageMetrics ModelUsageMetrics `json:"model_usage_metrics"`
 }
@@ -91,7 +92,7 @@ func ExtractFixedCode(input string) (string, string) {
 	}
 
 	remained := input[:begin] + block[end+len(FIX_END_LINE):]
-	return result, remained
+	return comm.NormalizeCode(result), remained
 }
 
 func ExtractCheckReport(answer string, isGolang bool) CheckReport {
@@ -117,7 +118,7 @@ func ExtractCheckReport(answer string, isGolang bool) CheckReport {
 	return report
 }
 
-func (me CheckReport) Print(console comm.Console, originalCode string) {
+func (me CheckReport) Print(console comm.Console) {
 	if !me.HasIssue {
 		console.NewLine().Print("no issue")
 		return
@@ -139,7 +140,7 @@ func (me CheckReport) Print(console comm.Console, originalCode string) {
 	console.NewLine()
 
 	var buf bytes.Buffer
-	if err := diff.Text("original", "fixed", originalCode, me.FixedCode, &buf); err == nil {
+	if err := diff.Text("original", "fixed", me.OriginalCode, me.FixedCode, &buf); err == nil {
 		for i, line := range strings.Split(buf.String(), "\n") {
 			if i < 3 {
 				console2.Yellowln(line)
