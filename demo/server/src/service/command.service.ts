@@ -273,7 +273,8 @@ export class CommandService {
 		c.updater = x?.user;
 		c = await this.dao.save(c);
 
-		this.websocket.to(`status-${c.id}`).emit(`status-${c.id}`, { status: c.status, runStatus: c.runStatus });
+		const update = CommandDetail.from(c, this.artifactFiles);
+		this.websocket.to(`status-${c.id}`).emit(`status-${c.id}`, update);
 
 		return c;
 	}

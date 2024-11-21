@@ -168,7 +168,7 @@ export default function CommandHome({ params }) {
     commandOptions = command.commandOptions();
     targetPaths = command.targetPaths;
     commandName = command.command;
-    
+  
     const repo = command.repo;
     repoUrl = repo.repoUrl;
     repoName = repo.name;
