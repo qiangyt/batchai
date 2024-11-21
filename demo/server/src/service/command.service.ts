@@ -134,9 +134,7 @@ export class CommandService {
 		this.logger.log(`Successfully updated command: ${c}`);
 
 		if (params.executeItRightNow) {
-			if (c.status !== CommandStatus.Running && c.status !== CommandStatus.Queued) {
-				c = await this.enqueue(x, c);
-			}
+			c = await this.restart(x, c);
 		}
 
 		return c;
