@@ -313,7 +313,7 @@ export class CommandService {
 
 		await Promise.all([
 			/* audit log */ this.commandLog(cmd, exeCtx.auditLog, `auditLog-${id}`, message),
-			/* server log */ this.logger.log(`command log(id=${cmd.id}: ${message}`),
+			/* server log */ this.logger.log(`command log(id=${cmd.id}): ${message}`),
 		]);
 	}
 
@@ -324,7 +324,7 @@ export class CommandService {
 		await Promise.all([
 			/* audit log */ this.commandLog(cmd, exeCtx.auditLog, `auditLog-${id}`, message),
 			/* execution log */ this.commandLog(cmd, exeCtx.executionLog, `executionLog-${id}`, message),
-			/* server log */ this.logger.log(`command log(id=${cmd.id}: ${message}`),
+			/* server log */ this.logger.log(`command log(id=${cmd.id}): ${message}`),
 		]);
 	}
 
