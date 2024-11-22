@@ -7,7 +7,7 @@ import { CommandApi } from '../api';
 import { Kontext, Transactional, UserService } from '../framework';
 import { CommandBasic, CommandDetail, CommandCreateReq, CommandUpdateReq, CommandLog } from '../dto';
 import { ArtifactFiles } from './artifact.files';
-import { CheckReport } from 'src/dto/check.report';
+import { CheckReport, TestReport } from 'src/dto';
 
 @Injectable()
 export class CommandFacade implements CommandApi, OnModuleInit {
@@ -75,6 +75,12 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async loadCommandCheckReports(x: Kontext, id: number): Promise<CheckReport[]> {
 		return this.service.loadCommandCheckReports(x, id);
+	}
+
+	@Transactional({ readOnly: true })
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async loadCommandTestReports(x: Kontext, id: number): Promise<TestReport[]> {
+		return this.service.loadCommandTestReports(x, id);
 	}
 
 	@Transactional()

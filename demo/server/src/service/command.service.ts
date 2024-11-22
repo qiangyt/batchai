@@ -13,7 +13,6 @@ import {
 	traverseFilesWithExtension,
 	dirExists,
 	readJsonFile,
-	readTextFile,
 } from '../helper';
 import { Repo, Command, EXAMPLES_ORG } from '../entity';
 import { CommandCreateReq, CommandDetail, CommandLog, CommandUpdateReq } from '../dto';
@@ -21,7 +20,7 @@ import { Kontext } from '../framework';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ArtifactFiles } from './artifact.files';
-import { CheckReport } from 'src/dto/check.report';
+import { CheckReport, TestReport } from 'src/dto';
 
 class CommandExecutionContext {
 	constructor(
@@ -250,16 +249,19 @@ export class CommandService {
 		}
 
 		const reportFiles = await traverseFilesWithExtension(folder, '.check.batchai.json');
-		return await Promise.all(
-			reportFiles.map(async (f) => {
-				const report = CheckReport.with(await readJsonFile(f));
+		return await Promise.all(reportFiles.map(async (f) => CheckReport.with(await readJsonFile(f))));
+	}
 
-				const originalFile = f.slice(0, f.length - '.check.batchai.json'.length);
-				report.original_code = await readTextFile(originalFile);
+	async loadCommandTestReports(x: Kontext, id: number): Promise<TestReport[]> {
+		const c = await this.load(id);
 
-				return report;
-			}),
-		);
+		const folder = await this.artifactFiles.commandRepoBatchaiFolder(c);
+		if (!dirExists(folder)) {
+			return [];
+		}
+
+		const reportFiles = await traverseFilesWithExtension(folder, '.test.batchai.json');
+		return await Promise.all(reportFiles.map(async (f) => TestReport.with(await readJsonFile(f))));
 	}
 
 	//@Interval('Commands', 5 * 1000)

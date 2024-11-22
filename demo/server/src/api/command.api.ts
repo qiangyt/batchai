@@ -1,7 +1,7 @@
 import { CommandStatus } from '../constants';
 import { Kontext } from '../framework';
 import { CommandCreateReq, CommandDetail, CommandBasic, CommandUpdateReq, CommandLog } from '../dto';
-import { CheckReport } from 'src/dto/check.report';
+import { CheckReport, TestReport } from 'src/dto';
 
 export interface CommandApi {
 	createCommand(x: Kontext, req: CommandCreateReq): Promise<CommandDetail>;
@@ -17,6 +17,8 @@ export interface CommandApi {
 	loadCommandAuditLog(x: Kontext, id: number): Promise<CommandLog[]>;
 
 	loadCommandCheckReports(x: Kontext, id: number): Promise<CheckReport[]>;
+
+	loadCommandTestReports(x: Kontext, id: number): Promise<TestReport[]>;
 
 	loadCommandExecutionLog(x: Kontext, id: number): Promise<CommandLog[]>;
 
