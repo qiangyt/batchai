@@ -3,6 +3,8 @@
 import { RepoBasic } from './repo.dto';
 import { AuditableDto } from './dto';
 import { Page } from './page';
+import { SessionState } from './session';
+import { DEFAULT_NUM_QUOTE } from './user.dto';
 
 
 export class CommandLog {
@@ -196,6 +198,8 @@ export class CommandEditData {
 
 	num: number;
 
+	numQuota: number;
+
 	lang: string;
 
 	testLibrary: string;
@@ -228,11 +232,10 @@ export class CommandEditData {
 		return obj;
 	}
 
-	static forUpdate(c: CommandDetail): CommandEditData {
+	static forUpdate(s: SessionState, c: CommandDetail): CommandEditData {
 		const r = new CommandEditData();
 
 		r.id = c.id;
-		r.num = c.num;
 		r.lang = c.lang;
 		r.testLibrary = c.primaryTestLibrary();
 		r.targetPaths = c.targetPaths || [];
@@ -241,10 +244,17 @@ export class CommandEditData {
 		r.executeItRightNow = (c.status !== CommandStatus.Running && c.status !== CommandStatus.Queued);
 		r.checkFix = c.checkFix;
 
+		if (s && s.detail) {
+			r.numQuota = s.detail.getNumQuote();
+		} else {
+			r.numQuota = DEFAULT_NUM_QUOTE;
+		}
+		r.num = c.num;
+
 		return r;
 	}
 
-	static forCreate(commandName: string, repo: RepoBasic): CommandEditData {
+	static forCreate(s: SessionState, commandName: string, repo: RepoBasic): CommandEditData {
 		const r = new CommandEditData();
 
 		r.targetPaths = [];
@@ -252,6 +262,13 @@ export class CommandEditData {
 		r.repo = repo;
 		r.executeItRightNow = true;
 		r.checkFix = true;
+
+		if (s && s.detail) {
+			r.numQuota = s.detail.getNumQuote();
+		} else {
+			r.numQuota = DEFAULT_NUM_QUOTE;
+		}
+		r.num = r.numQuota;
 
 		return r;
 	}

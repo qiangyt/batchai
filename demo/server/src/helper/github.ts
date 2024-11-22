@@ -413,5 +413,4 @@ export class GithubRepo {
 
 		return false;
 	}
-
 }

@@ -8,6 +8,7 @@ import React, { createContext, useContext, useState, ReactNode, useMemo, useEffe
 import { ConfirmDialog, ConfirmDialogMessage, ConfirmDialogProps } from '../components/confirm-dialog';
 import Backdrop from '@mui/material/Backdrop';
 import { SignInDialog, SignInDialogMessage, SignInDialogProps } from '@/components/signin-dialog';
+import { AskStarDialog, AskStarDialogProps } from '@/components/ask-star-dialog';
 
 export interface UIContextType {
   setLoading: (value: boolean) => void;
@@ -15,6 +16,7 @@ export interface UIContextType {
   
   confirm: (message: ConfirmDialogMessage, onConfirmed: () => void) => void;
   signIn: (message: SignInDialogMessage) => void;
+  askStar: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -26,6 +28,7 @@ export const UIContextProvider = ({ children }: { children: ReactNode }) => {
 
   const [confirmDialogProps, setConfirmDialogProps] = useState<ConfirmDialogProps>(null);  
   const [signInDialogProps, setSignInDialogProps] = useState<SignInDialogProps>(null);
+  const [askStarDialogProps, setAskStarDialogProps] = useState<AskStarDialogProps>(null);
   const handleCloseError = () => setError(null);
 
   const value = useMemo(() => {
@@ -35,8 +38,13 @@ export const UIContextProvider = ({ children }: { children: ReactNode }) => {
 
     const signIn = (message: SignInDialogMessage) => {
       setSignInDialogProps({...message, open: true, closeFunc: () => setSignInDialogProps(null)});
+    };    
+
+    const askStar = () => {
+      setAskStarDialogProps({open: true, closeFunc: () => setAskStarDialogProps(null)});
     };
-    return { setLoading, setError, confirm, signIn };
+
+    return { setLoading, setError, confirm, signIn, askStar };
   }, []);
 
 
@@ -80,6 +88,7 @@ export const UIContextProvider = ({ children }: { children: ReactNode }) => {
 
       <ConfirmDialog {...confirmDialogProps} />
       <SignInDialog {...signInDialogProps}/>
+      <AskStarDialog {...askStarDialogProps}/>
     </>
   );
 };

@@ -32,11 +32,10 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
       ui.signIn({action: "create command"});
       return;
     }
-
     setOpenDialog(true);    
   };
 
-  const data = CommandEditData.forCreate(commandName, repo);
+  const data = CommandEditData.forCreate(s, commandName, repo);
 
   return (
     <>

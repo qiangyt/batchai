@@ -73,7 +73,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
                     <Typography sx={{ textAlign: 'center', fontSize: 28 }}>
                         {props?.subject}
                     </Typography>
-                    <Alert severity="warning">
+                    <Alert severity="warning" sx={{ mt: 1}}>
                         Unexpected bad things will happen if you dont read this! 
                     </Alert>
                     <Typography sx={{ mt: 2}}>

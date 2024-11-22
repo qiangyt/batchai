@@ -34,7 +34,8 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
   const load = () => {
     const storedSession = localStorage.getItem('session');
     if (storedSession) {
-      setDetail(JSON.parse(storedSession));
+      const d = SignInDetail.with(JSON.parse(storedSession));
+      setDetail(d);
     }
   };
 
@@ -78,7 +79,7 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
     const url = new URL(window.location.href);
     const encodedSignInDetail = url.searchParams.get("signInDetail");
     if (encodedSignInDetail) {
-      const signInDetail = JSON.parse(decodeURIComponent(encodedSignInDetail));
+      const signInDetail = SignInDetail.with(JSON.parse(decodeURIComponent(encodedSignInDetail)));
       save(signInDetail);
 
       url.searchParams.delete("signInDetail");
@@ -88,9 +89,9 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
     }
   }, []);
 
-  const state = { state: {detail, redirect, load, save, clear, has }};
+  const session = { state: {detail, redirect, load, save, clear, has }};
   return (
-    <SessionContext.Provider value={state}>
+    <SessionContext.Provider value={session}>
       {children}
     </SessionContext.Provider>
   );

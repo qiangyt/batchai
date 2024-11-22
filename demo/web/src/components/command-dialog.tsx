@@ -5,8 +5,8 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { CommandCreateReq, CommandDetail, CommandEditData, CommandUpdateReq, otEvent, useSession, useUIContext } from '@/lib';
-import { ChangeEvent, Dispatch, MouseEvent, SetStateAction, useState } from 'react';
+import { CommandCreateReq, CommandDetail, CommandEditData, CommandUpdateReq, GrantLevel, otEvent, useSession, useUIContext } from '@/lib';
+import { ChangeEvent, Dispatch, MouseEvent, SetStateAction, useEffect, useState } from 'react';
 import LangSelect from './lang-select';
 import TestLibrarySelect from './test-library-select';
 import Link from '@mui/material/Link';
@@ -71,6 +71,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
 
   const onChangeNum = (e: ChangeEvent<HTMLInputElement>) => {
     otEvent(e);
+
     const num = parseInt(e.target.value, 10);
     if (isNaN(num)) {
       return;
@@ -78,6 +79,14 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
     if (num < 0) {
       return;
     }
+  
+    if (data.numQuota > 0) {
+      if (num > data.numQuota) {
+        ui.askStar();
+        return;
+      }
+    }
+
     setData(CommandEditData.with({...data, num}));
   };
 
@@ -94,7 +103,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
     setOpen(false);
   };
 
-  return (
+  return (<>
     <Dialog open={open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
       <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
       <span style={{ fontSize: 15}}>{title}</span>
@@ -121,6 +130,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
         <Button type="submit" onClick={onSubmit}>Submit</Button>
       </DialogActions>
     </Dialog>
+    </>
   );
 }
 

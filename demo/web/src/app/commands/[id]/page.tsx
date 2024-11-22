@@ -418,7 +418,7 @@ export default function CommandHome({ params }) {
         </Stepper>
       </Drawer>
 
-      {command && <CommandDialog data={CommandEditData.forUpdate(command)} open={openCommandDialog} setOpen={setOpenCommandDialog} onSubmited={onRefreshPage} />}
+      {command && <CommandDialog data={CommandEditData.forUpdate(s, command)} open={openCommandDialog} setOpen={setOpenCommandDialog} onSubmited={onRefreshPage} />}
     </>
   );
 }

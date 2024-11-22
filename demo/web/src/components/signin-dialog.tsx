@@ -60,11 +60,11 @@ export function SignInDialog(props: SignInDialogProps) {
             </DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ m: 2}}>
-                    <Alert severity="info">
+                    <Alert severity="info" sx={{ mt: 1}}>
                         To {props.action}, please sign in with GITHUB.COM first
                     </Alert>
                     <Typography sx={{ mt: 2}}>
-                        Clicks [GO AHEAD] button to be redirected to <Link href="https://github.com">GITHUB.COM</Link> sign in page.
+                        Clicks [GO AHEAD] button to redirect to <Link href="https://github.com">GITHUB.COM</Link> sign in page.
                     </Typography>
                 </DialogContentText>
             </DialogContent>

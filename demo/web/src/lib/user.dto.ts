@@ -85,10 +85,29 @@ export class SignInReq {
   password: string;
 }
 
+export const DEFAULT_NUM_QUOTE = 5;
+
 export class SignInDetail {
   user: UserDetail;
   accessToken: string;
   refreshToken: string;
   githubAccessToken:string;
   githubRefreshToken: string;
+
+  getNumQuote(): number {
+    switch(this.user.grantLevel) {
+      case GrantLevel.Default: return DEFAULT_NUM_QUOTE;
+      case GrantLevel.Promoted: return 0;
+      case GrantLevel.Full: return 0;
+      default: return 5;
+    }
+  }
+
+  static with(obj: any): SignInDetail {
+    if (!obj) return obj;
+    UserDetail.with(obj.user);
+    Object.setPrototypeOf(obj, SignInDetail.prototype);
+    return obj;
+  }
+  
 }
