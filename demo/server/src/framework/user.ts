@@ -23,6 +23,7 @@ import {
 	Post,
 	Logger,
 	ForbiddenException,
+	Delete,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -282,6 +283,8 @@ export class UserService {
 			u.password = await bcrypt.hash(req.password, 10);
 		}
 
+		this.logger.log(`created user: ${JSON.stringify(u)}`);
+
 		return await this.dao.save(u);
 	}
 
@@ -443,6 +446,13 @@ export class UserFacade implements UserApi, OnModuleInit {
 	): Promise<SignInDetail> {
 		return this.service.signinByGithub(x, githubAccessToken, githubRefreshToken, profile);
 	}
+
+	@Transactional()
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async removeUser(x: Kontext, id: number): Promise<void> {
+		const u = await this.service.load(id);
+		return this.service.remove(u);
+	}
 }
 
 @Controller('rest/v1/users')
@@ -459,6 +469,12 @@ export class UserRest implements UserApi {
 	@Get('id/:id')
 	async loadUser(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<UserDetail> {
 		return this.facade.loadUser(x, id);
+	}
+
+	@RequiredRoles(Role.Admin)
+	@Delete('id/:id')
+	async removeUser(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<void> {
+		return this.facade.removeUser(x, id);
 	}
 }
 
