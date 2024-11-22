@@ -117,6 +117,7 @@ export default function RepoList() {
 
     if (!s.detail.user.admin) {
       alert('admin privilege is required');
+      return;
     }
 
     ui.confirm(

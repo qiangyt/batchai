@@ -295,6 +295,7 @@ export default function CommandHome({ params }) {
 
     if (!s.detail.user.admin) {
       alert('admin privilege is required');
+      return;
     }
 
     ui.confirm(
