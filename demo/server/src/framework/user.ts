@@ -120,6 +120,14 @@ export class User {
 			throw new ForbiddenException();
 		}
 	}
+
+	static with(obj: any): User {
+		if (!obj) return obj;
+		User.with(obj.creater);
+		User.with(obj.updater);
+		Object.setPrototypeOf(obj, User.prototype);
+		return obj;
+	}
 }
 
 export class UserCreateReq {
@@ -492,6 +500,12 @@ export class UserFacade implements UserApi, OnModuleInit {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async loadUser(x: Kontext, id: number): Promise<UserDetail> {
 		return UserDetail.from(await this.service.load(id));
+	}
+
+	@Transactional({ readOnly: true })
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async loadUserEntity(x: Kontext, id: number): Promise<User> {
+		return this.service.load(id);
 	}
 
 	@Transactional({ readOnly: true })
