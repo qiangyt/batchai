@@ -1,7 +1,7 @@
 import { UIContextType } from '@/lib/ui.context';
 import withAxios from './request'
 import { SessionState, CommandDetail, CommandCreateReq, CommandUpdateReq, ListAvaiableTargetPathsParams, CommandLog } from '@/lib';
-import { CheckReport } from '@/lib/check.report';
+import { CheckReport, TestReport } from '@/lib';
 
 // @RequiredRoles(Role.User)
 export async function createCommand(s:SessionState, ui: UIContextType, params: CommandCreateReq): Promise<CommandDetail> {
@@ -35,4 +35,9 @@ export async function removeCommand(s:SessionState, ui: UIContextType, id:number
 // @RequiredRoles(Role.None)
 export async function loadCommandCheckReports(s:SessionState, ui: UIContextType, id: number): Promise<CheckReport[]> {
   return CheckReport.withMany(await withAxios(s, ui).get(`/commands/id/${id}/check_reports`));
+}
+
+// @RequiredRoles(Role.None)
+export async function loadCommandTestReports(s:SessionState, ui: UIContextType, id: number): Promise<TestReport[]> {
+  return TestReport.withMany(await withAxios(s, ui).get(`/commands/id/${id}/test_reports`));
 }

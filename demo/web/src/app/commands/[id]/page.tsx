@@ -234,11 +234,12 @@ export default function CommandHome({ params }) {
         onRefreshPage(c);
 
         if (c.isTest()) {
-          
+          const reports = await commandApi.loadCommandTestReports(s, ui, id);
+          setDiffs(reports.map((report) => report.toDiff()));
         }
         if (c.isCheck()) {
-          const checkReports = await commandApi.loadCommandCheckReports(s, ui, id);
-          setDiffs(checkReports.map((report) => report.toDiff()));
+          const reports = await commandApi.loadCommandCheckReports(s, ui, id);
+          setDiffs(reports.map((report) => report.toDiff()));
         }        
       } catch (err) {
         ui.setError(err);

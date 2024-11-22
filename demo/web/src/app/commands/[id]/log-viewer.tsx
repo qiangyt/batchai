@@ -16,8 +16,8 @@ export function ExecutionLogViewer({ logs }: LogViewerProps) {
     }, [logs.length]);
 
     return (
-        <div ref={scrollRef} style={{ height: "180vh", overflowY: "scroll", backgroundColor: "#121416" }}>
-            <ReactAnsi autoScroll={false} log={logs.map((log) => log.message)} logStyle={{ fontSize: 13, backgroundColor: "#121416" }} />
+        <div ref={scrollRef} style={{ height: "180vh", overflowY: "scroll", backgroundColor: "#21232b" }}>
+            <ReactAnsi autoScroll={false} log={logs.map((log) => log.message)} logStyle={{ fontSize: 13, backgroundColor: "#21232b" }} />
         </div>
     );
 };
@@ -33,8 +33,8 @@ export function AuditLogViewer({ logs }: LogViewerProps) {
     }, [logs]);
 
     return (
-        <div ref={scrollRef} style={{ height: "240vh", overflowY: "scroll", backgroundColor: "#121416" }}>
-            <ReactAnsi autoScroll={false} log={logs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 13, backgroundColor: "#121416" }} />
+        <div ref={scrollRef} style={{ height: "240vh", overflowY: "scroll", backgroundColor: "#21232b" }}>
+            <ReactAnsi autoScroll={false} log={logs.map(log => `${log.timestamp}    ${log.message}`)} logStyle={{ fontSize: 13, backgroundColor: "#21232b" }} />
         </div>
     );
 };
