@@ -13,6 +13,7 @@ import Paper, { PaperProps } from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
+import Container from '@mui/material/Container';
 
 /*
 标题：文件处理数量限制 🎉
@@ -80,8 +81,8 @@ export function AskStarDialog(props: AskStarDialogProps) {
                     <Typography sx={{ mt: 2, ml: 3}}>
                     👉 Would you like to support us by giving a star?
                     </Typography>
-                    <Alert severity="warning" sx={{ mt: 1}}>
-                    You need to re-login after starred!
+                    <Alert severity="warning" sx={{ mt: 1, }}>
+                    You need to <span style={{ color: 'red' }}>RE-LOGIN</span> after starred!
                     </Alert>
                     <Typography sx={{ mt: 2, ml: 6}}>
                         Still have issue? {" -> "} 
