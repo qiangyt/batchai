@@ -19,6 +19,7 @@ type TestReportT struct {
 	ModelUsageMetrics ModelUsageMetrics
 
 	TestFilePath               string `json:"test_file_path"`
+	ExistingTestCode           string `json:"existing_test_code"`
 	OriginalCode               string `json:"original_code"`
 	TestCode                   string `json:"test_code"`
 	AmountOfGeneratedTestCases int    `json:"amount_of_generated_test_cases"`

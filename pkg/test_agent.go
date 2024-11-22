@@ -91,9 +91,15 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 		}
 	}
 
-	exstingTestCode := ""
+	existingTestCode := ""
+	if lastReport != nil && lastReport.TestFilePath != "" {
+		absTestFilePath := path.Join(x.Args.Repository, lastReport.TestFilePath)
+		if comm.FileExistsP(x.Fs, absTestFilePath) {
+			existingTestCode = comm.ReadFileCodeP(x.Fs, absTestFilePath)
+		}
+	}
 
-	newReport := me.generateTestCode(x, c, testArgs, newCode, exstingTestCode)
+	newReport := me.generateTestCode(x, c, testArgs, newCode, existingTestCode)
 	newReport.Print(c)
 
 	comm.WriteFileTextP(x.Fs, path.Join(x.Args.Repository, newReport.TestFilePath), newReport.TestCode)
@@ -165,6 +171,7 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 	r.ModelUsageMetrics = metrics
 	r.Path = me.file
 	r.OriginalCode = code
+	r.ExistingTestCode = existingTestCode
 
 	testCode, _ := comm.ExtractMarkdownCodeBlocksP(remainedAnswer)
 	r.TestCode = comm.NormalizeCode(testCode)
