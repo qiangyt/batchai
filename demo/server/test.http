@@ -70,3 +70,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6M
   ]
 }
 
+###
+POST http://localhost:4080/rest/v1/commands
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImlhdCI6MTczMjI4NjkzNSwiZXhwIjo0MzI0Mjg2OTM1fQ.n3i1IW4GOZr5zt8JttNxu68gtUI_j8XqrWAoXhkCA2I
+
+{
+  "num": 0,
+  "repoId": 8,
+  "command": "test",
+  "testLibraries": [
+  ],
+  "targetPaths": [
+    "comm/file.go",
+    "comm/io.go"
+  ]
+}

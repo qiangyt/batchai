@@ -128,7 +128,7 @@ export class CommandService {
 
 				const numQuota = u.getNumQuote();
 				if (numQuota > 0) {
-					if (c.num > numQuota) {
+					if (c.num <= 0 || c.num > numQuota) {
 						throw new BadRequestException('processing usage reached');
 					}
 				}
@@ -190,7 +190,7 @@ export class CommandService {
 			c.num = numQuota;
 		}
 		if (numQuota > 0) {
-			if (c.num > numQuota) {
+			if (c.num <= 0 || c.num > numQuota) {
 				throw new BadRequestException('processing usage reached');
 			}
 		}
