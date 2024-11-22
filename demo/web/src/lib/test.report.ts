@@ -1,4 +1,5 @@
-import { ModelUsageMetrics } from '../helper/openai';
+import { FileDiff } from './diff';
+import { ModelUsageMetrics } from './openai';
 
 export class TestReport {
 	path: string;
@@ -10,6 +11,10 @@ export class TestReport {
 	test_code: string;
 	amount_of_generated_test_cases: number;
 	single_test_run_command: string;
+
+	toDiff(): FileDiff {
+		return new FileDiff(this.path, this.existing_test_code, this.test_code);
+	}
 
 	static with(obj: any): TestReport {
 		if (!obj) return obj;

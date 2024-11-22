@@ -35,6 +35,7 @@ export class CheckReport {
 		if (!obj) return obj;
 		Object.setPrototypeOf(obj, CheckReport.prototype);
 		obj.issues = CheckIssue.withMany(obj.issues);
+		ModelUsageMetrics.with(obj.model_usage_metrics);
 		return obj;
 	}
 

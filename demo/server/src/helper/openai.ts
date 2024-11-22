@@ -16,6 +16,12 @@ export class CompletionUsageCompletionTokensDetails {
 	// still counted in the total completion tokens for purposes of billing, output,
 	// and context window limits.
 	rejected_prediction_tokens: number;
+
+	static with(obj: any): CompletionUsageCompletionTokensDetails {
+		if (!obj) return obj;
+		Object.setPrototypeOf(obj, CompletionUsageCompletionTokensDetails.prototype);
+		return obj;
+	}
 }
 
 // Breakdown of tokens used in the prompt.
@@ -24,6 +30,12 @@ export class CompletionUsagePromptTokensDetails {
 	audio_tokens: number;
 	// Cached tokens present in the prompt.
 	cached_tokens: number;
+
+	static with(obj: any): CompletionUsagePromptTokensDetails {
+		if (!obj) return obj;
+		Object.setPrototypeOf(obj, CompletionUsagePromptTokensDetails.prototype);
+		return obj;
+	}
 }
 
 // Usage statistics for the completion request.
@@ -42,10 +54,25 @@ export class CompletionUsage {
 
 	// Breakdown of tokens used in the prompt.
 	prompt_tokens_details: CompletionUsagePromptTokensDetails;
+
+	static with(obj: any): CompletionUsage {
+		if (!obj) return obj;
+		Object.setPrototypeOf(obj, CompletionUsage.prototype);
+		CompletionUsageCompletionTokensDetails.with(obj.completion_tokens_details);
+		CompletionUsagePromptTokensDetails.with(obj.prompt_tokens_details);
+		return obj;
+	}
 }
 
 export class ModelUsageMetrics {
 	Duration: number;
 	EvaluatedPromptTokens: number;
 	OpenAiUsage: CompletionUsage;
+
+	static with(obj: any): ModelUsageMetrics {
+		if (!obj) return obj;
+		Object.setPrototypeOf(obj, ModelUsageMetrics.prototype);
+		CompletionUsage.with(obj.OpenAiUsage);
+		return obj;
+	}
 }
