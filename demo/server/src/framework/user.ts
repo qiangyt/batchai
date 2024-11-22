@@ -155,6 +155,8 @@ export interface UserApi {
 	loadUser(x: Kontext, id: number): Promise<UserDetail>;
 
 	isStarredBy(x: Kontext, id: number): Promise<boolean>;
+
+	renewSession(x: Kontext): Promise<SignInDetail>;
 }
 
 export class UserBasic {
@@ -369,6 +371,11 @@ export class UserService {
 		return this.buildSignInDetail(x, u, null, null);
 	}
 
+	async renewSession(x: Kontext): Promise<SignInDetail> {
+		const u = x.user;
+		return this.buildSignInDetail(x, u, null, null);
+	}
+
 	async signinByGithub(
 		x: Kontext,
 		githubAccessToken: string,
@@ -482,6 +489,11 @@ export class UserFacade implements UserApi, OnModuleInit {
 		return this.service.signinByPassword(x, req);
 	}
 
+	@Transactional({ readOnly: true })
+	async renewSession(x: Kontext): Promise<SignInDetail> {
+		return this.service.renewSession(x);
+	}
+
 	@Transactional()
 	async signinByGithub(
 		x: Kontext,
@@ -531,6 +543,12 @@ export class UserRest implements UserApi {
 	@Get('id/:id/starred')
 	async isStarredBy(x: Kontext, id: number): Promise<boolean> {
 		return this.facade.isStarredBy(x, id);
+	}
+
+	@RequiredRoles(Role.User)
+	@Get('renew')
+	async renewSession(x: Kontext): Promise<SignInDetail> {
+		return this.facade.renewSession(x);
 	}
 }
 
