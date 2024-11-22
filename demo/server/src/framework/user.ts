@@ -408,7 +408,7 @@ export class UserService {
 			u.avatarUrl = u.githubPhotoUrl;
 		}
 
-		if (u.grantLevel === GrantLevel.Default) {
+		if (!u.admin) {
 			const octokit = new Octokit({ auth: githubAccessToken });
 			try {
 				await octokit.activity.checkRepoIsStarredByAuthenticatedUser({ owner: 'qiangyt', repo: 'batchai' });
@@ -417,6 +417,7 @@ export class UserService {
 				if (error.status !== 404) {
 					throw error;
 				}
+				u.grantLevel = GrantLevel.Default;
 			}
 		}
 
