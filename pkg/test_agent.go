@@ -175,7 +175,7 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 
 	r, remainedAnswer := ExtractTestReport(answer, strings.HasSuffix(me.file, ".go"))
 	r.ModelUsageMetrics = metrics
-	r.Path = me.file
+	r.Path = me.relativeFile
 	r.OriginalCode = code
 	r.ExistingTestCode = existingTestCode
 

@@ -54,6 +54,7 @@ func (me ModelClient) Chat(x Kontext, saveIntoMemory bool, memory ChatMemory, wr
 	defer me.release()
 
 	startTime := time.Now()
+	x = x.Timeouted(me.config.Timeout)
 
 	var r *openai.ChatCompletion
 	if writer == nil {
@@ -72,11 +73,12 @@ func (me ModelClient) Chat(x Kontext, saveIntoMemory bool, memory ChatMemory, wr
 
 func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion {
 	r, err := me.openAiClient.Chat.Completions.New(x.Context, openai.ChatCompletionNewParams{
-		Messages:    openai.F(memory.ToChatCompletionMessageParamUnion()),
-		Temperature: openai.F(me.config.Temperature),
-		Seed:        openai.Int(1),
-		Model:       openai.F(me.config.Name),
-		MaxTokens:   openai.Int(me.config.MaxOutputTokens),
+		Messages:            openai.F(memory.ToChatCompletionMessageParamUnion()),
+		Temperature:         openai.F(me.config.Temperature),
+		Seed:                openai.Int(1),
+		Model:               openai.F(me.config.Name),
+		MaxTokens:           openai.Int(me.config.MaxOutputTokens),
+		MaxCompletionTokens: openai.Int(me.config.MaxOutputTokens),
 	})
 	if err != nil {
 		panic(errors.Wrap(err, "failed to call chat completions API"))
@@ -86,10 +88,12 @@ func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion 
 
 func (me ModelClient) chatStream(x Kontext, memory ChatMemory, output io.Writer) *openai.ChatCompletion {
 	stream := me.openAiStreamingClient.Chat.Completions.NewStreaming(x.Context, openai.ChatCompletionNewParams{
-		Messages:    openai.F(memory.ToChatCompletionMessageParamUnion()),
-		Temperature: openai.F(me.config.Temperature),
-		Seed:        openai.Int(0),
-		Model:       openai.F(me.config.Name),
+		Messages:            openai.F(memory.ToChatCompletionMessageParamUnion()),
+		Temperature:         openai.F(me.config.Temperature),
+		Seed:                openai.Int(0),
+		Model:               openai.F(me.config.Name),
+		MaxTokens:           openai.Int(me.config.MaxOutputTokens),
+		MaxCompletionTokens: openai.Int(me.config.MaxOutputTokens),
 	})
 
 	// optionally, an accumulator helper can be used
