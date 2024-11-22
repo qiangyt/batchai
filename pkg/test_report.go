@@ -15,8 +15,8 @@ const TEST_REPORT_JSON_FORMAT = `
 }`
 
 type TestReportT struct {
-	Path              string `json:"path"`
-	ModelUsageMetrics ModelUsageMetrics
+	Path              string            `json:"path"`
+	ModelUsageMetrics ModelUsageMetrics `json:"model_usage_metrics"`
 
 	TestFilePath               string `json:"test_file_path"`
 	ExistingTestCode           string `json:"existing_test_code"`

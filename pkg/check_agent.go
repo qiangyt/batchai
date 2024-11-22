@@ -28,14 +28,14 @@ type CheckAgentT struct {
 type CheckAgent = *CheckAgentT
 
 func NewCheckAgent(reportManager CheckReportManager,
-	//codeFileManager CodeFileManager,
+	// codeFileManager CodeFileManager,
 	symbolManager SymbolManager,
 	modelService ModelService,
 	codeFile string,
 ) CheckAgent {
 	return &CheckAgentT{
 		SymbolAwareAgentT: newSymbolAwareAgent(symbolManager, modelService),
-		//codeFileManager:   codeFileManager,
+		// codeFileManager:   codeFileManager,
 		reportManager: reportManager,
 
 		file: codeFile,
