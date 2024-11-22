@@ -66,23 +66,23 @@ export function AskStarDialog(props: AskStarDialogProps) {
     return (
         <Dialog open={props?.open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
             <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
-            Limited File Processing Usage
+            Processing Usage Reached
             </DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ m: 2}}>
                     <Typography sx={{ textAlign: 'center', fontSize: 28 }}>
-                    Thank you for using our batchai!
+                    Thank you for using batchai!
                     </Typography>
                     <Alert severity="info" sx={{ mt: 1}}>
-                    If you like this project, we’d greatly appreciate it if you could give it a star ⭐️ on GitHub!
+                    If you like this project, I’d greatly appreciate it if you could give me a star ⭐️ on GitHub!
                     <Box sx={{mt: 2}}/>
-                    By starring the project, you’ll unlock unlimited usage and help us improve the project for the entire developer community.
+                    By starring me, you’ll unlock unlimited usage.
                     </Alert>
                     <Typography sx={{ mt: 2, ml: 3}}>
-                    👉 Would you like to support us by giving a star?
+                    👉 Would you like to support me by giving a star?
                     </Typography>
                     <Alert severity="warning" sx={{ mt: 1, }}>
-                    You need to <span style={{ color: 'red' }}>RE-LOGIN</span> after starred!
+                    NOTE: <span style={{ color: 'red' }}>RE-LOGIN</span> after starred!
                     </Alert>
                     <Typography sx={{ mt: 2, ml: 6}}>
                         Still have issue? {" -> "} 

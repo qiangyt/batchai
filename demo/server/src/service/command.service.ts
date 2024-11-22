@@ -122,9 +122,17 @@ export class CommandService {
 
 		c.force = params.force;
 
-		if (c.num !== params.num) {
-			u.ensureHasAdminRole();
-			c.num = params.num;
+		if (params.num !== null && params.num !== undefined) {
+			if (c.num !== params.num) {
+				c.num = params.num;
+
+				const numQuota = u.getNumQuote();
+				if (numQuota > 0) {
+					if (c.num > numQuota) {
+						throw new BadRequestException('processing usage reached');
+					}
+				}
+			}
 		}
 
 		c.lang = params.lang;
@@ -175,10 +183,16 @@ export class CommandService {
 
 		c.force = params.force;
 
+		const numQuota = u.getNumQuote();
 		if (params.num !== null && params.num !== undefined) {
 			c.num = params.num;
 		} else {
-			c.num = 0;
+			c.num = numQuota;
+		}
+		if (numQuota > 0) {
+			if (c.num > numQuota) {
+				throw new BadRequestException('processing usage reached');
+			}
 		}
 
 		c.lang = params.lang;

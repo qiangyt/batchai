@@ -44,6 +44,8 @@ export enum GrantLevel {
 	Full = 'Full',
 }
 
+export const DEFAULT_NUM_QUOTE = 5;
+
 @Entity()
 export class User {
 	@PrimaryGeneratedColumn()
@@ -100,12 +102,12 @@ export class User {
 	@ManyToOne(() => User, { eager: false, createForeignKeyConstraints: false })
 	updater?: User;
 
-	num(): number {
+	getNumQuote(): number {
 		switch (this.grantLevel) {
 			case GrantLevel.Default:
-				return 5;
+				return DEFAULT_NUM_QUOTE;
 			case GrantLevel.Promoted:
-				return 100;
+				return 0;
 			case GrantLevel.Full:
 				return 0;
 			default:
