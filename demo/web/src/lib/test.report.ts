@@ -13,7 +13,7 @@ export class TestReport {
 	single_test_run_command: string;
 
 	toDiff(): FileDiff {
-		return new FileDiff(this.path, this.existing_test_code, this.test_code);
+		return new FileDiff(this.test_file_path, this.existing_test_code, this.test_code);
 	}
 
 	static with(obj: any): TestReport {

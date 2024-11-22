@@ -32,25 +32,6 @@ import ReactDiffViewer from 'react-diff-viewer-continued';
 import { AuditLogViewer, ExecutionLogViewer } from './log-viewer';
 import { FileDiff } from '@/lib/diff';
 
-const oldCode = `
-const a = 10
-const b = 10
-const c = () => console.log('foo')
-
-if(a > 10) {
-  console.log('bar')
-}
-
-console.log('done')
-`;
-const newCode = `
-const a = 10
-const boo = 10
-
-if(a === 10) {
-  console.log('bar')
-}
-`;
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -61,7 +42,8 @@ function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
+    <Box width="104%"
+      sx={{ ml:-3}}
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
@@ -69,7 +51,7 @@ function CustomTabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
+    </Box>
   );
 }
 
@@ -386,7 +368,7 @@ export default function CommandHome({ params }) {
         <div
           style={{
             paddingTop: '5px', paddingBottom: '5px', paddingLeft: '12px', paddingRight: '12px',
-            width: '100%', background: '#121416', color: 'white', display: 'flex', alignItems: 'center',
+            width: '100%', background: '#14151A', color: 'white', display: 'flex', alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
@@ -408,7 +390,12 @@ export default function CommandHome({ params }) {
           <Tab label="Audit Log" sx={{ color: 'gray' }} {...a11yProps(2)} />
         </Tabs>                
         <CustomTabPanel value={logTabIndex} index={0}>
-          {diffs.map((diff) => <ReactDiffViewer key={diff.path} useDarkTheme oldValue={diff.oldContent} newValue={diff.newContent} splitView />)}
+          {diffs.map((diff) =>
+          <ReactDiffViewer key={diff.path} useDarkTheme splitView leftTitle={diff.path}
+            styles={{ contentText: {fontSize: '13px'}, lineNumber: {fontSize: '13px'}, codeFold: {fontSize: '13px'} }}
+            oldValue={diff.oldContent} newValue={diff.newContent}  
+            />
+          )}
         </CustomTabPanel>
         <CustomTabPanel value={logTabIndex} index={1}>
           <ExecutionLogViewer logs={executionLogs} />
