@@ -35,11 +35,12 @@ import { Kontext, RequestKontext } from './kontext';
 import { RequiredRoles, Role } from './role';
 import { Profile } from 'passport-github2';
 import { Octokit } from '@octokit/rest';
+import { extractNameFromEmail, GithubRepo } from 'src/helper';
 
 export enum GrantLevel {
-	Default = 'Default', // --num = 5,
-	Promoted = 'Promoted', // --num = 100, either starred or forked
-	Full = 'Full', // -- num = 0, customer
+	Default = 'Default',
+	Promoted = 'Promoted',
+	Full = 'Full',
 }
 
 @Entity()
@@ -47,7 +48,7 @@ export class User {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@Column()
+	@Column({ unique: true })
 	name: string;
 
 	@Column({ name: 'display_name', nullable: true })
@@ -56,7 +57,7 @@ export class User {
 	@Column({ name: 'avatar_url', nullable: true })
 	avatarUrl: string;
 
-	@Column({ name: 'github_email', nullable: true })
+	@Column({ name: 'github_email', nullable: true, unique: true })
 	githubEmail: string;
 
 	@Column({ name: 'github_id', nullable: true })
@@ -139,6 +140,10 @@ export class UserCreateReq {
 	@IsOptional()
 	email?: string;
 
+	@IsEmail()
+	@IsOptional()
+	githubEmail?: string;
+
 	@IsOptional()
 	@IsString()
 	password?: string;
@@ -148,6 +153,8 @@ export interface UserApi {
 	listAllUser(x: Kontext): Promise<UserBasic[]>;
 
 	loadUser(x: Kontext, id: number): Promise<UserDetail>;
+
+	isStarredBy(x: Kontext, id: number): Promise<boolean>;
 }
 
 export class UserBasic {
@@ -277,6 +284,7 @@ export class UserService {
 		u.grantLevel = req.grantLevel;
 		u.avatarUrl = req.avatarUrl;
 		u.email = req.email;
+		u.githubEmail = req.githubEmail;
 		u.admin = admin;
 
 		if (req.password) {
@@ -297,6 +305,10 @@ export class UserService {
 
 	async findByName(name: string): Promise<User> {
 		return this.dao.findOneBy({ name });
+	}
+
+	async findByGithubEmail(githubEmail: string): Promise<User> {
+		return this.dao.findOneBy({ githubEmail });
 	}
 
 	listAll(): Promise<User[]> {
@@ -363,11 +375,26 @@ export class UserService {
 		githubRefreshToken: string,
 		profile: Profile,
 	): Promise<SignInDetail> {
-		let u = await this.resolve(x, profile.username);
+		this.logger.log(`begin sign-in github user: ${JSON.stringify(profile)}`);
+
+		const githubEmail = profile.emails ? profile.emails[0].value : null;
+		let u = await this.findByGithubEmail(githubEmail);
+		if (!u) {
+			u = await this.create(
+				x,
+				{
+					name: extractNameFromEmail(githubEmail),
+					email: githubEmail,
+					githubEmail,
+					grantLevel: GrantLevel.Default,
+				},
+				false,
+			);
+		}
 
 		u.githubId = profile.id;
 		u.githubDisplayName = profile.displayName;
-		u.githubEmail = profile.emails ? profile.emails[0].value : null;
+		u.githubEmail = githubEmail;
 		u.githubProfileUrl = profile.profileUrl;
 		u.githubPhotoUrl = profile.photos ? profile.photos[0].value : null;
 
@@ -385,7 +412,7 @@ export class UserService {
 			const octokit = new Octokit({ auth: githubAccessToken });
 			try {
 				await octokit.activity.checkRepoIsStarredByAuthenticatedUser({ owner: 'qiangyt', repo: 'batchai' });
-				u.grantLevel = GrantLevel.Full; // --> Promoted
+				u.grantLevel = GrantLevel.Promoted;
 			} catch (error) {
 				if (error.status !== 404) {
 					throw error;
@@ -394,8 +421,25 @@ export class UserService {
 		}
 
 		u = await this.dao.save(u);
+		this.logger.log(`successfully sign-in github user: ${JSON.stringify(u)}`);
+
+		/*try {
+			const batchaiRepo = new GithubRepo((output) => this.logger.log(output), null, 'qiangyt', 'batchai', false, null);
+			if (await batchaiRepo.isStarredBy(u.githubEmail)) {
+				this.logger.log(`successfully sign-in github user: ${JSON.stringify(u)}`);
+			}
+			this.logger.log(`successfully sign-in github user: ${JSON.stringify(u)}`);
+		} catch (err) {
+			this.logger.log(`successfully sign-in github user: ${JSON.stringify(u)}`);
+		}*/
 
 		return this.buildSignInDetail(x, u, githubAccessToken, githubRefreshToken);
+	}
+
+	async isStarredBy(id: number): Promise<boolean> {
+		const u = await this.load(id);
+		const batchaiRepo = new GithubRepo((output) => this.logger.log(output), null, 'qiangyt', 'batchai', false, null);
+		return await batchaiRepo.isStarredBy(u.githubEmail);
 	}
 }
 
@@ -453,6 +497,11 @@ export class UserFacade implements UserApi, OnModuleInit {
 		const u = await this.service.load(id);
 		return this.service.remove(u);
 	}
+
+	@Transactional({ readOnly: true })
+	async isStarredBy(x: Kontext, id: number): Promise<boolean> {
+		return this.service.isStarredBy(id);
+	}
 }
 
 @Controller('rest/v1/users')
@@ -475,6 +524,12 @@ export class UserRest implements UserApi {
 	@Delete('id/:id')
 	async removeUser(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<void> {
 		return this.facade.removeUser(x, id);
+	}
+
+	@RequiredRoles(Role.User)
+	@Get('id/:id/starred')
+	async isStarredBy(x: Kontext, id: number): Promise<boolean> {
+		return this.facade.isStarredBy(x, id);
 	}
 }
 

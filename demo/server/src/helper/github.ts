@@ -380,4 +380,38 @@ export class GithubRepo {
 		this.log(`successfully got last commit id in ${this.repoDir}...`);
 		return stdout.trim();
 	}
+
+	/**
+	 * Check if a specific user has starred this GitHub repository.
+	 * @param username - The GitHub username to check.
+	 * @returns True if the user has starred the repo, false otherwise.
+	 */
+	async isStarredBy(email: string): Promise<boolean> {
+		// Use the `listStargazers` API to fetch all stargazers
+		let page = 1;
+
+		while (true) {
+			const { data: stargazers } = await getOctokit().rest.activity.listStargazersForRepo({
+				owner: this.owner,
+				repo: this.name(),
+				per_page: 100, // GitHub API allows a max of 100 per page
+				page,
+			});
+
+			// If there are no more stargazers, break the loop
+			if (stargazers.length === 0) {
+				break;
+			}
+
+			// Check if the username exists in the current page of stargazers
+			if (stargazers.some((stargazer) => stargazer.email === email)) {
+				return true;
+			}
+
+			page++;
+		}
+
+		return false;
+	}
+
 }
