@@ -189,12 +189,6 @@ export class UserBasic {
 
 	updatedAt: Date;
 
-	ensureHasAdminRole() {
-		if (!this.admin) {
-			throw new ForbiddenException();
-		}
-	}
-
 	async render(u: User): Promise<UserBasic> {
 		this.id = u.id;
 		this.name = u.name;
