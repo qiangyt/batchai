@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { SignInDetail } from './user.dto';
+import * as userApi from '@/api/user.api';
 
 export interface SessionState {
   detail: SignInDetail;
@@ -31,10 +32,11 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
     window.location.href = `/rest/v1/auth/github/redirect?redirect_url=${redirectUrl}`;
   };
 
-  const load = () => {
+  const load = async() => {
     const storedSession = localStorage.getItem('session');
     if (storedSession) {
-      const d = SignInDetail.with(JSON.parse(storedSession));
+      let d = SignInDetail.with(JSON.parse(storedSession));
+      d = await userApi.renewUser(d.refreshToken);
       setDetail(d);
     }
   };
@@ -54,28 +56,6 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
   };
 
   useEffect(() => {
-    /*const t = {
-      "user": {
-        "id": 1,
-        "name": "qiangyt",
-        "email": "qiangyt@wxcount.com",
-        "displayName": "Yiting Qiang",
-        "avatarUrl": "https://avatars.githubusercontent.com/u/30411408?v=4",
-        "githubProfileUrl": "https://github.com/qiangyt",
-        "admin": true,
-        "createdAt": "2024-10-28T07:46:56.000Z",
-        "updatedAt": "2024-10-28T07:54:06.000Z",
-        "grantLevel": "Full",
-        "creater": null,
-        "updater": null
-      },
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMDQ3ODUzNCwiZXhwIjoxNzM0MDc4NTM0fQ.tXdcGb5KMXP7_8B268kK1XXiiBt5Abn1lF7KkTaYCpU",
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTczMDQ3ODUzNCwiZXhwIjo0MzIyNDc4NTM0fQ.WkFYeRFDe06SfTbqvalbLvTI1E5YCnjbxABKzi3Do3s",
-      "githubAccessToken": null,
-      "githubRefreshToken": null
-    };
-    localStorage.setItem("session", JSON.stringify(t, null, 4));*/
-
     const url = new URL(window.location.href);
     const encodedSignInDetail = url.searchParams.get("signInDetail");
     if (encodedSignInDetail) {
