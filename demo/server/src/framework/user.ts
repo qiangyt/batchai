@@ -24,6 +24,7 @@ import {
 	Logger,
 	ForbiddenException,
 	Delete,
+	Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -156,7 +157,7 @@ export interface UserApi {
 
 	isStarredBy(x: Kontext, id: number): Promise<boolean>;
 
-	renewSession(x: Kontext): Promise<SignInDetail>;
+	renewSession(x: Kontext, refreshToken: string): Promise<SignInDetail>;
 }
 
 export class UserBasic {
@@ -371,9 +372,25 @@ export class UserService {
 		return this.buildSignInDetail(x, u, null, null);
 	}
 
-	async renewSession(x: Kontext): Promise<SignInDetail> {
-		const u = x.user;
+	async renewSession(x: Kontext, refreshToken: string): Promise<SignInDetail> {
+		const payload = this.jwtService.verify(refreshToken, { secret: process.env.JWT_SECRET });
+		const id = payload.sub;
+		const u = await this.load(id);
+
 		return this.buildSignInDetail(x, u, null, null);
+	}
+
+	async checkGrantLevel(githubAccessToken: string): Promise<GrantLevel> {
+		const octokit = new Octokit({ auth: githubAccessToken });
+		try {
+			await octokit.activity.checkRepoIsStarredByAuthenticatedUser({ owner: 'qiangyt', repo: 'batchai' });
+			return GrantLevel.Promoted;
+		} catch (error) {
+			if (error.status !== 404) {
+				throw error;
+			}
+			return GrantLevel.Default;
+		}
 	}
 
 	async signinByGithub(
@@ -416,16 +433,7 @@ export class UserService {
 		}
 
 		if (!u.admin) {
-			const octokit = new Octokit({ auth: githubAccessToken });
-			try {
-				await octokit.activity.checkRepoIsStarredByAuthenticatedUser({ owner: 'qiangyt', repo: 'batchai' });
-				u.grantLevel = GrantLevel.Promoted;
-			} catch (error) {
-				if (error.status !== 404) {
-					throw error;
-				}
-				u.grantLevel = GrantLevel.Default;
-			}
+			u.grantLevel = await this.checkGrantLevel(githubAccessToken);
 		}
 
 		u = await this.dao.save(u);
@@ -490,8 +498,8 @@ export class UserFacade implements UserApi, OnModuleInit {
 	}
 
 	@Transactional({ readOnly: true })
-	async renewSession(x: Kontext): Promise<SignInDetail> {
-		return this.service.renewSession(x);
+	async renewSession(x: Kontext, refreshToken: string): Promise<SignInDetail> {
+		return this.service.renewSession(x, refreshToken);
 	}
 
 	@Transactional()
@@ -545,10 +553,10 @@ export class UserRest implements UserApi {
 		return this.facade.isStarredBy(x, id);
 	}
 
-	@RequiredRoles(Role.User)
+	@RequiredRoles(Role.None)
 	@Get('renew')
-	async renewSession(x: Kontext): Promise<SignInDetail> {
-		return this.facade.renewSession(x);
+	async renewSession(x: Kontext, @Query('refreshToken') refreshToken: string): Promise<SignInDetail> {
+		return this.facade.renewSession(x, refreshToken);
 	}
 }
 
