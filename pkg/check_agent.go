@@ -163,7 +163,7 @@ func (me CheckAgent) checkCode(x Kontext, c comm.Console, code string) CheckRepo
 		c.NewLine().Gray("chat: ").Default("check the code")
 	}
 
-	answer, metrics := me.modelService.Chat(x, x.Config.Check.ModelId, mem, NewFixCodeWriter(c))
+	answer, metrics := me.modelService.Chat(x, x.Config.Check.ModelId, true, mem, NewFixCodeWriter(c))
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}

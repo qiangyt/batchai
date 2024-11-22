@@ -1,6 +1,7 @@
 package batchai
 
 import (
+	"path"
 	"strings"
 	"sync"
 
@@ -95,7 +96,7 @@ func (me TestAgent) generateTest(x Kontext, testArgs TestArgs, c comm.Console) T
 	newReport := me.generateTestCode(x, c, testArgs, newCode, exstingTestCode)
 	newReport.Print(c)
 
-	comm.WriteFileTextP(x.Fs, me.file, newReport.TestCode)
+	comm.WriteFileTextP(x.Fs, path.Join(x.Args.Repository, newReport.TestFilePath), newReport.TestCode)
 
 	reportFile := me.reportManager.SaveReport(x, me.file, newReport)
 	c.NewLine().Blue("✔ report: ").Default(reportFile[len(x.Args.Repository)+1:])
@@ -155,7 +156,7 @@ func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArg
 		c.NewLine().Gray("chat: ").Default("generates tests")
 	}
 
-	answer, metrics := me.modelService.Chat(x, x.Config.Test.ModelId, mem, NewTestCodeWriter(c))
+	answer, metrics := me.modelService.Chat(x, x.Config.Test.ModelId, true, mem, NewTestCodeWriter(c))
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(mem.Format())
 	}

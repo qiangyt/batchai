@@ -18,6 +18,7 @@ type TestReportT struct {
 	Path              string `json:"path"`
 	ModelUsageMetrics ModelUsageMetrics
 
+	TestFilePath               string `json:"test_file_path"`
 	OriginalCode               string `json:"original_code"`
 	TestCode                   string `json:"test_code"`
 	AmountOfGeneratedTestCases int    `json:"amount_of_generated_test_cases"`
@@ -32,6 +33,7 @@ func (me TestReport) Print(console comm.Console) {
 	console.NewLine().Printf("Code Path: %s", me.Path)
 	console.NewLine().Printf("Amount of Generated Test Cases: %d", me.AmountOfGeneratedTestCases)
 	// console.NewLine().Printf("Test Code: %s", me.TestCode)
+	console.NewLine().Printf("Test File Path: %s", me.TestFilePath)
 	console.NewLine().Printf("Test Command: %s", me.SingleTestRunCommand)
 }
 

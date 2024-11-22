@@ -48,7 +48,7 @@ func (me ModelService) Decode(tokens []uint) string {
 	return text
 }
 
-func (me ModelService) Chat(x Kontext, modelId string, memory ChatMemory, writer io.Writer) (string, ModelUsageMetrics) {
+func (me ModelService) Chat(x Kontext, modelId string, saveIntoMemory bool, memory ChatMemory, writer io.Writer) (string, ModelUsageMetrics) {
 	metrics := NewModelUsageMetrics()
 
 	modelClient, exists := me.clients[modelId]
@@ -68,7 +68,7 @@ func (me ModelService) Chat(x Kontext, modelId string, memory ChatMemory, writer
 		}
 	}
 
-	chatCompletion, duration := modelClient.Chat(x, memory, writer)
+	chatCompletion, duration := modelClient.Chat(x, saveIntoMemory, memory, writer)
 
 	metrics.Duration = duration
 	metrics.OpenAiUsage = &chatCompletion.Usage

@@ -49,7 +49,7 @@ func (me ModelClient) release() {
 	<-me.semaphore
 }
 
-func (me ModelClient) Chat(x Kontext, memory ChatMemory, writer io.Writer) (*openai.ChatCompletion, time.Duration) {
+func (me ModelClient) Chat(x Kontext, saveIntoMemory bool, memory ChatMemory, writer io.Writer) (*openai.ChatCompletion, time.Duration) {
 	me.acquire()
 	defer me.release()
 
@@ -62,8 +62,10 @@ func (me ModelClient) Chat(x Kontext, memory ChatMemory, writer io.Writer) (*ope
 		r = me.chatStream(x, memory, writer)
 	}
 
-	content := r.Choices[0].Message.Content
-	memory.AddAssistantMessage(content)
+	if saveIntoMemory {
+		content := r.Choices[0].Message.Content
+		memory.AddAssistantMessage(content)
+	}
 
 	return r, time.Since(startTime)
 }
