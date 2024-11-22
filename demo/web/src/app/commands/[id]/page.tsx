@@ -222,7 +222,7 @@ export default function CommandHome({ params }) {
         if (c.isCheck()) {
           const reports = await commandApi.loadCommandCheckReports(s, ui, id);
           setDiffs(reports.map((report) => report.toDiff()));
-        }        
+        } 
       } catch (err) {
         ui.setError(err);
       } finally {
@@ -233,11 +233,24 @@ export default function CommandHome({ params }) {
   }, [s, ui, id]);
 
   useEffect(() => {
-    function onStatusEvent(c: CommandDetail) {
+    async function onStatusEvent(c: CommandDetail) {
       CommandDetail.with(c);
 
       refreshActiveStep(c.runStatus, setActiveStep);
       setCommand(c);
+
+      if (c.status === CommandStatus.Succeeded) {
+        if (c.isTest()) {
+          const reports = await commandApi.loadCommandTestReports(s, ui, id);
+          setDiffs(reports.map((report) => report.toDiff()));
+        }
+        if (c.isCheck()) {
+          const reports = await commandApi.loadCommandCheckReports(s, ui, id);
+          setDiffs(reports.map((report) => report.toDiff()));
+        } 
+
+        setLogTabIndex(0);
+      }
     }
 
     function onAuditLogEvent(newLog: CommandLog) {
