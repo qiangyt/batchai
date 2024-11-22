@@ -48,6 +48,10 @@ func (me ModelService) Decode(tokens []uint) string {
 	return text
 }
 
+func (me ModelService) EvaluatedTokens(prompt string) int {
+	tokens, _ := me.Encode(prompt)
+	return len(tokens)
+}
 
 func (me ModelService) loadClient(modelId string) ModelClient {
 	r, exists := me.clients[modelId]
@@ -55,6 +59,11 @@ func (me ModelService) loadClient(modelId string) ModelClient {
 		panic(fmt.Errorf("client for model ID %s not found", modelId))
 	}
 	return r
+}
+
+func (me ModelService) GetContextWindowSize(modelId string) int {
+	modelClient := me.loadClient(modelId)
+	return modelClient.config.ContextWindow
 }
 
 func (me ModelService) Chat(x Kontext, modelId string, saveIntoMemory bool, memory ChatMemory, writer io.Writer) (string, ModelUsageMetrics) {

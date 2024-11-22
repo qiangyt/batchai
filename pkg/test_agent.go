@@ -143,10 +143,16 @@ func (me TestCodeWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string, exstingTestCode string) TestReport {
+func (me TestAgent) generateTestCode(x Kontext, c comm.Console, testArgs TestArgs, code string, existingTestCode string) TestReport {
 	verbose := x.Args.Verbose
 
-	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Libraries, code, me.relativeFile, exstingTestCode)
+	inputExistingTestCode := existingTestCode
+	contextWindowSize := me.modelService.GetContextWindowSize(x.Config.Test.ModelId)
+	if len(inputExistingTestCode) > contextWindowSize-len(code)-1000 {
+		inputExistingTestCode = ""
+	}
+
+	sysPrompt := x.Config.Test.RenderPrompt(testArgs.Libraries, code, me.relativeFile, inputExistingTestCode)
 	mem := me.memory
 	mem.AddSystemMessage(sysPrompt)
 
