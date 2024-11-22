@@ -40,7 +40,7 @@ const Item = styled(Paper)(({ theme }) => ({
   border: `1px solid ${theme.palette.grey[700]}`,
   transition: 'background-color 0.3s ease',
   '&:hover': {
-    backgroundColor: "#4A90E2",
+    backgroundColor: "#21232b",
   },
   color: 'white',
 }));

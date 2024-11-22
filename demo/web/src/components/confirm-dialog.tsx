@@ -65,7 +65,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
 
     return (
         <Dialog open={props?.open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
-            <DialogTitle sx={{ backgroundColor: '#0085BF', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
+            <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
                 Confirm to {props?.action} {props?.subjectType}
             </DialogTitle>
             <DialogContent>

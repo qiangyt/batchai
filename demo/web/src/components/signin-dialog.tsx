@@ -55,7 +55,7 @@ export function SignInDialog(props: SignInDialogProps) {
 
     return (
         <Dialog open={props?.open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
-            <DialogTitle sx={{ backgroundColor: '#0085BF', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
+            <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
                 Sign In with Github
             </DialogTitle>
             <DialogContent>
