@@ -48,13 +48,19 @@ func (me ModelService) Decode(tokens []uint) string {
 	return text
 }
 
-func (me ModelService) Chat(x Kontext, modelId string, saveIntoMemory bool, memory ChatMemory, writer io.Writer) (string, ModelUsageMetrics) {
-	metrics := NewModelUsageMetrics()
 
-	modelClient, exists := me.clients[modelId]
+func (me ModelService) loadClient(modelId string) ModelClient {
+	r, exists := me.clients[modelId]
 	if !exists {
 		panic(fmt.Errorf("client for model ID %s not found", modelId))
 	}
+	return r
+}
+
+func (me ModelService) Chat(x Kontext, modelId string, saveIntoMemory bool, memory ChatMemory, writer io.Writer) (string, ModelUsageMetrics) {
+	metrics := NewModelUsageMetrics()
+
+	modelClient := me.loadClient(modelId)
 
 	if modelClient.config.TikTokenEnabled {
 		promptTokens, _ := me.Encode(memory.Format())

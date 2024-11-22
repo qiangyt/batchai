@@ -76,6 +76,7 @@ func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion 
 		Temperature: openai.F(me.config.Temperature),
 		Seed:        openai.Int(1),
 		Model:       openai.F(me.config.Name),
+		MaxTokens:   openai.Int(me.config.MaxOutputTokens),
 	})
 	if err != nil {
 		panic(errors.Wrap(err, "failed to call chat completions API"))

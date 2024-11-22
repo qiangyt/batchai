@@ -8,7 +8,7 @@ type ModelConfigT struct {
 	Id                      string        `mapstructure:"id,omitempty"`
 	Name                    string        `mapstructure:"name,omitempty"`
 	Temperature             float64       `mapstructure:"temperature,omitempty"`
-	MaxOutputTokens         int           `mapstructure:"max_output_tokens"`
+	MaxOutputTokens         int64         `mapstructure:"max_output_tokens"`
 	ContextWindow           int           `mapstructure:"context_window"`
 	TikTokenEnabled         bool          `mapstructure:"tik_token_enabled"`
 	ApiKey                  string        `mapstructure:"api_key"`
