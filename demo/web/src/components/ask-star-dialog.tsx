@@ -80,6 +80,9 @@ export function AskStarDialog(props: AskStarDialogProps) {
                     <Typography sx={{ mt: 2, ml: 3}}>
                     👉 Would you like to support us by giving a star?
                     </Typography>
+                    <Alert severity="warning" sx={{ mt: 1}}>
+                    You need to re-login after starred!
+                    </Alert>
                     <Typography sx={{ mt: 2, ml: 6}}>
                         Still have issue? {" -> "} 
                         <Link href="https://github.com/qiangyt/batchai/issues">https://github.com/qiangyt/batchai/issues</Link>
