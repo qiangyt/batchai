@@ -120,4 +120,9 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 		return CommandDetail.from(await this.service.lock(id), this.artifactFiles);
 	}
 
+	@Transactional()
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async unlockCommand(x: Kontext, id: number): Promise<CommandDetail> {
+		return CommandDetail.from(await this.service.unlock(id), this.artifactFiles);
+	}
 }

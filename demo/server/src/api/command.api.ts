@@ -34,4 +34,5 @@ export interface CommandApi {
 
 	lockCommand(x: Kontext, id: number): Promise<CommandDetail>;
 
+	unlockCommand(x: Kontext, id: number): Promise<CommandDetail>;
 }

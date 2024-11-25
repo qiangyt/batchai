@@ -114,4 +114,9 @@ export class CommandRest implements CommandApi {
 		return this.facade.lockCommand(x, id);
 	}
 
+	@RequiredRoles(Role.Admin)
+	@Patch('id/:id/unlock')
+	async unlockCommand(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandDetail> {
+		return this.facade.unlockCommand(x, id);
+	}
 }

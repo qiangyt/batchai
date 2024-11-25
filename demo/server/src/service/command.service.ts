@@ -628,4 +628,17 @@ export class CommandService {
 		return c;
 	}
 
+	async unlock(id: number): Promise<Command> {
+		this.logger.log(`unlocking command: ${id}`);
+
+		let c = await this.load(id);
+		if (!c.locked) {
+			throw new BadRequestException('already unlocked');
+		}
+		c.locked = false;
+
+		c = await this.dao.save(c);
+		this.logger.log(`successfully unlocked command: ${id}`);
+		return c;
+	}
 }
