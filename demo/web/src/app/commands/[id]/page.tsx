@@ -14,6 +14,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+import LockIcon from '@mui/icons-material/LockOutlined';
+import UnlockIcon from '@mui/icons-material/NoEncryptionOutlined';
 //import RefreshIcon from '@mui/icons-material/RefreshOutlined';
 import Link from '@mui/material/Link';
 import Toolbar from '@mui/material/Toolbar';
@@ -323,6 +325,27 @@ export default function CommandHome({ params }) {
     );
   };
 
+  const onLockOrUnlock = async () => {
+    if (!s.detail || !s.detail.accessToken) {
+      ui.signIn({action: 'lock/unlock command'});
+      return;
+    }
+
+    if (!s.detail.user.admin) {
+      alert('admin privilege is required');
+      return;
+    }
+
+    let c: CommandDetail;
+    if (command.locked) {    
+      c = await commandApi.unlockCommand(s, ui, id);
+    } else {
+      c = await commandApi.lockCommand(s, ui, id);
+    }
+
+    onRefreshPage(c);
+  };
+
   const onClickEditIcon = () => {
     if (!s.detail || !s.detail.accessToken) {
       ui.signIn({action: `${id ? 'update' : 'create'} command`});
@@ -372,6 +395,9 @@ export default function CommandHome({ params }) {
             </ToolbarIcon>
             <ToolbarIcon key='Delete' label='Delete' enabled={enableDelete} onClick={onDelete}>
               <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
+            </ToolbarIcon>
+            <ToolbarIcon key='LockOrUnlock' label={command?.locked ? 'Unlock' : 'Lock'} enabled onClick={onLockOrUnlock}>
+              <DeleteIcon sx={{ color: '#B8E986' }} />
             </ToolbarIcon>
           </Toolbar>
         </Box>

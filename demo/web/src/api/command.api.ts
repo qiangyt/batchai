@@ -41,3 +41,13 @@ export async function loadCommandCheckReports(s:SessionState, ui: UIContextType,
 export async function loadCommandTestReports(s:SessionState, ui: UIContextType, id: number): Promise<TestReport[]> {
   return TestReport.withMany(await withAxios(s, ui).get(`/commands/id/${id}/test_reports`));
 }
+
+// @RequiredRoles(Role.Admin)
+export async function lockCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
+  return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/lock`));
+}
+
+// @RequiredRoles(Role.Admin)
+export async function unlockCommand(s:SessionState, ui: UIContextType, id:number): Promise<CommandDetail> {
+  return CommandDetail.with(await withAxios(s, ui).patch(`/commands/id/${id}/unlock`));
+}

@@ -111,6 +111,8 @@ export class CommandDetail extends CommandBasic {
 
 	targetPaths?: string[];
 
+	locked: boolean;
+
 	static with(obj: any): CommandDetail {
 		if (!obj) return obj;
 		CommandBasic.with(obj);
