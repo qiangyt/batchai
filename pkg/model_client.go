@@ -77,7 +77,7 @@ func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion 
 		Temperature:         openai.F(me.config.Temperature),
 		Seed:                openai.Int(1),
 		Model:               openai.F(me.config.Name),
-		MaxCompletionTokens: openai.Int(me.config.MaxOutputTokens),
+		MaxCompletionTokens: openai.Int(me.config.MaxCompletionTokens),
 	})
 	if err != nil {
 		panic(errors.Wrap(err, "failed to call chat completions API"))
@@ -91,7 +91,7 @@ func (me ModelClient) chatStream(x Kontext, memory ChatMemory, output io.Writer)
 		Temperature:         openai.F(me.config.Temperature),
 		Seed:                openai.Int(0),
 		Model:               openai.F(me.config.Name),
-		MaxCompletionTokens: openai.Int(me.config.MaxOutputTokens),
+		MaxCompletionTokens: openai.Int(me.config.MaxCompletionTokens),
 	})
 
 	// optionally, an accumulator helper can be used
