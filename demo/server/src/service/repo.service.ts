@@ -143,6 +143,10 @@ export class RepoService {
 	async remove(repo: Repo, removeWorkingCopy: boolean): Promise<void> {
 		this.logger.log(`removing repository ${JSON.stringify(repo)}`);
 
+		if (repo.locked) {
+			throw new ConflictException(`cannot update a locked repoistory: ${repo.id}`);
+		}
+
 		await this.artifactFiles.archiveRepo(repo);
 		if (removeWorkingCopy) {
 			await this.artifactFiles.removeRepo(repo);
