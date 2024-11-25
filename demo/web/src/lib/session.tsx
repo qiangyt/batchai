@@ -1,8 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { SignInDetail } from './user.dto';
+import { GrantLevel, SignInDetail } from './user.dto';
 import * as userApi from '@/api/user.api';
+import { RequestStarDialog, RequestStarDialogProps } from '@/components/request-star-dialog';
 
 export interface SessionState {
   detail: SignInDetail;
@@ -26,6 +27,7 @@ interface SessionProviderProps {
 
 export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [detail, setDetail] = useState<SignInDetail | null>(null);
+  const [RequestStarDialogProps, setRequestStarDialogProps] = useState<RequestStarDialogProps>(null);
   
   const redirect = () => {
     const redirectUrl = encodeURIComponent(window.location.href);
@@ -38,6 +40,7 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
       let d = SignInDetail.with(JSON.parse(storedSession));
       d = await userApi.renewUser(d.refreshToken);
       setDetail(d);
+      return d;
     }
   };
 
@@ -56,24 +59,36 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
   };
 
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const encodedSignInDetail = url.searchParams.get("signInDetail");
-    if (encodedSignInDetail) {
-      const signInDetail = SignInDetail.with(JSON.parse(decodeURIComponent(encodedSignInDetail)));
-      save(signInDetail);
+    const restoreSession = async() => {
+      const url = new URL(window.location.href);
+      const encodedSignInDetail = url.searchParams.get("signInDetail");
+      if (encodedSignInDetail) {
+        const result = SignInDetail.with(JSON.parse(decodeURIComponent(encodedSignInDetail)));
+        save(result);
+  
+        url.searchParams.delete("signInDetail");
+        window.history.replaceState({}, document.title, url.toString());
+        return result;
+      } else {
+        return await load();
+      }
+    };
 
-      url.searchParams.delete("signInDetail");
-      window.history.replaceState({}, document.title, url.toString());
-    } else {
-      load();
-    }
+    restoreSession().then((signInDetail: SignInDetail) => {
+      if (signInDetail.user.grantLevel === GrantLevel.Default) {
+        setRequestStarDialogProps({open: true, closeFunc: () => setRequestStarDialogProps(null)});
+      }
+    });
   }, []);
 
   const session = { state: {detail, redirect, load, save, clear, has }};
-  return (
-    <SessionContext.Provider value={session}>
-      {children}
-    </SessionContext.Provider>
+  return (<>
+      <SessionContext.Provider value={session}>
+        {children}
+      </SessionContext.Provider>
+
+      <RequestStarDialog {...RequestStarDialogProps}/>
+    </>
   );
 };
 
