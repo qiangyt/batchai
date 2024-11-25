@@ -71,4 +71,11 @@ export class RepoFacade implements RepoApi {
 	async resolveRepoArchive(x: Kontext, id: number): Promise<string> {
 		return this.service.resolveRepoArchive(id);
 	}
+
+	@Transactional()
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async lockRepo(x: Kontext, id: number): Promise<RepoDetail> {
+		return RepoDetail.from(await this.service.lock(id), this.artifactFiles);
+	}
+
 }

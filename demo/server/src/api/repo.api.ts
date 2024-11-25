@@ -17,4 +17,7 @@ export interface RepoApi {
 	listAvaiableTargetPaths(x: Kontext, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]>;
 
 	resolveRepoArchive(x: Kontext, id: number): Promise<string>;
+
+	lockRepo(x: Kontext, id: number): Promise<RepoDetail>;
+
 }

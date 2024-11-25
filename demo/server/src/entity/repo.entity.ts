@@ -17,6 +17,9 @@ export class Repo extends AuditableEntity {
 	@Column({ name: 'name' })
 	name: string;
 
+	@Column({ nullable: true })
+	locked: boolean;
+
 	repoUrl(): string {
 		return `https://github.com/${this.owner.name}/${this.name}`;
 	}

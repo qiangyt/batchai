@@ -164,4 +164,19 @@ export class RepoService {
 
 		return listPathsWithPrefix(forkedFolder, params.path);
 	}
+
+	async lock(id: number): Promise<Repo> {
+		this.logger.log(`locking repo: ${id}`);
+
+		let c = await this.load(id);
+		if (c.locked) {
+			throw new BadRequestException('already locked');
+		}
+		c.locked = true;
+
+		c = await this.dao.save(c);
+		this.logger.log(`successfully locked repo: ${id}`);
+		return c;
+	}
+
 }

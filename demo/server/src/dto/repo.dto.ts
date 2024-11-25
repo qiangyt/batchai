@@ -56,8 +56,11 @@ export class RepoBasic extends AuditableDto {
 }
 
 export class RepoDetail extends RepoBasic {
+	locked: boolean;
+
 	async render(repo: Repo, artifactFiles: ArtifactFiles): Promise<RepoDetail> {
 		await super.render(repo, artifactFiles);
+		this.locked = repo.locked;
 		return this;
 	}
 

@@ -74,4 +74,11 @@ export class RepoRest implements RepoApi {
 	async resolveRepoArchive(x: Kontext, id: number): Promise<string> {
 		return this.facade.resolveRepoArchive(x, id);
 	}
+
+	@RequiredRoles(Role.Admin)
+	@Patch('id/:id/lock')
+	async lockRepo(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<RepoDetail> {
+		return this.facade.lockRepo(x, id);
+	}
+
 }
