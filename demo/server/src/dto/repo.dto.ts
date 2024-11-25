@@ -18,6 +18,8 @@ export class RepoBasic extends AuditableDto {
 
 	artifactArchiveFile: string;
 
+	locked: boolean;
+
 	async render(repo: Repo, artifactFiles: ArtifactFiles): Promise<RepoBasic> {
 		await super.render(repo);
 
@@ -25,6 +27,7 @@ export class RepoBasic extends AuditableDto {
 		this.name = repo.name;
 		this.repoUrl = repo.repoUrl();
 		this.artifactArchiveFile = await artifactFiles.repoArchive(repo);
+		this.locked = repo.locked;
 
 		if (repo.commands) {
 			repo.commands.forEach(async (c_) => {
@@ -56,11 +59,8 @@ export class RepoBasic extends AuditableDto {
 }
 
 export class RepoDetail extends RepoBasic {
-	locked: boolean;
-
 	async render(repo: Repo, artifactFiles: ArtifactFiles): Promise<RepoDetail> {
 		await super.render(repo, artifactFiles);
-		this.locked = repo.locked;
 		return this;
 	}
 

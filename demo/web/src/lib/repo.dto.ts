@@ -18,6 +18,8 @@ export class RepoBasic extends AuditableDto {
 
   artifactArchiveFile: string;
 
+  locked: boolean;
+
   private _repoPath: string;
 
   command(commandName: string): CommandBasic {
@@ -62,6 +64,7 @@ export class RepoBasic extends AuditableDto {
 }
 
 export class RepoDetail extends RepoBasic {
+
   static with(obj: any): RepoDetail {
     if (!obj) return obj;
     RepoBasic.with(obj);

@@ -26,3 +26,13 @@ export async function removeRepo(s:SessionState, ui: UIContextType, id:number): 
 export async function listAvaiableTargetPaths(s:SessionState, ui: UIContextType, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
   return withAxios(s, ui).get(`/repos/id/${id}/available_paths`, { params });
 }
+
+// @RequiredRoles(Role.Admin)
+export async function lockRepo(s:SessionState, ui: UIContextType, id:number): Promise<RepoDetail> {
+  return RepoDetail.with(await withAxios(s, ui).patch(`/repos/id/${id}/lock`));
+}
+
+// @RequiredRoles(Role.Admin)
+export async function unlockRepo(s:SessionState, ui: UIContextType, id:number): Promise<RepoDetail> {
+  return RepoDetail.with(await withAxios(s, ui).patch(`/repos/id/${id}/unlock`));
+}

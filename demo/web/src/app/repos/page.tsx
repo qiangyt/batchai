@@ -20,6 +20,8 @@ import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import LockIcon from '@mui/icons-material/LockOutlined';
+import UnlockIcon from '@mui/icons-material/NoEncryptionOutlined';
 
 async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dispatch<React.SetStateAction<Page<RepoBasic>>>, params?: RepoSearchParams) {
   if (ui) ui.setLoading(true);
@@ -34,6 +36,7 @@ async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dis
 }
 
 const Item = styled(Paper)(({ theme }) => ({
+  minWidth: 420,
   padding: theme.spacing(3),
   borderRadius: 0,
   backgroundColor: 'transparent',
@@ -106,6 +109,28 @@ export default function RepoList() {
     otEvent(e);
     setNewRepoPath(e.target.value);
   };
+  
+  const onLockOrUnlockRepo = async (e, repo:RepoBasic) => {
+    otEvent(e);
+
+    if (!s.detail || !s.detail.accessToken) {
+      ui.signIn({action: 'lock/unlock repository'});
+      return;
+    }
+
+    if (!s.detail.user.admin) {
+      alert('admin privilege is required');
+      return;
+    }
+
+    if (repo.locked) {    
+      repo = await repoApi.unlockRepo(s, ui, repo.id);
+    } else {
+      repo = await repoApi.lockRepo(s, ui, repo.id);
+    }
+  
+    setPage({ ...page, elements: page.elements.map((element) => repo)});
+  };
 
   const onDeleteRepo = async(e, repo:RepoBasic) => {
     otEvent(e);
@@ -150,7 +175,7 @@ export default function RepoList() {
     </Box>
 
     <Masonry columns={3} spacing={2} sx={{mt:6}}>
-      <Paper key='add' style={{padding: 30, backgroundColor: 'transparent', color: 'white'}}>
+      <Paper key='add' style={{minWidth: 420,padding: 30, backgroundColor: 'transparent', color: 'white'}}>
         <Fab variant="extended" color="primary" aria-label="add" onClick={onAddRepo}><AddIcon />Your Github</Fab>
         <TextField inputRef={addNewRepoRef} required sx={{mt:2.3}} size="small"  id="newRepoPath" label="Repository Path:" fullWidth variant='outlined'
               onKeyDown={onKeyDownNewRepo} value={newRepoPath} onChange={onChangeNewRepoPath}
@@ -164,6 +189,11 @@ export default function RepoList() {
             <Box>
               <Link href={repo.repoUrl}>
                 <Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}
+                  { repo.locked ? 
+                      <UnlockIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onLockOrUnlockRepo(e, repo)}/>
+                      :
+                      <LockIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onLockOrUnlockRepo(e, repo)}/>
+                  }
                   <DeleteIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onDeleteRepo(e, repo)}/>
                 </Typography>
               </Link>
