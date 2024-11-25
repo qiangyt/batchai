@@ -13,6 +13,7 @@ import {
 	traverseFilesWithExtension,
 	dirExists,
 	readJsonFile,
+	fileExists,
 } from '../helper';
 import { Repo, Command, EXAMPLES_ORG } from '../entity';
 import { CommandCreateReq, CommandDetail, CommandLog, CommandUpdateReq } from '../dto';
@@ -602,5 +603,14 @@ export class CommandService {
 		// }
 
 		c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.End);
+	}
+
+	async resolveCommandArchive(id: number): Promise<string> {
+		const c = await this.load(id);
+		const p = await this.artifactFiles.commandArchive(c);
+		if (!(await fileExists(p))) {
+			await this.artifactFiles.archiveCommand(c);
+		}
+		return p;
 	}
 }

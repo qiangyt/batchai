@@ -3,7 +3,7 @@ import { mkdirp } from 'mkdirp';
 import path from 'path';
 import { DATA_DIR } from 'src/constants';
 import AdmZip from 'adm-zip';
-import { copyFileOrDir, removeFileOrDir } from 'src/helper';
+import { copyFileOrDir, fileExists, removeFileOrDir } from 'src/helper';
 import { Command, Repo } from 'src/entity';
 
 @Injectable()
@@ -127,8 +127,13 @@ export class ArtifactFiles {
 		this.logger.log(
 			`archive command folder: commandId=${cmdId}, commandFolder=${cmdFolder}, archiveFile=${archiveFile}`,
 		);
+
+		if (await fileExists(archiveFile)) {
+			removeFileOrDir(archiveFile);
+		}
+
 		const zip = new AdmZip();
-		await zip.addLocalFolderPromise(cmdFolder, { zipPath: `${repo.owner.name}_${repo.name}_${cmd.command}` });
+		zip.addLocalFolder(cmdFolder, `${repo.owner.name}_${repo.name}_${cmd.command}`);
 		await zip.writeZipPromise(archiveFile);
 
 		const timestampedArchiveFile = await this.commandTimestampedArchive(cmd);

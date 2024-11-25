@@ -107,4 +107,10 @@ export class CommandFacade implements CommandApi, OnModuleInit {
 		const c = await this.service.load(id);
 		return this.service.remove(c, true);
 	}
+
+	@Transactional({ readOnly: true })
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async resolveCommandArchive(x: Kontext, id: number): Promise<string> {
+		return this.service.resolveCommandArchive(id);
+	}
 }

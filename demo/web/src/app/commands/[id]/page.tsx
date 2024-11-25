@@ -139,7 +139,6 @@ export default function CommandHome({ params }) {
   let commandName = '';
   let repoUrl = '';
   let repoName = '';
-  let repoId = 0;
   let ownerName = '';
 
   if (command) {
@@ -344,7 +343,7 @@ export default function CommandHome({ params }) {
 
             <Typography sx={{ mt: 2 }} variant="body2">
               {status}
-              <Link href={`/rest/v1/repos/id/${repoId}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: enableDownload ? '#4A90E2' : 'gray' }}>
+              <Link href={`/rest/v1/commands/id/${id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: enableDownload ? '#4A90E2' : 'gray' }}>
                 <DownloadIcon sx={{ ml: 2, color: enableDownload ? '#4A90E2' : 'gray' }} />
               </Link>
             </Typography>

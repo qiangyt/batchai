@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { CommandStatus } from '../constants';
 import { CommandFacade } from '../service';
 import { CommandApi } from '../api';
@@ -94,5 +95,16 @@ export class CommandRest implements CommandApi {
 	@Delete('id/:id')
 	async removeCommand(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<void> {
 		return this.facade.removeCommand(x, id);
+	}
+
+	@RequiredRoles(Role.None)
+	@Get('id/:id/artifact')
+	async downloadArtifact(@RequestKontext() x: Kontext, @Param('id') id: number, @Res() res: Response) {
+		const zipFilePath = await this.resolveCommandArchive(x, id);
+		res.download(zipFilePath);
+	}
+
+	async resolveCommandArchive(x: Kontext, id: number): Promise<string> {
+		return this.facade.resolveCommandArchive(x, id);
 	}
 }

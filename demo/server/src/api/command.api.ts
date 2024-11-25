@@ -29,4 +29,6 @@ export interface CommandApi {
 	stopCommand(x: Kontext, id: number): Promise<CommandDetail>;
 
 	removeCommand(x: Kontext, id: number): Promise<void>;
+
+	resolveCommandArchive(x: Kontext, id: number): Promise<string>;
 }
