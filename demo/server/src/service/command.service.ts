@@ -572,6 +572,7 @@ export class CommandService {
 			if (c.status !== CommandStatus.Running) return;
 			if (c.nextRunStatus() === CommandRunStatus.ChangesArchived) {
 				this.artifactFiles.archiveCommand(c);
+				await this.artifactFiles.archiveRepo(repo);
 
 				this.auditLog(exeCtx, `archived current changes`);
 				c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);
@@ -587,6 +588,7 @@ export class CommandService {
 			}
 		} else {
 			this.artifactFiles.archiveCommand(c);
+			await this.artifactFiles.archiveRepo(repo);
 
 			this.auditLog(exeCtx, `archived without changes`);
 			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.ChangesArchived);

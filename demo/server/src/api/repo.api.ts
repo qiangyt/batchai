@@ -15,4 +15,6 @@ export interface RepoApi {
 	removeRepo(x: Kontext, id: number, removeWorkingCopy: boolean): Promise<void>;
 
 	listAvaiableTargetPaths(x: Kontext, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]>;
+
+	resolveRepoArchive(x: Kontext, id: number): Promise<string>;
 }

@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { dirExists, GithubRepo, listPathsWithPrefix, removeFileOrDir } from '../helper';
+import { dirExists, fileExists, GithubRepo, listPathsWithPrefix, removeFileOrDir } from '../helper';
 import { EXAMPLES_ORG, Repo } from '../entity';
 import { ListAvaiableTargetPathsParams, RepoCreateReq, RepoSearchParams } from '../dto';
 import { Page, Kontext, User } from '../framework';
@@ -129,6 +129,15 @@ export class RepoService {
 			throw new NotFoundException(`id=${id}`);
 		}
 		return r;
+	}
+
+	async resolveRepoArchive(id: number): Promise<string> {
+		const r = await this.load(id);
+		const p = await this.artifactFiles.repoArchive(r);
+		if (!(await fileExists(p))) {
+			await this.artifactFiles.archiveRepo(r);
+		}
+		return p;
 	}
 
 	async remove(repo: Repo, removeWorkingCopy: boolean): Promise<void> {

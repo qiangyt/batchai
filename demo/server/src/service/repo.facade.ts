@@ -65,4 +65,10 @@ export class RepoFacade implements RepoApi {
 	async listAvaiableTargetPaths(x: Kontext, id: number, params: ListAvaiableTargetPathsParams): Promise<string[]> {
 		return this.service.listAvaiableTargetPaths(id, params);
 	}
+
+	@Transactional({ readOnly: true })
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async resolveRepoArchive(x: Kontext, id: number): Promise<string> {
+		return this.service.resolveRepoArchive(id);
+	}
 }

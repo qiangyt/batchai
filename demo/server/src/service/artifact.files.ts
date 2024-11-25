@@ -77,8 +77,13 @@ export class ArtifactFiles {
 		this.logger.log(
 			`archive repository folder: repoId=${repoId}, repoFolder=${repoFolder}, archiveFile=${archiveFile}`,
 		);
+
+		if (await fileExists(archiveFile)) {
+			removeFileOrDir(archiveFile);
+		}
+
 		const zip = new AdmZip();
-		await zip.addLocalFolderPromise(repoFolder, { zipPath: `${repo.owner.name}_${repo.name}` });
+		zip.addLocalFolder(repoFolder, `${repo.owner.name}_${repo.name}`);
 		await zip.writeZipPromise(archiveFile);
 
 		const timestampedArchiveFile = await this.repoTimestampedArchive(repo);
