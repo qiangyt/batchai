@@ -110,8 +110,11 @@ export class CommandService {
 		params.normalize();
 
 		let c = await this.load(id);
+		if (c.locked) {
+			throw new ConflictException(`cannot update a locked command: ${c.id}`);
+		}
 		if (c.status === CommandStatus.Running) {
-			throw new ConflictException(`cannot update a running command: ${JSON.stringify(c)}`);
+			throw new ConflictException(`cannot update a running command: ${c.id}`);
 		}
 
 		const u = x.user;
@@ -402,7 +405,7 @@ export class CommandService {
 		this.logger.log(`restarting command: ${JSON.stringify(c)}`);
 
 		if (c.status === CommandStatus.Running) {
-			throw new ConflictException(`cannot restart a running command: ${JSON.stringify(c)}`);
+			throw new ConflictException(`cannot restart a running command: ${c.id}`);
 		}
 
 		c.hasChanges = false;
@@ -442,6 +445,9 @@ export class CommandService {
 	async remove(c: Command, removeWorkingCopy: boolean): Promise<void> {
 		this.logger.log(`removing command: ${JSON.stringify(c)}`);
 
+		if (c.locked) {
+			throw new ConflictException(`cannot update a locked command: ${c.id}`);
+		}
 		if (c.status === CommandStatus.Running) {
 			throw new ConflictException(`cannot remove a ${c.status} command`);
 		}
