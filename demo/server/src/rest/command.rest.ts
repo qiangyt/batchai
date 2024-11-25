@@ -107,4 +107,11 @@ export class CommandRest implements CommandApi {
 	async resolveCommandArchive(x: Kontext, id: number): Promise<string> {
 		return this.facade.resolveCommandArchive(x, id);
 	}
+
+	@RequiredRoles(Role.Admin)
+	@Patch('id/:id/lock')
+	async lockCommand(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<CommandDetail> {
+		return this.facade.lockCommand(x, id);
+	}
+
 }

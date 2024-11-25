@@ -69,6 +69,7 @@ export class CommandDetail extends CommandBasic {
 	testUpdate: boolean;
 
 	targetPaths: string[];
+	locked: boolean;
 
 	async render(c: Command, artifactFiles: ArtifactFiles): Promise<CommandDetail> {
 		await super.render(c, artifactFiles);
@@ -84,6 +85,7 @@ export class CommandDetail extends CommandBasic {
 		this.testLibrary = c.testLibrary;
 		this.testUpdate = c.testUpdate;
 		this.targetPaths = c.targetPaths;
+		this.locked = c.locked;
 
 		return this;
 	}

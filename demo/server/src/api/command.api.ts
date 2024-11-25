@@ -31,4 +31,7 @@ export interface CommandApi {
 	removeCommand(x: Kontext, id: number): Promise<void>;
 
 	resolveCommandArchive(x: Kontext, id: number): Promise<string>;
+
+	lockCommand(x: Kontext, id: number): Promise<CommandDetail>;
+
 }

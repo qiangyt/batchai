@@ -50,6 +50,9 @@ export class Command extends AuditableEntity {
 	@Column({ name: 'target_paths', type: 'json', nullable: true })
 	targetPaths: string[];
 
+	@Column({ nullable: true })
+	locked: boolean;
+
 	commitUrl(): string {
 		return `https://github.com/batchai-examples/batchai/commit/${this.commitId}`;
 	}

@@ -613,4 +613,19 @@ export class CommandService {
 		}
 		return p;
 	}
+
+	async lock(id: number): Promise<Command> {
+		this.logger.log(`locking command: ${id}`);
+
+		let c = await this.load(id);
+		if (c.locked) {
+			throw new BadRequestException('already locked');
+		}
+		c.locked = true;
+
+		c = await this.dao.save(c);
+		this.logger.log(`successfully locked command: ${id}`);
+		return c;
+	}
+
 }
