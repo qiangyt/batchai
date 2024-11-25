@@ -82,7 +82,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
   
     if (data.numQuota > 0) {
       if (num <= 0 || num > data.numQuota) {
-        ui.askStar();
+        ui.requestStar();
         return;
       }
     }

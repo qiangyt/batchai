@@ -8,7 +8,7 @@ import React, { createContext, useContext, useState, ReactNode, useMemo, useEffe
 import { ConfirmDialog, ConfirmDialogMessage, ConfirmDialogProps } from '../components/confirm-dialog';
 import Backdrop from '@mui/material/Backdrop';
 import { SignInDialog, SignInDialogMessage, SignInDialogProps } from '@/components/signin-dialog';
-import { AskStarDialog, AskStarDialogProps } from '@/components/ask-star-dialog';
+import { RequestStarDialog, RequestStarDialogProps } from '@/components/request-star-dialog';
 
 export interface UIContextType {
   setLoading: (value: boolean) => void;
@@ -16,7 +16,7 @@ export interface UIContextType {
   
   confirm: (message: ConfirmDialogMessage, onConfirmed: () => void) => void;
   signIn: (message: SignInDialogMessage) => void;
-  askStar: () => void;
+  requestStar: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -28,7 +28,7 @@ export const UIContextProvider = ({ children }: { children: ReactNode }) => {
 
   const [confirmDialogProps, setConfirmDialogProps] = useState<ConfirmDialogProps>(null);  
   const [signInDialogProps, setSignInDialogProps] = useState<SignInDialogProps>(null);
-  const [askStarDialogProps, setAskStarDialogProps] = useState<AskStarDialogProps>(null);
+  const [RequestStarDialogProps, setRequestStarDialogProps] = useState<RequestStarDialogProps>(null);
   const handleCloseError = () => setError(null);
 
   const value = useMemo(() => {
@@ -40,11 +40,11 @@ export const UIContextProvider = ({ children }: { children: ReactNode }) => {
       setSignInDialogProps({...message, open: true, closeFunc: () => setSignInDialogProps(null)});
     };    
 
-    const askStar = () => {
-      setAskStarDialogProps({open: true, closeFunc: () => setAskStarDialogProps(null)});
+    const requestStar = () => {
+      setRequestStarDialogProps({open: true, closeFunc: () => setRequestStarDialogProps(null)});
     };
 
-    return { setLoading, setError, confirm, signIn, askStar };
+    return { setLoading, setError, confirm, signIn, requestStar };
   }, []);
 
 
@@ -88,7 +88,7 @@ export const UIContextProvider = ({ children }: { children: ReactNode }) => {
 
       <ConfirmDialog {...confirmDialogProps} />
       <SignInDialog {...signInDialogProps}/>
-      <AskStarDialog {...askStarDialogProps}/>
+      <RequestStarDialog {...RequestStarDialogProps}/>
     </>
   );
 };

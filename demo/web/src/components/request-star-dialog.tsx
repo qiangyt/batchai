@@ -44,14 +44,14 @@ function PaperComponent(props: PaperProps) {
     );
   }
 
-export class AskStarDialogProps {
+export class RequestStarDialogProps {
     open: boolean;
     closeFunc?: () => void;  
 
     constructor() {}
 }
 
-export function AskStarDialog(props: AskStarDialogProps) {
+export function RequestStarDialog(props: RequestStarDialogProps) {
     const onClose = (e) => {
         otEvent(e);
         props.closeFunc();
