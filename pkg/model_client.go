@@ -77,7 +77,6 @@ func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion 
 		Temperature:         openai.F(me.config.Temperature),
 		Seed:                openai.Int(1),
 		Model:               openai.F(me.config.Name),
-		MaxTokens:           openai.Int(me.config.MaxOutputTokens),
 		MaxCompletionTokens: openai.Int(me.config.MaxOutputTokens),
 	})
 	if err != nil {
@@ -92,7 +91,6 @@ func (me ModelClient) chatStream(x Kontext, memory ChatMemory, output io.Writer)
 		Temperature:         openai.F(me.config.Temperature),
 		Seed:                openai.Int(0),
 		Model:               openai.F(me.config.Name),
-		MaxTokens:           openai.Int(me.config.MaxOutputTokens),
 		MaxCompletionTokens: openai.Int(me.config.MaxOutputTokens),
 	})
 
