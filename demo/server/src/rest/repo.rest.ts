@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Delete, Query, HttpStatus, HttpCode, Post, Body, Res } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Query, HttpStatus, HttpCode, Post, Body, Res, Patch } from '@nestjs/common';
 import { Response } from 'express';
 import { RepoFacade } from '../service';
 import { Kontext, RequestKontext, Page, RequiredRoles, Role } from '../framework';
@@ -81,4 +81,9 @@ export class RepoRest implements RepoApi {
 		return this.facade.lockRepo(x, id);
 	}
 
+	@RequiredRoles(Role.Admin)
+	@Patch('id/:id/unlock')
+	async unlockRepo(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<RepoDetail> {
+		return this.facade.unlockRepo(x, id);
+	}
 }

@@ -20,4 +20,5 @@ export interface RepoApi {
 
 	lockRepo(x: Kontext, id: number): Promise<RepoDetail>;
 
+	unlockRepo(x: Kontext, id: number): Promise<RepoDetail>;
 }

@@ -179,4 +179,17 @@ export class RepoService {
 		return c;
 	}
 
+	async unlock(id: number): Promise<Repo> {
+		this.logger.log(`unlocking repo: ${id}`);
+
+		let c = await this.load(id);
+		if (!c.locked) {
+			throw new BadRequestException('already unlocked');
+		}
+		c.locked = false;
+
+		c = await this.dao.save(c);
+		this.logger.log(`successfully unlocked repo: ${id}`);
+		return c;
+	}
 }
