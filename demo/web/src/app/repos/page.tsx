@@ -22,6 +22,7 @@ import TextField from '@mui/material/TextField';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import LockIcon from '@mui/icons-material/LockOutlined';
 import UnlockIcon from '@mui/icons-material/NoEncryptionOutlined';
+import { CircularProgressWithLabel } from '@/components/circular-progress-with-label';
 
 async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dispatch<React.SetStateAction<Page<RepoBasic>>>, params?: RepoSearchParams) {
   if (ui) ui.setLoading(true);
@@ -53,6 +54,7 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function RepoList() {
   const [page, setPage] = useState<Page<RepoBasic>>({ total: 0, page: 0, limit: 100, elements: [] });
   const [newRepoPath, setNewRepoPath] = useState("");
+  const [addRepoProgress, setAddRepoProgress] = React.useState(5);
   const s = useSession().state;
   const ui = useUIContext();
 
@@ -86,14 +88,24 @@ export default function RepoList() {
 
       const parsed = ParsedRepoPath.parse(newRepoPath);
       if (parsed) {
-        ui.setLoading(true);
+        const timer = setInterval(() => {
+          setAddRepoProgress((prevProgress: number) => {
+            let newProgress = prevProgress + 10;
+            if (newProgress >= 100) {
+              return prevProgress;
+            }
+            return newProgress;
+          });
+        }, 800);
+        
         try {
         await repoApi.createRepo(s, ui, {path: newRepoPath});
         } catch (err) {
           ui.setError(err);
         } finally {
-          ui.setLoading(false);
+          clearInterval(timer);
         }
+
         await searchRepo(s, ui, setPage);
       }
     }
@@ -219,6 +231,8 @@ export default function RepoList() {
           </Item>
       ))}
     </Masonry>
+
+    <CircularProgressWithLabel value={addRepoProgress} />
   </>
   );
 }
