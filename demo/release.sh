@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=20241126A
+version=20241126B
 demo_repo_d=/data/batchai/batchai/demo
 tag_suffix=${version} #$(date +"%Y%m%d-%H%M%S")
 registry=registry.cn-shanghai.aliyuncs.com/wxcount
