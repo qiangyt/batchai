@@ -28,6 +28,7 @@ class CommandExecutionContext {
 		public command: Command,
 		readonly auditLog: string,
 		readonly executionLog: string,
+		readonly i18n: I18nService,
 	) {}
 
 	static async build(command: Command, artifactFiles: ArtifactFiles): Promise<CommandExecutionContext> {

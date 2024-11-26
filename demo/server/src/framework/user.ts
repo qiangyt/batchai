@@ -87,6 +87,9 @@ export class User {
 	@Column({ name: 'granted_level', type: 'varchar', enum: GrantLevel })
 	grantLevel: GrantLevel;
 
+	@Column({ nullable: true })
+	language: string;
+
 	@CreateDateColumn({ name: 'created_at' })
 	createdAt: Date;
 
@@ -185,6 +188,8 @@ export class UserBasic {
 
 	admin: boolean;
 
+	language: string;
+
 	createdAt: Date;
 
 	updatedAt: Date;
@@ -197,6 +202,7 @@ export class UserBasic {
 		this.avatarUrl = u.avatarUrl;
 		this.githubProfileUrl = u.githubProfileUrl;
 		this.admin = u.admin;
+		this.language = u.language;
 		this.createdAt = u.createdAt;
 		this.updatedAt = u.updatedAt;
 
@@ -266,6 +272,7 @@ export class UserService {
 	constructor(
 		private jwtService: JwtService,
 		@InjectRepository(User) private dao: Repository<User>,
+		private readonly i18n: I18nService,
 	) {}
 
 	async initAdminUser(x: Kontext): Promise<void> {

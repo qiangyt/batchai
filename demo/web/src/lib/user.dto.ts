@@ -36,6 +36,8 @@ export class UserBasic {
 
   admin: boolean;
 
+  language: string;
+
   createdAt: Date;
 
   updatedAt: Date;

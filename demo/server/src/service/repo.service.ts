@@ -16,6 +16,7 @@ export class RepoService {
 	constructor(
 		@InjectRepository(Repo) private dao: Repository<Repo>,
 		private readonly artifactFiles: ArtifactFiles,
+		private readonly i18n: I18nService,
 	) {}
 
 	async search(params: RepoSearchParams): Promise<Page<Repo>> {

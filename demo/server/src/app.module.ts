@@ -6,6 +6,8 @@ import { CommandRest, RepoRest } from './rest';
 import { FrameworkModule, jwtAuthGuard, requestKontextInterceptor } from './framework';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SQLITE_FILE } from './constants';
+import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
+import path from 'path';
 
 const ENTITIES = [Repo, Command];
 const CONTROLLERS = [RepoRest, CommandRest];
@@ -32,6 +34,15 @@ const PROVIDERS = [
 			autoLoadEntities: true,
 		}),
 		TypeOrmModule.forFeature(ENTITIES),
+		I18nModule.forRoot({
+			fallbackLanguage: 'en',
+			loaderOptions: {
+				path: path.join(__dirname, '/i18n/'),
+				watch: process.env.NODE_ENV !== 'production',
+			},
+			resolvers: [AcceptLanguageResolver],
+			//typesOutputPath: path.join(__dirname, '../src/generated/i18n.generated.ts'),
+		}),
 	],
 	controllers: CONTROLLERS,
 	providers: PROVIDERS,

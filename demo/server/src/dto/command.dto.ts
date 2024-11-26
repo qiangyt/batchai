@@ -6,6 +6,7 @@ import { AuditableDto } from '../framework';
 import { BadRequestException } from '@nestjs/common';
 import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ArtifactFiles } from 'src/service/artifact.files';
+import { I18nService } from 'nestjs-i18n';
 
 export class SubscribeCommandLogReq {
 	constructor(
@@ -156,7 +157,7 @@ export class ParsedRepoPath {
 		public repoName: string,
 	) {}
 
-	static parse(path: string): ParsedRepoPath {
+	static parse(path: string, i18n: I18nService): ParsedRepoPath {
 		let p = path.trim();
 		if (p.toLowerCase().startsWith('https://')) {
 			p = p.substring('https://'.length);
@@ -195,7 +196,7 @@ export class CommandCreateReq extends CommandUpdateReq {
 	@IsNotEmpty()
 	command: string;
 
-	normalize() {
+	normalize(i18n: I18nService) {
 		if (this.command !== 'check' && this.command !== 'test') {
 			throw new BadRequestException(`unsupported command: "${this.command}"`);
 		}
