@@ -96,7 +96,7 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		c.Redf("%+v\n", err)
 	}
-	c.Defaultf(`
+	c.Greenf(`
                  Thanks for using batchai %s🙏
                  Please consider starring to my work: 
                🍷  https://github.com/qiangyt/batchai
