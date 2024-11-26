@@ -147,7 +147,13 @@ export default function RepoList() {
       repo = await repoApi.lockRepo(s, ui, repo.id);
     }
   
-    setPage({ ...page, elements: page.elements.map((element) => repo)});
+    setPage({ ...page, elements: page.elements.map((element) => {
+      if (element.id === repo.id) {
+        return repo;
+      } else {
+        return element;
+      }
+    })});
   };
 
   const onDeleteRepo = async (e, repo: RepoBasic) => {
