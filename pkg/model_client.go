@@ -120,13 +120,17 @@ func (me ModelClient) Chat(x Kontext, c comm.Console, saveIntoMemory bool, memor
 }
 
 func (me ModelClient) chat(x Kontext, memory ChatMemory, requestedMaxCompletionTokens int64) *openai.ChatCompletion {
-	r, err := me.openAiClient.Chat.Completions.New(x.Context, openai.ChatCompletionNewParams{
-		Messages:            openai.F(memory.ToChatCompletionMessageParamUnion()),
-		Temperature:         openai.F(me.config.Temperature),
-		Seed:                openai.Int(1),
-		Model:               openai.F(me.config.Name),
-		MaxCompletionTokens: openai.Int(requestedMaxCompletionTokens),
-	})
+	params := openai.ChatCompletionNewParams{
+		Messages:    openai.F(memory.ToChatCompletionMessageParamUnion()),
+		Temperature: openai.F(me.config.Temperature),
+		Seed:        openai.Int(1),
+		Model:       openai.F(me.config.Name),
+	}
+	if requestedMaxCompletionTokens > 0 {
+		params.MaxCompletionTokens = openai.Int(requestedMaxCompletionTokens)
+	}
+
+	r, err := me.openAiClient.Chat.Completions.New(x.Context, params)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to call chat completions API"))
 	}
@@ -134,13 +138,17 @@ func (me ModelClient) chat(x Kontext, memory ChatMemory, requestedMaxCompletionT
 }
 
 func (me ModelClient) chatStream(x Kontext, memory ChatMemory, output io.Writer, requestedMaxCompletionTokens int64) *openai.ChatCompletion {
-	stream := me.openAiStreamingClient.Chat.Completions.NewStreaming(x.Context, openai.ChatCompletionNewParams{
-		Messages:            openai.F(memory.ToChatCompletionMessageParamUnion()),
-		Temperature:         openai.F(me.config.Temperature),
-		Seed:                openai.Int(0),
-		Model:               openai.F(me.config.Name),
-		MaxCompletionTokens: openai.Int(requestedMaxCompletionTokens),
-	})
+	params := openai.ChatCompletionNewParams{
+		Messages:    openai.F(memory.ToChatCompletionMessageParamUnion()),
+		Temperature: openai.F(me.config.Temperature),
+		Seed:        openai.Int(0),
+		Model:       openai.F(me.config.Name),
+	}
+	if requestedMaxCompletionTokens > 0 {
+		params.MaxCompletionTokens = openai.Int(requestedMaxCompletionTokens)
+	}
+
+	stream := me.openAiStreamingClient.Chat.Completions.NewStreaming(x.Context, params)
 
 	// optionally, an accumulator helper can be used
 	acc := &openai.ChatCompletionAccumulator{}
