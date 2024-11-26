@@ -93,23 +93,27 @@ export default function RepoList() {
         setAddingRepo(true);
         setAddRepoProgress(5);
 
-        const timer = setInterval(() => {
+        const intervalTimer = setInterval(() => {
           setAddRepoProgress((prevProgress: number) => {
-            let newProgress = prevProgress + 10;
+            let newProgress = prevProgress + 2;
             if (newProgress >= 100) {
               return prevProgress;
             }
             return newProgress;
           });
-        }, 700);
+        }, 100);
         
         try {
         await repoApi.createRepo(s, ui, {path: newRepoPath});
         } catch (err) {
           ui.setError(err);
         } finally {
-          clearInterval(timer);
-          setAddingRepo(false);
+          clearInterval(intervalTimer);
+
+          setAddRepoProgress(100);
+          setTimeout(() => {
+            setAddingRepo(false);
+          }, 500);
         }
 
         await searchRepo(s, ui, setPage);
