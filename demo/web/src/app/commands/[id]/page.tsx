@@ -307,8 +307,8 @@ export default function CommandHome({ params }) {
       return;
     }
 
-    if (!s.detail.user.admin) {
-      alert('admin privilege is required');
+    if (command.locked) {
+      ui.setError('this command is locked');
       return;
     }
 
@@ -332,7 +332,7 @@ export default function CommandHome({ params }) {
     }
 
     if (!s.detail.user.admin) {
-      alert('admin privilege is required');
+      ui.setError('admin privilege is required');
       return;
     }
 
@@ -349,6 +349,10 @@ export default function CommandHome({ params }) {
   const onClickEditIcon = () => {
     if (!s.detail || !s.detail.accessToken) {
       ui.signIn({action: `${id ? 'update' : 'create'} command`});
+      return;
+    }
+    if (command.locked) {
+      ui.setError('this command is locked');
       return;
     }
     setOpenCommandDialog(true);

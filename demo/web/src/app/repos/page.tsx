@@ -122,16 +122,16 @@ export default function RepoList() {
     setNewRepoPath(e.target.value);
   };
   
-  const onLockOrUnlockRepo = async (e, repo:RepoBasic) => {
+  const onLockOrUnlockRepo = async (e, repo: RepoBasic) => {
     otEvent(e);
 
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({action: 'lock/unlock repository'});
+      ui.signIn({ action: 'lock/unlock repository' });
       return;
     }
 
     if (!s.detail.user.admin) {
-      alert('admin privilege is required');
+      ui.setError('admin privilege is required');
       return;
     }
 
@@ -144,16 +144,16 @@ export default function RepoList() {
     setPage({ ...page, elements: page.elements.map((element) => repo)});
   };
 
-  const onDeleteRepo = async(e, repo:RepoBasic) => {
+  const onDeleteRepo = async (e, repo: RepoBasic) => {
     otEvent(e);
 
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({action: 'delete repository'});
+      ui.signIn({ action: 'delete repository' });
       return;
     }
 
-    if (!s.detail.user.admin) {
-      alert('admin privilege is required');
+    if (repo.locked) {
+      ui.setError('this repository is locked');
       return;
     }
 
@@ -163,7 +163,7 @@ export default function RepoList() {
         subject: `${repo.owner.name}/${repo.name}`, 
         subjectType: 'repository'
       }, 
-      async() => {
+      async () => {
         ui.setLoading(true);
         try {
         await repoApi.removeRepo(s, ui, repo.id);
