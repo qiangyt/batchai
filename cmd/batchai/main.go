@@ -99,5 +99,6 @@ func main() {
 	c.Defaultf(`
                  Thanks for using batchai %s🙏
                  Please consider starring to my work: 
-               🍷  https://github.com/qiangyt/batchai\n`, version)
+               🍷  https://github.com/qiangyt/batchai
+`, version)
 }
