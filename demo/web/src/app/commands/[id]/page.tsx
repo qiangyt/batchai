@@ -376,17 +376,6 @@ export default function CommandHome({ params }) {
               </Link>
             </Typography>
             <Button color='info' onClick={toggleProgress(true)}>Detailed progress</Button>
-
-            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-              {hasChanges ?
-                <>
-                  <Typography variant="body2">Commit:</Typography>
-                  <Link sx={{ ml: 2 }} href={commitUrl || '#'}>{commitUrl || 'N/A'}</Link>
-                </>
-                :
-                <Typography variant="body2">No commit yet</Typography>
-              }
-            </Box>
           </Box>
         </Box>
 
@@ -437,14 +426,24 @@ export default function CommandHome({ params }) {
             <LinearProgress/>
           </Box>)
         }
-        <Tabs value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">    
-          <Tab label="Changes" sx={{ color: 'gray' }} {...a11yProps(0)} />      
-          <Tab label="Execution Log" sx={{ color: 'gray' }} {...a11yProps(1)} />
-          <Tab label="Audit Log" sx={{ color: 'gray' }} {...a11yProps(2)} />
+        <Tabs sx={{mt: 1}} value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">    
+          <Tab label="Changes" sx={{ color: 'lightgray' }} {...a11yProps(0)} />      
+          <Tab label="Execution Log" sx={{ color: 'lightgray' }} {...a11yProps(1)} />
+          <Tab label="Audit Log" sx={{ color: 'lightgray' }} {...a11yProps(2)} />
         </Tabs>                
         <CustomTabPanel value={logTabIndex} index={0}>
-          {diffs.map((diff) =>
-          <ReactDiffViewer key={diff.path} useDarkTheme splitView leftTitle={diff.path}
+          <Box width={'100%'} sx={{ml: 1,  mb: 1, display: 'flex', flexDirection: 'row'}}>
+              {hasChanges ?
+                <>
+                  <Typography sx={{color: 'lightgray'}}>Commit:</Typography>
+                  <Link sx={{ ml: 2 }} href={commitUrl || '#'}>{commitUrl || 'N/A'}</Link>
+                </>
+                :
+                <Typography sx={{color: 'lightgray'}}>No commit yet</Typography>
+              }
+          </Box>
+          {diffs.map((diff, index) =>
+          <ReactDiffViewer key={diff.path} useDarkTheme splitView leftTitle={`${index + 1}. ${diff.path}`}
             styles={{ contentText: {fontSize: '13px'}, lineNumber: {fontSize: '13px'}, codeFold: {fontSize: '13px'} }}
             oldValue={diff.oldContent} newValue={diff.newContent}  
             />
