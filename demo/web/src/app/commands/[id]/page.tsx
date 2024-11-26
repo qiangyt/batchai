@@ -33,6 +33,7 @@ import Tab from '@mui/material/Tab';
 import ReactDiffViewer from 'react-diff-viewer-continued';
 import { AuditLogViewer, ExecutionLogViewer } from './log-viewer';
 import { FileDiff } from '@/lib/diff';
+import LinearProgress from '@mui/material/LinearProgress';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -431,6 +432,11 @@ export default function CommandHome({ params }) {
             <ContentCopyIcon />
           </IconButton>
         </div>
+        {
+          (status == CommandStatus.Queued || status == CommandStatus.Running) && (<Box sx={{ width: '100%' }}>
+            <LinearProgress/>
+          </Box>)
+        }
         <Tabs value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">    
           <Tab label="Changes" sx={{ color: 'gray' }} {...a11yProps(0)} />      
           <Tab label="Execution Log" sx={{ color: 'gray' }} {...a11yProps(1)} />
@@ -465,6 +471,7 @@ export default function CommandHome({ params }) {
       </Drawer>
 
       {command && <CommandDialog data={CommandEditData.forUpdate(s, command)} open={openCommandDialog} setOpen={setOpenCommandDialog} onSubmited={onRefreshPage} />}
+
     </>
   );
 }
