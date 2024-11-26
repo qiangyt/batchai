@@ -15,6 +15,8 @@ import (
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 	"github.com/pkg/errors"
+	"github.com/tiktoken-go/tokenizer"
+
 	"github.com/qiangyt/batchai/comm"
 )
 
@@ -23,16 +25,23 @@ type ModelClientT struct {
 	openAiClient          *openai.Client
 	openAiStreamingClient *openai.Client
 	semaphore             chan struct{}
+	codec                 tokenizer.Codec
 }
 
 type ModelClient = *ModelClientT
 
 func NewModelClient(config ModelConfig) ModelClient {
+	codec, err := tokenizer.Get(tokenizer.Cl100kBase)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to initialize Cl100kBase tokenizer codec"))
+	}
+
 	return &ModelClientT{
 		config:                config,
 		openAiClient:          buildOpenAiClient(config, false),
 		openAiStreamingClient: buildOpenAiClient(config, true),
 		semaphore:             make(chan struct{}, 1),
+		codec:                 codec,
 	}
 }
 
@@ -49,18 +58,57 @@ func (me ModelClient) release() {
 	<-me.semaphore
 }
 
-func (me ModelClient) Chat(x Kontext, saveIntoMemory bool, memory ChatMemory, writer io.Writer) (*openai.ChatCompletion, time.Duration) {
+func (me ModelClient) Encode(msg string) ([]uint, []string) {
+	tokens, texts, err := me.codec.Encode(msg)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to encode text"))
+	}
+	return tokens, texts
+}
+
+func (me ModelClient) Decode(tokens []uint) string {
+	text, err := me.codec.Decode(tokens)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to decode tokens"))
+	}
+	return text
+}
+
+func (me ModelClient) EvaluatedTokens(prompt string) int {
+	tokens, _ := me.Encode(prompt)
+	return len(tokens)
+}
+
+func (me ModelClient) Chat(x Kontext, c comm.Console, saveIntoMemory bool, memory ChatMemory, writer io.Writer) (*openai.ChatCompletion, time.Duration) {
 	me.acquire()
 	defer me.release()
 
 	startTime := time.Now()
 	x = x.Timeouted(me.config.Timeout)
 
+	cfg := me.config
+
+	requestedMaxCompletionTokens := cfg.MaxCompletionTokens
+	if requestedMaxCompletionTokens > 0 {
+		promptTokens, _ := me.Encode(memory.Format())
+		lenOfPromptTokens := int64(len(promptTokens) + 16)
+
+		contextWindow := cfg.ContextWindow
+		allowedMaxCompletionTokens := contextWindow - lenOfPromptTokens
+
+		if requestedMaxCompletionTokens >= allowedMaxCompletionTokens {
+			c.Yellowf("pre-check warning: %s maximum context length is %d tokens. However, you requested %d tokens (%d in the messages, %d in the completion). Force to reduce the length of the messages or completion to be %d.",
+				cfg.Id, contextWindow, requestedMaxCompletionTokens+lenOfPromptTokens, lenOfPromptTokens, requestedMaxCompletionTokens, allowedMaxCompletionTokens)
+		}
+
+		requestedMaxCompletionTokens = allowedMaxCompletionTokens
+	}
+
 	var r *openai.ChatCompletion
 	if writer == nil {
-		r = me.chat(x, memory)
+		r = me.chat(x, memory, requestedMaxCompletionTokens)
 	} else {
-		r = me.chatStream(x, memory, writer)
+		r = me.chatStream(x, memory, writer, requestedMaxCompletionTokens)
 	}
 
 	if saveIntoMemory {
@@ -71,13 +119,13 @@ func (me ModelClient) Chat(x Kontext, saveIntoMemory bool, memory ChatMemory, wr
 	return r, time.Since(startTime)
 }
 
-func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion {
+func (me ModelClient) chat(x Kontext, memory ChatMemory, requestedMaxCompletionTokens int64) *openai.ChatCompletion {
 	r, err := me.openAiClient.Chat.Completions.New(x.Context, openai.ChatCompletionNewParams{
 		Messages:            openai.F(memory.ToChatCompletionMessageParamUnion()),
 		Temperature:         openai.F(me.config.Temperature),
 		Seed:                openai.Int(1),
 		Model:               openai.F(me.config.Name),
-		MaxCompletionTokens: openai.Int(me.config.MaxCompletionTokens),
+		MaxCompletionTokens: openai.Int(requestedMaxCompletionTokens),
 	})
 	if err != nil {
 		panic(errors.Wrap(err, "failed to call chat completions API"))
@@ -85,13 +133,13 @@ func (me ModelClient) chat(x Kontext, memory ChatMemory) *openai.ChatCompletion 
 	return r
 }
 
-func (me ModelClient) chatStream(x Kontext, memory ChatMemory, output io.Writer) *openai.ChatCompletion {
+func (me ModelClient) chatStream(x Kontext, memory ChatMemory, output io.Writer, requestedMaxCompletionTokens int64) *openai.ChatCompletion {
 	stream := me.openAiStreamingClient.Chat.Completions.NewStreaming(x.Context, openai.ChatCompletionNewParams{
 		Messages:            openai.F(memory.ToChatCompletionMessageParamUnion()),
 		Temperature:         openai.F(me.config.Temperature),
 		Seed:                openai.Int(0),
 		Model:               openai.F(me.config.Name),
-		MaxCompletionTokens: openai.Int(me.config.MaxCompletionTokens),
+		MaxCompletionTokens: openai.Int(requestedMaxCompletionTokens),
 	})
 
 	// optionally, an accumulator helper can be used

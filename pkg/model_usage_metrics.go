@@ -8,9 +8,9 @@ import (
 )
 
 type ModelUsageMetricsT struct {
-	Duration              time.Duration
-	EvaluatedPromptTokens int
-	OpenAiUsage           *openai.CompletionUsage
+	Duration time.Duration
+	// EvaluatedPromptTokens int
+	OpenAiUsage *openai.CompletionUsage
 }
 
 type ModelUsageMetrics = *ModelUsageMetricsT
@@ -33,13 +33,13 @@ func (me ModelUsageMetrics) IncreaseUsage(usage ModelUsageMetrics) {
 	totalUsage.PromptTokens += newUsage.PromptTokens
 	totalUsage.TotalTokens += newUsage.TotalTokens
 
-	me.EvaluatedPromptTokens += usage.EvaluatedPromptTokens
+	// me.EvaluatedPromptTokens += usage.EvaluatedPromptTokens
 	me.Duration += usage.Duration
 }
 
 func (me ModelUsageMetrics) Print(console comm.Console, color comm.Color) {
 	console.NewLine().Colorf(color, "Duration: %v", comm.FormatDurationForConsole(me.Duration))
-	console.NewLine().Colorf(color, "Evaluated prompt tokens: %v", me.EvaluatedPromptTokens)
+	// console.NewLine().Colorf(color, "Evaluated prompt tokens: %v", me.EvaluatedPromptTokens)
 
 	if usage := me.OpenAiUsage; usage != nil {
 		console.NewLine().Colorf(color, "Prompt tokens: %v", usage.PromptTokens)

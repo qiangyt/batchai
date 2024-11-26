@@ -41,7 +41,7 @@ func (me SymbolAwareAgent) provideSymbols(x Kontext, c comm.Console, file string
 	}
 
 	modelId := x.Config.Check.ModelId
-	answer, metrics := me.modelService.Chat(x, modelId, true, mem, nil)
+	answer, metrics := me.modelService.Chat(x, c, modelId, true, mem, nil)
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(answer)
 	}
@@ -73,7 +73,7 @@ func (me SymbolAwareAgent) provideSymbols(x Kontext, c comm.Console, file string
 	}
 
 	// TODO：merge metrics
-	answer, metrics = me.modelService.Chat(x, modelId, true, mem, nil)
+	answer, metrics = me.modelService.Chat(x, c, modelId, true, mem, nil)
 	if verbose {
 		c.NewLine().Gray("answer: ").Default(answer)
 	}
