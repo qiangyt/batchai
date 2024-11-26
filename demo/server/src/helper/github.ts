@@ -404,7 +404,7 @@ export class GithubRepo {
 			}
 
 			// Check if the username exists in the current page of stargazers
-			if (stargazers.some((stargazer) => stargazer.email === email)) {
+			if (stargazers.some((stargazer) => (stargazer as { email: string }).email === email)) {
 				return true;
 			}
 
