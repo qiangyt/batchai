@@ -23,6 +23,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import LockIcon from '@mui/icons-material/LockOutlined';
 import UnlockIcon from '@mui/icons-material/NoEncryptionOutlined';
 import { CircularProgressWithLabel } from '@/components/circular-progress-with-label';
+import Backdrop from '@mui/material/Backdrop';
 
 async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dispatch<React.SetStateAction<Page<RepoBasic>>>, params?: RepoSearchParams) {
   if (ui) ui.setLoading(true);
@@ -54,7 +55,8 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function RepoList() {
   const [page, setPage] = useState<Page<RepoBasic>>({ total: 0, page: 0, limit: 100, elements: [] });
   const [newRepoPath, setNewRepoPath] = useState("");
-  const [addRepoProgress, setAddRepoProgress] = React.useState(5);
+  const [addRepoProgress, setAddRepoProgress] = React.useState(0);
+  const [addingRepo, setAddingRepo] = React.useState(false);
   const s = useSession().state;
   const ui = useUIContext();
 
@@ -88,6 +90,9 @@ export default function RepoList() {
 
       const parsed = ParsedRepoPath.parse(newRepoPath);
       if (parsed) {
+        setAddingRepo(true);
+        setAddRepoProgress(5);
+
         const timer = setInterval(() => {
           setAddRepoProgress((prevProgress: number) => {
             let newProgress = prevProgress + 10;
@@ -96,7 +101,7 @@ export default function RepoList() {
             }
             return newProgress;
           });
-        }, 800);
+        }, 700);
         
         try {
         await repoApi.createRepo(s, ui, {path: newRepoPath});
@@ -104,6 +109,7 @@ export default function RepoList() {
           ui.setError(err);
         } finally {
           clearInterval(timer);
+          setAddingRepo(false);
         }
 
         await searchRepo(s, ui, setPage);
@@ -232,7 +238,10 @@ export default function RepoList() {
       ))}
     </Masonry>
 
-    <CircularProgressWithLabel value={addRepoProgress} />
+    <Backdrop sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })} open={addingRepo}>
+      <CircularProgressWithLabel value={addRepoProgress} />
+    </Backdrop>
+
   </>
   );
 }
