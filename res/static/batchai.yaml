@@ -125,8 +125,6 @@ models:
     name: gpt-4o
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 128000
-    max_completion_tokens: 128000
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OPENAI_API_KEY}
     base_url: ${OPENAI_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -138,9 +136,7 @@ models:
   - id: openai/gpt-4o-mini
     name: gpt-4o-mini
     temperature: ${BATCHAI_CHAT_TEMERATURE}
-    context_window: 128000
-    max_completion_tokens: 128000
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
+    context_window: 16384
     api_key: ${OPENAI_API_KEY}
     base_url: ${OPENAI_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -153,8 +149,6 @@ models:
     name: gpt-4-turbo
     context_window: 12800
     temperature: ${BATCHAI_CHAT_TEMERATURE}
-    max_completion_tokens: 12800
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OPENAI_API_KEY}
     base_url: ${OPENAI_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -167,8 +161,6 @@ models:
     name: gpt-4
     context_window: 8192
     temperature: ${BATCHAI_CHAT_TEMERATURE}
-    max_completion_tokens: 8192
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OPENAI_API_KEY}
     base_url: ${OPENAI_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -181,8 +173,6 @@ models:
     name: gpt-3.5-turbo
     context_window: 16385
     temperature: ${BATCHAI_CHAT_TEMERATURE}
-    max_completion_tokens: 16385
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OPENAI_API_KEY}
     base_url: ${OPENAI_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -195,8 +185,6 @@ models:
     name: gpt-3.5-turbo-instruct
     context_window: 4096
     temperature: ${BATCHAI_CHAT_TEMERATURE}
-    max_completion_tokens: 4096
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OPENAI_API_KEY}
     base_url: ${OPENAI_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -210,7 +198,6 @@ models:
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 32768
     max_completion_tokens: 32768
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${QWEN_API_KEY}
     base_url: ${QWEN_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -224,7 +211,6 @@ models:
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 131072
     max_completion_tokens: 1310720
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OLLAMA_API_KEY}
     base_url: ${OLLAMA_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -238,7 +224,6 @@ models:
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 131072
     max_completion_tokens: 1310720
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OLLAMA_API_KEY}
     base_url: ${OLLAMA_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -252,7 +237,6 @@ models:
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 131072
     max_completion_tokens: 1310720
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OLLAMA_API_KEY}
     base_url: ${OLLAMA_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -266,7 +250,6 @@ models:
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 131072
     max_completion_tokens: 1310720
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OLLAMA_API_KEY}
     base_url: ${OLLAMA_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -280,7 +263,6 @@ models:
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 131072
     max_completion_tokens: 1310720
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OLLAMA_API_KEY}
     base_url: ${OLLAMA_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
@@ -294,7 +276,6 @@ models:
     temperature: ${BATCHAI_CHAT_TEMERATURE}
     context_window: 131072
     max_completion_tokens: 1310720
-    # tik_token_enabled: ${BATCHAI_ENABLE_TIK_TOKEN}
     api_key: ${OLLAMA_API_KEY}
     base_url: ${OLLAMA_BASE_URL}
     timeout: ${BATCHAI_API_TIMEOUT}
