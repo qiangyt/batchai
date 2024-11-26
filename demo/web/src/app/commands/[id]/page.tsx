@@ -396,12 +396,16 @@ export default function CommandHome({ params }) {
             </ToolbarIcon>
             <ToolbarIcon key='Edit' label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
               <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />
+            </ToolbarIcon>    
+            <ToolbarIcon key='LockOrUnlock' label={command?.locked ? 'Unlock' : 'Lock'} enabled onClick={onLockOrUnlock}>
+                { command?.locked ? 
+                  <UnlockIcon sx={{ color: '#B8E986' }} />
+                      :
+                  <LockIcon sx={{ color: '#B8E986' }} />
+                  }
             </ToolbarIcon>
             <ToolbarIcon key='Delete' label='Delete' enabled={enableDelete} onClick={onDelete}>
               <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
-            </ToolbarIcon>
-            <ToolbarIcon key='LockOrUnlock' label={command?.locked ? 'Unlock' : 'Lock'} enabled onClick={onLockOrUnlock}>
-              <DeleteIcon sx={{ color: '#B8E986' }} />
             </ToolbarIcon>
           </Toolbar>
         </Box>
