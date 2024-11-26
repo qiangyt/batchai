@@ -97,8 +97,12 @@ func main() {
 		c.Redf("%+v\n", err)
 	}
 	c.Greenf(`
+
+
                  Thanks for using batchai %s🙏
                  Please consider starring to my work: 
                🍷  https://github.com/qiangyt/batchai
+
+
 `, version)
 }
