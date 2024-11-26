@@ -69,7 +69,7 @@ export class CommandBasic extends AuditableDto {
 
 	static with(obj: any): CommandBasic {
 		if (!obj) return obj;
-		AuditableDto.with(obj);		
+		AuditableDto.with(obj);
 		Object.setPrototypeOf(obj, CommandBasic.prototype);
 		return obj;
 	}
@@ -295,7 +295,7 @@ export class CommandUpdateReq {
 
 	executeItRightNow: boolean;
 
-	static create(data: CommandEditData): CommandUpdateReq{
+	static create(data: CommandEditData): CommandUpdateReq {
 		const r = new CommandUpdateReq();
 		r.build(data);
 		return r;
@@ -322,7 +322,7 @@ export class CommandCreateReq extends CommandUpdateReq {
 	repoId: number;
 	command: string;
 
-	static create(data: CommandEditData): CommandCreateReq{
+	static create(data: CommandEditData): CommandCreateReq {
 		const r = new CommandCreateReq();
 		r.build(data);
 		r.repoId = data.repo.id;
@@ -335,7 +335,7 @@ export class ParsedRepoPath {
 	constructor(
 		public ownerName: string,
 		public repoName: string,
-	) {}
+	) { }
 
 	static parse(path: string): ParsedRepoPath {
 		let p = path.trim();

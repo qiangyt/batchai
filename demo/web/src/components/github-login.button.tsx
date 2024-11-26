@@ -15,7 +15,7 @@ export default function GitHubLoginButton() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-  
+
   const s = useSession().state;
   const u = s.detail?.user;
 
@@ -24,16 +24,16 @@ export default function GitHubLoginButton() {
       {s.has() ? (
         <>
           <IconButton onClick={handleOpenUserMenu}>
-            <Typography sx={{color: "#c0c0c0", mr:2}}>{u.displayName}</Typography>
+            <Typography sx={{ color: "#c0c0c0", mr: 2 }}>{u.displayName}</Typography>
             <Avatar alt={u.displayName} src={u.avatarUrl} />
           </IconButton>
           <Menu sx={{ mt: '45px' }} id="menu-appbar" anchorEl={anchorElUser} keepMounted
-            anchorOrigin={{vertical: 'top', horizontal: 'right'}}            
-            transformOrigin={{vertical: 'top', horizontal: 'right'}}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             open={Boolean(anchorElUser)} onClose={handleCloseUserMenu}
           >
             <MenuItem key="signOut" onClick={s.clear}>
-                <Typography sx={{ textAlign: 'center' }}>Sign out</Typography>
+              <Typography sx={{ textAlign: 'center' }}>Sign out</Typography>
             </MenuItem>
           </Menu>
         </>

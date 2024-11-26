@@ -9,7 +9,7 @@ export enum GrantLevel {
 }
 
 export class UserCreateReq {
-  
+
   name: string;
 
   displayName?: string;
@@ -59,7 +59,7 @@ export class UserBasic {
     UserBasic.withMany(p.elements);
     return p;
   }
-  
+
 }
 
 export class UserDetail extends UserBasic {
@@ -77,7 +77,7 @@ export class UserDetail extends UserBasic {
     Object.setPrototypeOf(obj, UserDetail.prototype);
     return obj;
   }
-  
+
 }
 
 export class SignInReq {
@@ -91,11 +91,11 @@ export class SignInDetail {
   user: UserDetail;
   accessToken: string;
   refreshToken: string;
-  githubAccessToken:string;
+  githubAccessToken: string;
   githubRefreshToken: string;
 
   getNumQuote(): number {
-    switch(this.user.grantLevel) {
+    switch (this.user.grantLevel) {
       case GrantLevel.Default: return DEFAULT_NUM_QUOTE;
       case GrantLevel.Promoted: return 0;
       case GrantLevel.Full: return 0;
@@ -109,5 +109,5 @@ export class SignInDetail {
     Object.setPrototypeOf(obj, SignInDetail.prototype);
     return obj;
   }
-  
+
 }

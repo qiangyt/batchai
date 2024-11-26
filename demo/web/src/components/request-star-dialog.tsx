@@ -35,20 +35,20 @@ import Container from '@mui/material/Container';
 
 function PaperComponent(props: PaperProps) {
     return (
-      <Draggable
-        handle="#draggable-dialog-title"
-        cancel={'[class*="MuiDialogContent-root"]'}
-      >
-        <Paper {...props} />
-      </Draggable>
+        <Draggable
+            handle="#draggable-dialog-title"
+            cancel={'[class*="MuiDialogContent-root"]'}
+        >
+            <Paper {...props} />
+        </Draggable>
     );
-  }
+}
 
 export class RequestStarDialogProps {
     open: boolean;
-    closeFunc?: () => void;  
+    closeFunc?: () => void;
 
-    constructor() {}
+    constructor() { }
 }
 
 export function RequestStarDialog(props: RequestStarDialogProps) {
@@ -59,33 +59,33 @@ export function RequestStarDialog(props: RequestStarDialogProps) {
 
     const onConfirm = (e) => {
         otEvent(e);
-        window.location.href = `https://github.com/qiangyt/batchai`;       
+        window.location.href = `https://github.com/qiangyt/batchai`;
         props.closeFunc();
     };
 
     return (
         <Dialog open={props?.open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
             <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
-            Processing Usage Reached
+                Processing Usage Reached
             </DialogTitle>
             <DialogContent>
-                <DialogContentText sx={{ m: 2}}>
+                <DialogContentText sx={{ m: 2 }}>
                     <Typography sx={{ textAlign: 'center', fontSize: 28 }}>
-                    Thank you for using batchai!
+                        Thank you for using batchai!
                     </Typography>
-                    <Alert severity="info" sx={{ mt: 1}}>
-                    If you like this project, I’d greatly appreciate it if you could give me a star ⭐️ on GitHub!
-                    <Box sx={{mt: 2}}/>
-                    By starring me, you’ll unlock unlimited usage.
+                    <Alert severity="info" sx={{ mt: 1 }}>
+                        If you like this project, I’d greatly appreciate it if you could give me a star ⭐️ on GitHub!
+                        <Box sx={{ mt: 2 }} />
+                        By starring me, you’ll unlock unlimited usage.
                     </Alert>
-                    <Typography sx={{ mt: 2, ml: 3}}>
-                    👉 Would you like to support me by giving a star?
+                    <Typography sx={{ mt: 2, ml: 3 }}>
+                        👉 Would you like to support me by giving a star?
                     </Typography>
                     <Alert severity="warning" sx={{ mt: 1, }}>
-                    NOTE: <span style={{ color: 'red' }}>RE-LOGIN</span> after starred!
+                        NOTE: <span style={{ color: 'red' }}>RE-LOGIN</span> after starred!
                     </Alert>
-                    <Typography sx={{ mt: 2, ml: 6}}>
-                        Still have issue? {" -> "} 
+                    <Typography sx={{ mt: 2, ml: 6 }}>
+                        Still have issue? {" -> "}
                         <Link href="https://github.com/qiangyt/batchai/issues">https://github.com/qiangyt/batchai/issues</Link>
                     </Typography>
                 </DialogContentText>

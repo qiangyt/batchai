@@ -12,12 +12,12 @@ export abstract class AuditableDto {
   updatedAt: Date;
 
   updater: UserBasic;
-  
+
   static with(obj: any) {
     if (!obj) return;
     Object.setPrototypeOf(obj, AuditableDto.prototype);
     UserBasic.with(obj.creater);
     UserBasic.with(obj.updater);
   }
-  
+
 }

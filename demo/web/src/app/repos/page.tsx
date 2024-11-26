@@ -84,7 +84,7 @@ export default function RepoList() {
     otEvent(e);
     if (newRepoPath) {
       if (!s.detail || !s.detail.accessToken) {
-        ui.signIn({action: 'create repository'});
+        ui.signIn({ action: 'create repository' });
         return;
       }
 
@@ -102,9 +102,9 @@ export default function RepoList() {
             return newProgress;
           });
         }, 100);
-        
+
         try {
-        await repoApi.createRepo(s, ui, {path: newRepoPath});
+          await repoApi.createRepo(s, ui, { path: newRepoPath });
         } catch (err) {
           ui.setError(err);
         } finally {
@@ -131,7 +131,7 @@ export default function RepoList() {
     otEvent(e);
     setNewRepoPath(e.target.value);
   };
-  
+
   const onLockOrUnlockRepo = async (e, repo: RepoBasic) => {
     otEvent(e);
 
@@ -145,19 +145,21 @@ export default function RepoList() {
       return;
     }
 
-    if (repo.locked) {    
+    if (repo.locked) {
       repo = await repoApi.unlockRepo(s, ui, repo.id);
     } else {
       repo = await repoApi.lockRepo(s, ui, repo.id);
     }
-  
-    setPage({ ...page, elements: page.elements.map((element) => {
-      if (element.id === repo.id) {
-        return repo;
-      } else {
-        return element;
-      }
-    })});
+
+    setPage({
+      ...page, elements: page.elements.map((element) => {
+        if (element.id === repo.id) {
+          return repo;
+        } else {
+          return element;
+        }
+      })
+    });
   };
 
   const onDeleteRepo = async (e, repo: RepoBasic) => {
@@ -175,14 +177,14 @@ export default function RepoList() {
 
     ui.confirm(
       {
-        action: 'delete', 
-        subject: `${repo.owner.name}/${repo.name}`, 
+        action: 'delete',
+        subject: `${repo.owner.name}/${repo.name}`,
         subjectType: 'repository'
-      }, 
+      },
       async () => {
         ui.setLoading(true);
         try {
-        await repoApi.removeRepo(s, ui, repo.id);
+          await repoApi.removeRepo(s, ui, repo.id);
         } catch (err) {
           ui.setError(err);
         } finally {
@@ -191,60 +193,60 @@ export default function RepoList() {
 
         await searchRepo(s, ui, setPage);
       }
-    );    
+    );
   }
 
   return (<>
     <Box display="flex" flexDirection="column" alignItems="center">
-      <Image src={"logo.svg"} alt="batchai" width={348} height={120}/>
+      <Image src={"logo.svg"} alt="batchai" width={348} height={120} />
       <Typography sx={{ fontSize: 18, color: 'white' }} noWrap>SEARCH REPOSITORY</Typography>
-      <Box sx={{ width: '63.8%' }}><SearchBar onSearch={onSearch} /></Box>      
+      <Box sx={{ width: '63.8%' }}><SearchBar onSearch={onSearch} /></Box>
       <Typography sx={{ fontSize: 14 }} color="gray">totally {page.total} repositories for batchai demostration</Typography>
     </Box>
 
-    <Masonry columns={3} spacing={2} sx={{mt:6}}>
-      <Paper key='add' style={{minWidth: 420,padding: 30, backgroundColor: 'transparent', color: 'white'}}>
+    <Masonry columns={3} spacing={2} sx={{ mt: 6 }}>
+      <Paper key='add' style={{ minWidth: 420, padding: 30, backgroundColor: 'transparent', color: 'white' }}>
         <Fab variant="extended" color="primary" aria-label="add" onClick={onAddRepo}><AddIcon />Your Github</Fab>
-        <TextField inputRef={addNewRepoRef} required sx={{mt:2.3}} size="small"  id="newRepoPath" label="Repository Path:" fullWidth variant='outlined'
-              onKeyDown={onKeyDownNewRepo} value={newRepoPath} onChange={onChangeNewRepoPath}
-              slotProps={{
-                input: {sx: {color: 'white', '& .MuiOutlinedInput-notchedOutline': {borderColor: 'gray'}}},
-                inputLabel: {sx: {color: 'gray'}}
-              }}/>
+        <TextField inputRef={addNewRepoRef} required sx={{ mt: 2.3 }} size="small" id="newRepoPath" label="Repository Path:" fullWidth variant='outlined'
+          onKeyDown={onKeyDownNewRepo} value={newRepoPath} onChange={onChangeNewRepoPath}
+          slotProps={{
+            input: { sx: { color: 'white', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'gray' } } },
+            inputLabel: { sx: { color: 'gray' } }
+          }} />
       </Paper>
       {page.elements.map((repo) => (
-          <Item key={repo.id} sx={{display: 'flex', justifyContent: 'space-between'}}>
-            <Box>
-              <Link href={repo.repoUrl}>
-                <Typography sx={{fontSize:12, color: '#bbbbbb'}}>{`#${repo.id} ${repo.repoUrl}`}
-                  { repo.locked ? 
-                      <UnlockIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onLockOrUnlockRepo(e, repo)}/>
-                      :
-                      <LockIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onLockOrUnlockRepo(e, repo)}/>
-                  }
-                  <DeleteIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onDeleteRepo(e, repo)}/>
-                </Typography>
-              </Link>
-              <Typography variant="h5" sx={{color: 'white', mt: 1}}>
-                {repo.repoPath(false)}
-                <Link href={`/rest/v1/repos/id/${repo.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'white' }}>
-                  <DownloadIcon sx={{ ml: 2}} />
-                </Link>
+        <Item key={repo.id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box>
+            <Link href={repo.repoUrl}>
+              <Typography sx={{ fontSize: 12, color: '#bbbbbb' }}>{`#${repo.id} ${repo.repoUrl}`}
+                {repo.locked ?
+                  <UnlockIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onLockOrUnlockRepo(e, repo)} />
+                  :
+                  <LockIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onLockOrUnlockRepo(e, repo)} />
+                }
+                <DeleteIcon sx={{ ml: 1, color: 'bbbbbb' }} onClick={(e) => onDeleteRepo(e, repo)} />
               </Typography>
-              <Box sx={{mt: 4}}>
-                <CommandChip key="check" repo={repo} commandName="check" onCommandCreated={onCommandCreated}/>
-                <CommandChip key="test" repo={repo} commandName="test" onCommandCreated={onCommandCreated}/>
+            </Link>
+            <Typography variant="h5" sx={{ color: 'white', mt: 1 }}>
+              {repo.repoPath(false)}
+              <Link href={`/rest/v1/repos/id/${repo.id}/artifact`} download target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'white' }}>
+                <DownloadIcon sx={{ ml: 2 }} />
+              </Link>
+            </Typography>
+            <Box sx={{ mt: 4 }}>
+              <CommandChip key="check" repo={repo} commandName="check" onCommandCreated={onCommandCreated} />
+              <CommandChip key="test" repo={repo} commandName="test" onCommandCreated={onCommandCreated} />
+            </Box>
+          </Box>
+          <Box>
+            <Link href={repo.owner.githubProfileUrl}>
+              <Box display="flex" flexDirection="column" alignItems="center">
+                <Avatar alt={repo.creater.displayName} src={repo.creater.avatarUrl} />
+                <Typography sx={{ fontSize: 12, mt: 1, color: "#bbbbbb", }}>{repo.creater.displayName}</Typography>
               </Box>
-            </Box>
-            <Box>
-                <Link href={repo.owner.githubProfileUrl}>
-                  <Box display="flex" flexDirection="column" alignItems="center">
-                  <Avatar alt={repo.creater.displayName} src={repo.creater.avatarUrl} />
-                  <Typography sx={{fontSize:12, mt:1, color: "#bbbbbb",}}>{repo.creater.displayName}</Typography>
-                  </Box>
-                </Link>
-            </Box>
-          </Item>
+            </Link>
+          </Box>
+        </Item>
       ))}
     </Masonry>
 

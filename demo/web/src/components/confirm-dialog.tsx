@@ -16,29 +16,29 @@ import Alert from '@mui/material/Alert';
 
 function PaperComponent(props: PaperProps) {
     return (
-      <Draggable
-        handle="#draggable-dialog-title"
-        cancel={'[class*="MuiDialogContent-root"]'}
-      >
-        <Paper {...props} />
-      </Draggable>
+        <Draggable
+            handle="#draggable-dialog-title"
+            cancel={'[class*="MuiDialogContent-root"]'}
+        >
+            <Paper {...props} />
+        </Draggable>
     );
-  }
+}
 
 export class ConfirmDialogMessage {
     action?: string;
     subject?: string;
     subjectType?: string;
 
-    constructor() {}
+    constructor() { }
 }
 
 export class ConfirmDialogProps extends ConfirmDialogMessage {
     open: boolean;
-    closeFunc?: () => void;    
+    closeFunc?: () => void;
     onConfirmed?: () => void;
 
-    constructor() {super();}
+    constructor() { super(); }
 }
 
 export function ConfirmDialog(props: ConfirmDialogProps) {
@@ -57,7 +57,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
     const onConfirm = (e) => {
         otEvent(e);
         if (confirmInput === props.subject) {
-            props.onConfirmed();            
+            props.onConfirmed();
             setConfirmInput('');
             props.closeFunc();
         }
@@ -69,18 +69,18 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
                 Confirm to {props?.action} {props?.subjectType}
             </DialogTitle>
             <DialogContent>
-                <DialogContentText sx={{ m: 2}}>
+                <DialogContentText sx={{ m: 2 }}>
                     <Typography sx={{ textAlign: 'center', fontSize: 28 }}>
                         {props?.subject}
                     </Typography>
-                    <Alert severity="warning" sx={{ mt: 1}}>
-                        Unexpected bad things will happen if you dont read this! 
+                    <Alert severity="warning" sx={{ mt: 1 }}>
+                        Unexpected bad things will happen if you dont read this!
                     </Alert>
-                    <Typography sx={{ mt: 2}}>
+                    <Typography sx={{ mt: 2 }}>
                         This will permanently {props?.action} the {props?.subject} {props?.subjectType} and associated resources.
                     </Typography>
-                    <Typography sx={{ mt: 4}}>To confirm, type <span style={{color: '#0085BF', fontStyle: 'italic'}}>{props?.subject}</span> in the box below:</Typography>
-                    <TextField autoFocus required margin="dense" label={props?.subjectType} fullWidth variant="standard" value={confirmInput} onChange={onChangeConfirmInput}/>
+                    <Typography sx={{ mt: 4 }}>To confirm, type <span style={{ color: '#0085BF', fontStyle: 'italic' }}>{props?.subject}</span> in the box below:</Typography>
+                    <TextField autoFocus required margin="dense" label={props?.subjectType} fullWidth variant="standard" value={confirmInput} onChange={onChangeConfirmInput} />
                 </DialogContentText>
             </DialogContent>
             <DialogActions>

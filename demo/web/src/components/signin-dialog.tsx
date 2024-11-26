@@ -16,26 +16,26 @@ import Link from '@mui/material/Link';
 
 function PaperComponent(props: PaperProps) {
     return (
-      <Draggable
-        handle="#draggable-dialog-title"
-        cancel={'[class*="MuiDialogContent-root"]'}
-      >
-        <Paper {...props} />
-      </Draggable>
+        <Draggable
+            handle="#draggable-dialog-title"
+            cancel={'[class*="MuiDialogContent-root"]'}
+        >
+            <Paper {...props} />
+        </Draggable>
     );
-  }
+}
 
-  export class SignInDialogMessage {
+export class SignInDialogMessage {
     action?: string;
 
-    constructor() {}
+    constructor() { }
 }
 
 export class SignInDialogProps extends SignInDialogMessage {
     open: boolean;
-    closeFunc?: () => void;   
-    
-    constructor() {super();}
+    closeFunc?: () => void;
+
+    constructor() { super(); }
 }
 
 export function SignInDialog(props: SignInDialogProps) {
@@ -48,8 +48,8 @@ export function SignInDialog(props: SignInDialogProps) {
 
     const onGoToGithub = (e) => {
         otEvent(e);
-        
-        s.redirect();            
+
+        s.redirect();
         props.closeFunc();
     };
 
@@ -59,11 +59,11 @@ export function SignInDialog(props: SignInDialogProps) {
                 Sign In with Github
             </DialogTitle>
             <DialogContent>
-                <DialogContentText sx={{ m: 2}}>
-                    <Alert severity="info" sx={{ mt: 1}}>
+                <DialogContentText sx={{ m: 2 }}>
+                    <Alert severity="info" sx={{ mt: 1 }}>
                         To {props.action}, please sign in with GITHUB.COM first
                     </Alert>
-                    <Typography sx={{ mt: 2}}>
+                    <Typography sx={{ mt: 2 }}>
                         Clicks [GO AHEAD] button to redirect to <Link href="https://github.com">GITHUB.COM</Link> sign in page.
                     </Typography>
                 </DialogContentText>

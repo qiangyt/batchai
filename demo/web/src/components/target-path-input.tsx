@@ -58,7 +58,7 @@ export default function TargetPathInput({ repoId, commandId, targetPaths, onChan
         refreshAvailableTargetPaths(s, ui, repoId, path, setAvailableTargetPaths);
       }
     }
-    };
+  };
 
   const onTargetPathChange = (e) => {
     otEvent(e);

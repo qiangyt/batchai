@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { socket } from "@/socket";
 
 export default function Home() {
-  const router = useRouter(); 
+  const router = useRouter();
 
   const [, setIsConnected] = useState(false);
   const [, setTransport] = useState("N/A");
@@ -42,7 +42,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-   router.push('/repos');
+    router.push('/repos');
   }, [router]);
 
   return null;

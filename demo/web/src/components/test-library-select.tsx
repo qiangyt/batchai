@@ -63,10 +63,10 @@ export default function TestLibrarySelect({ value, onChange }: TestLibrarySelect
     };
 
     return <Autocomplete size='small' freeSolo
-        options={OPTIONS} 
-        getOptionLabel={(option:any) => option.label}  
+        options={OPTIONS}
+        getOptionLabel={(option: any) => option.label}
         getOptionKey={(option: any) => option.value}
-        value={option} 
+        value={option}
         onChange={onChangeLibrary}
         renderInput={(params) => <TextField {...params} label="Test Library" />}
     />

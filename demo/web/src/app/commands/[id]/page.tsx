@@ -46,7 +46,7 @@ function CustomTabPanel(props: TabPanelProps) {
 
   return (
     <Box width="104%"
-      sx={{ ml:-3}}
+      sx={{ ml: -3 }}
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
@@ -127,7 +127,7 @@ export default function CommandHome({ params }) {
   const [auditLogs, setAuditLogs] = useState<CommandLog[]>([]);
   const [executionLogs, setExecutionLogs] = useState<CommandLog[]>([]);
   const [diffs, setDiffs] = useState<FileDiff[]>([]);
-  
+
   let enableRestart = false;
   let enableDelete = false;
   let enableEdit = false;
@@ -151,13 +151,13 @@ export default function CommandHome({ params }) {
     enableDownload = (command.status === CommandStatus.Succeeded);
     title = command.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
     status = command.status;
-    hasChanges = command.hasChanges;  
+    hasChanges = command.hasChanges;
     commitUrl = command.commitId ? command.commitUrl : '';
     globalOptions = command.globalOptions();
     commandOptions = command.commandOptions();
     targetPaths = command.targetPaths;
     commandName = command.command;
-  
+
     const repo = command.repo;
     repoUrl = repo.repoUrl;
     repoName = repo.name;
@@ -224,7 +224,7 @@ export default function CommandHome({ params }) {
         if (c.isCheck()) {
           const reports = await commandApi.loadCommandCheckReports(s, ui, id);
           setDiffs(reports.map((report) => report.toDiff()));
-        } 
+        }
       } catch (err) {
         ui.setError(err);
       } finally {
@@ -249,7 +249,7 @@ export default function CommandHome({ params }) {
         if (c.isCheck()) {
           const reports = await commandApi.loadCommandCheckReports(s, ui, id);
           setDiffs(reports.map((report) => report.toDiff()));
-        } 
+        }
 
         setLogTabIndex(0);
       }
@@ -265,7 +265,7 @@ export default function CommandHome({ params }) {
 
     //if (!socket.connected) {
     //  alert('connecting...');
-      socket.connect();
+    socket.connect();
     //} else {
     //  alert('already connected');
     //}
@@ -292,7 +292,7 @@ export default function CommandHome({ params }) {
 
   const onRestart = async () => {
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({action: 'restart command'});
+      ui.signIn({ action: 'restart command' });
       return;
     }
 
@@ -304,7 +304,7 @@ export default function CommandHome({ params }) {
 
   const onDelete = async () => {
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({action: 'delete command'});
+      ui.signIn({ action: 'delete command' });
       return;
     }
 
@@ -328,7 +328,7 @@ export default function CommandHome({ params }) {
 
   const onLockOrUnlock = async () => {
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({action: 'lock/unlock command'});
+      ui.signIn({ action: 'lock/unlock command' });
       return;
     }
 
@@ -338,7 +338,7 @@ export default function CommandHome({ params }) {
     }
 
     let c: CommandDetail;
-    if (command.locked) {    
+    if (command.locked) {
       c = await commandApi.unlockCommand(s, ui, id);
     } else {
       c = await commandApi.lockCommand(s, ui, id);
@@ -349,7 +349,7 @@ export default function CommandHome({ params }) {
 
   const onClickEditIcon = () => {
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({action: `${id ? 'update' : 'create'} command`});
+      ui.signIn({ action: `${id ? 'update' : 'create'} command` });
       return;
     }
     if (command.locked) {
@@ -386,13 +386,13 @@ export default function CommandHome({ params }) {
             </ToolbarIcon>
             <ToolbarIcon key='Edit' label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
               <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />
-            </ToolbarIcon>    
+            </ToolbarIcon>
             <ToolbarIcon key='LockOrUnlock' label={command?.locked ? 'Unlock' : 'Lock'} enabled onClick={onLockOrUnlock}>
-                { command?.locked ? 
-                  <UnlockIcon sx={{ color: '#B8E986' }} />
-                      :
-                  <LockIcon sx={{ color: '#B8E986' }} />
-                  }
+              {command?.locked ?
+                <UnlockIcon sx={{ color: '#B8E986' }} />
+                :
+                <LockIcon sx={{ color: '#B8E986' }} />
+              }
             </ToolbarIcon>
             <ToolbarIcon key='Delete' label='Delete' enabled={enableDelete} onClick={onDelete}>
               <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
@@ -423,29 +423,29 @@ export default function CommandHome({ params }) {
         </div>
         {
           (status == CommandStatus.Queued || status == CommandStatus.Running) && (<Box sx={{ width: '100%' }}>
-            <LinearProgress/>
+            <LinearProgress />
           </Box>)
         }
-        <Tabs sx={{mt: 1}} value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">    
-          <Tab label="Changes" sx={{ color: 'lightgray' }} {...a11yProps(0)} />      
+        <Tabs sx={{ mt: 1 }} value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">
+          <Tab label="Changes" sx={{ color: 'lightgray' }} {...a11yProps(0)} />
           <Tab label="Execution Log" sx={{ color: 'lightgray' }} {...a11yProps(1)} />
           <Tab label="Audit Log" sx={{ color: 'lightgray' }} {...a11yProps(2)} />
-        </Tabs>                
+        </Tabs>
         <CustomTabPanel value={logTabIndex} index={0}>
-          <Box width={'100%'} sx={{ml: 1,  mb: 1, display: 'flex', flexDirection: 'row'}}>
-              {hasChanges ?
-                <>
-                  <Typography sx={{color: 'lightgray'}}>Commit:</Typography>
-                  <Link sx={{ ml: 2 }} href={commitUrl || '#'}>{commitUrl || 'N/A'}</Link>
-                </>
-                :
-                <Typography sx={{color: 'lightgray'}}>No commit yet</Typography>
-              }
+          <Box width={'100%'} sx={{ ml: 1, mb: 1, display: 'flex', flexDirection: 'row' }}>
+            {hasChanges ?
+              <>
+                <Typography sx={{ color: 'lightgray' }}>Commit:</Typography>
+                <Link sx={{ ml: 2 }} href={commitUrl || '#'}>{commitUrl || 'N/A'}</Link>
+              </>
+              :
+              <Typography sx={{ color: 'lightgray' }}>No commit yet</Typography>
+            }
           </Box>
           {diffs.map((diff, index) =>
-          <ReactDiffViewer key={diff.path} useDarkTheme splitView leftTitle={`${index + 1}. ${diff.path}`}
-            styles={{ contentText: {fontSize: '13px'}, lineNumber: {fontSize: '13px'}, codeFold: {fontSize: '13px'} }}
-            oldValue={diff.oldContent} newValue={diff.newContent}  
+            <ReactDiffViewer key={diff.path} useDarkTheme splitView leftTitle={`${index + 1}. ${diff.path}`}
+              styles={{ contentText: { fontSize: '13px' }, lineNumber: { fontSize: '13px' }, codeFold: { fontSize: '13px' } }}
+              oldValue={diff.oldContent} newValue={diff.newContent}
             />
           )}
         </CustomTabPanel>
@@ -453,7 +453,7 @@ export default function CommandHome({ params }) {
           <ExecutionLogViewer logs={executionLogs} />
         </CustomTabPanel>
         <CustomTabPanel value={logTabIndex} index={2}>
-        <AuditLogViewer logs={auditLogs} />
+          <AuditLogViewer logs={auditLogs} />
         </CustomTabPanel>
       </Box>
 
