@@ -262,7 +262,7 @@ export class CommandService {
 		const c = await this.load(id);
 
 		const folder = await this.artifactFiles.commandRepoBatchaiFolder(c);
-		if (!dirExists(folder)) {
+		if (!(await dirExists(folder))) {
 			return [];
 		}
 
@@ -274,7 +274,7 @@ export class CommandService {
 		const c = await this.load(id);
 
 		const folder = await this.artifactFiles.commandRepoBatchaiFolder(c);
-		if (!dirExists(folder)) {
+		if (!(await dirExists(folder))) {
 			return [];
 		}
 
