@@ -344,7 +344,7 @@ func SearchMultiple(text string, queries []string) []string {
 
 func NormalizeCode(code string) string {
 	code = strings.TrimSpace(code)
-	if !strings.HasSuffix(code, "\n") {
+	if len(code) > 0 && !strings.HasSuffix(code, "\n") {
 		code = code + "\n"
 	}
 	return code
