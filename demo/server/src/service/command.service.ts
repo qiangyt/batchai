@@ -267,7 +267,8 @@ export class CommandService {
 		}
 
 		const reportFiles = await traverseFilesWithExtension(folder, '.check.batchai.json');
-		return await Promise.all(reportFiles.map(async (f) => CheckReport.with(await readJsonFile(f))));
+		const reports = await Promise.all(reportFiles.map(async (f) => CheckReport.with(await readJsonFile(f))));
+		return reports.filter((r) => r.has_issue);
 	}
 
 	async loadCommandTestReports(x: Kontext, id: number): Promise<TestReport[]> {
