@@ -78,6 +78,11 @@ export class ArtifactFiles {
 			`archive repository folder: repoId=${repoId}, repoFolder=${repoFolder}, archiveFile=${archiveFile}`,
 		);
 
+		if (!(await fileExists(repoFolder))) {
+			this.logger.error(`repository folder not found: repoId=${repoId}, repoFolder=${repoFolder}`);
+			return;
+		}
+
 		if (await fileExists(archiveFile)) {
 			removeFileOrDir(archiveFile);
 		}
@@ -127,6 +132,11 @@ export class ArtifactFiles {
 		this.logger.log(
 			`archive command folder: commandId=${cmdId}, commandFolder=${cmdFolder}, archiveFile=${archiveFile}`,
 		);
+
+		if (!(await fileExists(cmdFolder))) {
+			this.logger.error(`command folder not found: commandId=${cmdId}, commandFolder=${cmdFolder}`);
+			return;
+		}
 
 		if (await fileExists(archiveFile)) {
 			removeFileOrDir(archiveFile);
