@@ -103,6 +103,6 @@ func main() {
                  Please consider starring to my work: 
                🍷  https://github.com/qiangyt/batchai
 
-
 `, version)
+	c.Defaultln()
 }
