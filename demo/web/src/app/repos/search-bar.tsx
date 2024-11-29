@@ -32,7 +32,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       fullWidth
       startAdornment={
         <InputAdornment position="start">
-          <SearchIcon fontSize="large"/>
+          <SearchIcon fontSize="large" />
         </InputAdornment>
       }
       sx={{

@@ -3,7 +3,7 @@ import { mkdirp } from 'mkdirp';
 import path from 'path';
 import { DATA_DIR } from 'src/constants';
 import AdmZip from 'adm-zip';
-import { copyFileOrDir, fileExists, removeFileOrDir } from 'src/helper';
+import { copyFileOrDir, dirExists, fileExists, removeFileOrDir } from 'src/helper';
 import { Command, Repo } from 'src/entity';
 
 @Injectable()
@@ -78,6 +78,11 @@ export class ArtifactFiles {
 			`archive repository folder: repoId=${repoId}, repoFolder=${repoFolder}, archiveFile=${archiveFile}`,
 		);
 
+		if (!(await dirExists(repoFolder))) {
+			this.logger.warn(`repository folder not found: repoId=${repoId}, repoFolder=${repoFolder}`);
+			return;
+		}
+
 		if (await fileExists(archiveFile)) {
 			removeFileOrDir(archiveFile);
 		}
@@ -127,6 +132,11 @@ export class ArtifactFiles {
 		this.logger.log(
 			`archive command folder: commandId=${cmdId}, commandFolder=${cmdFolder}, archiveFile=${archiveFile}`,
 		);
+
+		if (!(await dirExists(cmdFolder))) {
+			this.logger.warn(`command folder not found: commandId=${cmdId}, commandFolder=${cmdFolder}`);
+			return;
+		}
 
 		if (await fileExists(archiveFile)) {
 			removeFileOrDir(archiveFile);

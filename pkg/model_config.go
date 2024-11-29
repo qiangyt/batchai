@@ -8,9 +8,8 @@ type ModelConfigT struct {
 	Id                      string        `mapstructure:"id,omitempty"`
 	Name                    string        `mapstructure:"name,omitempty"`
 	Temperature             float64       `mapstructure:"temperature,omitempty"`
-	MaxCompletionTokens     int64         `mapstructure:"max_completion_tokens"`
-	ContextWindow           int           `mapstructure:"context_window"`
-	TikTokenEnabled         bool          `mapstructure:"tik_token_enabled"`
+	MaxCompletionTokens     int64         `mapstructure:"max_completion_tokens,omitempty"`
+	ContextWindow           int64         `mapstructure:"context_window"`
 	ApiKey                  string        `mapstructure:"api_key"`
 	BaseUrl                 string        `mapstructure:"base_url"`
 	Timeout                 time.Duration `mapstructure:"timeout,omitempty" default:"10s"`

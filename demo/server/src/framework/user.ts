@@ -281,7 +281,13 @@ export class UserService {
 		if (!(await this.findByName(name))) {
 			this.create(
 				x,
-				{ name, email: env.ADMIN_MAIL, password: env.ADMIN_INIT_PASSWORD, grantLevel: GrantLevel.Full },
+				{
+					name,
+					email: env.ADMIN_MAIL,
+					password: env.ADMIN_INIT_PASSWORD,
+					githubEmail: env.ADMIN_GITHUB_EMAIL,
+					grantLevel: GrantLevel.Full,
+				},
 				true,
 			);
 		}

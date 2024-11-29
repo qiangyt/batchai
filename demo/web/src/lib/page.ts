@@ -7,9 +7,9 @@ export class Page<T> {
     readonly elements: T[] = [],
     readonly page?: number,
     readonly total?: number,
-  ) {}
+  ) { }
 
-  static with<T> (obj: any): Page<T> {
+  static with<T>(obj: any): Page<T> {
     if (!obj) return obj;
     Object.setPrototypeOf(obj, Page.prototype);
     return obj;

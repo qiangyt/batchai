@@ -27,7 +27,7 @@ export class CheckReport {
 	has_issue: string;
 	overall_severity: string;
 	issues: CheckIssue[];
-    original_code: string;
+	original_code: string;
 	fixed_code: string;
 	path: string;
 	model_usage_metrics: ModelUsageMetrics;

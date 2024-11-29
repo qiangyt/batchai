@@ -153,7 +153,7 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
-		this.logger.log(`Successfully updated command: ${c}`);
+		this.logger.log(`Successfully updated command: ${c.id}`);
 
 		if (params.executeItRightNow) {
 			c = await this.restart(x, c);
@@ -163,7 +163,7 @@ export class CommandService {
 	}
 
 	async create(x: Kontext, params: CommandCreateReq, repo: Repo): Promise<Command> {
-		this.logger.log(`creating command: paramss=${params}, repo=${repo}`);
+		this.logger.log(`creating command: params=${JSON.stringify(params)}, repo=${JSON.stringify(repo)}`);
 
 		params.normalize();
 
@@ -215,7 +215,7 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
-		this.logger.log(`successfully created command: paramss=${c}`);
+		this.logger.log(`successfully created command: params=${JSON.stringify(params)}, repo=${JSON.stringify(repo)}`);
 
 		if (params.executeItRightNow) {
 			c = await this.enqueue(x, c);
@@ -263,19 +263,20 @@ export class CommandService {
 		const c = await this.load(id);
 
 		const folder = await this.artifactFiles.commandRepoBatchaiFolder(c);
-		if (!dirExists(folder)) {
+		if (!(await dirExists(folder))) {
 			return [];
 		}
 
 		const reportFiles = await traverseFilesWithExtension(folder, '.check.batchai.json');
-		return await Promise.all(reportFiles.map(async (f) => CheckReport.with(await readJsonFile(f))));
+		const reports = await Promise.all(reportFiles.map(async (f) => CheckReport.with(await readJsonFile(f))));
+		return reports.filter((r) => r.has_issue);
 	}
 
 	async loadCommandTestReports(x: Kontext, id: number): Promise<TestReport[]> {
 		const c = await this.load(id);
 
 		const folder = await this.artifactFiles.commandRepoBatchaiFolder(c);
-		if (!dirExists(folder)) {
+		if (!(await dirExists(folder))) {
 			return [];
 		}
 

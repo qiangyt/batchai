@@ -7,7 +7,7 @@ import CommandDialog from "@/components/command-dialog";
 
 interface CommandChipProps {
   repo: RepoBasic;
-  commandName: string;  
+  commandName: string;
   onCommandCreated: (command: CommandDetail) => void;
 }
 
@@ -25,14 +25,14 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
       </NextLink>
     )
   }
-  
+
   const onClickCreate = (e: MouseEvent) => {
     otEvent(e);
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({action: "create command"});
+      ui.signIn({ action: "create command" });
       return;
     }
-    setOpenDialog(true);    
+    setOpenDialog(true);
   };
 
   const data = CommandEditData.forCreate(s, commandName, repo);

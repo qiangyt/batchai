@@ -60,7 +60,7 @@ export default function TopBar({ anchorId }: Props) {
                         </Box>
                     </Typography>
 
-                    <NextLink href={{ pathname: `/` }}><HomeIcon sx={{mr: 6}} /></NextLink>
+                    <NextLink href={{ pathname: `/` }}><HomeIcon sx={{ mr: 6 }} /></NextLink>
                     <GitHubLoginButton />
                 </Toolbar>
             </Container>

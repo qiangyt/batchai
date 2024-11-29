@@ -66,8 +66,10 @@ func main() {
 	list := batchai.ListUrfaveCommand(x)
 	test := batchai.TestUrfaveCommand(x)
 
+	version := fmt.Sprintf("%s (%s)", Version, CommitId)
+
 	app := &cli.App{
-		Version:                fmt.Sprintf("%s (%s)", Version, CommitId),
+		Version:                version,
 		UseShortOptionHandling: true,
 		Commands:               []*cli.Command{check, list, test, explain, comment, refactor},
 		Name:                   "batchai",
@@ -94,8 +96,13 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		c.Redf("%+v\n", err)
 	}
-	c.Defaultln(`
-                 Thanks for using batchai 🙏
+	c.Greenf(`
+
+
+                 Thanks for using batchai %s🙏
                  Please consider starring to my work: 
-               🍷  https://github.com/qiangyt/batchai`)
+               🍷  https://github.com/qiangyt/batchai
+
+`, version)
+	c.Defaultln()
 }

@@ -25,30 +25,30 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </head>
-      <body style={{background:"black"}} className={cn(
+      <body style={{ background: "black" }} className={cn(
         "min-h-screen bg-background font-sans antialiased",
         /*fontSans.className*/
       )}>
-      <ErrorBoundary>
-        <SessionProvider>
-          <UIContextProvider>          
-            <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
-              <CssBaseline />
-              <TopBar anchorId='scroll-to-top' />
-              <Paper  variant="outlined" sx={{ mt: 0, mr: 24, ml: 24, background:"black" }} >
-                {children}
-              </Paper>
-              <ScrollTop anchorId='scroll-to-top' />
-            </ThemeProvider>          
-          </UIContextProvider>
-        </SessionProvider>
-      </ErrorBoundary>
+        <ErrorBoundary>
+          <SessionProvider>
+            <UIContextProvider>
+              <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
+                <CssBaseline />
+                <TopBar anchorId='scroll-to-top' />
+                <Paper variant="outlined" sx={{ mt: 0, mr: 24, ml: 24, background: "black" }} >
+                  {children}
+                </Paper>
+                <ScrollTop anchorId='scroll-to-top' />
+              </ThemeProvider>
+            </UIContextProvider>
+          </SessionProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

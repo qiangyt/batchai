@@ -10,7 +10,7 @@ export interface SessionState {
   //setSession: React.Dispatch<React.SetStateAction<SignInDetail | null>>;
   redirect: () => void;
   load: () => void;
-  save: (signInDetail: SignInDetail)  => void;
+  save: (signInDetail: SignInDetail) => void;
   clear: () => void;
   has: () => boolean;
 }
@@ -22,19 +22,19 @@ export interface Session {
 export const SessionContext = createContext<Session | undefined>(undefined);
 
 interface SessionProviderProps {
-  children: React.ReactNode; 
+  children: React.ReactNode;
 }
 
-export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [detail, setDetail] = useState<SignInDetail | null>(null);
   const [RequestStarDialogProps, setRequestStarDialogProps] = useState<RequestStarDialogProps>(null);
-  
+
   const redirect = () => {
     const redirectUrl = encodeURIComponent(window.location.href);
     window.location.href = `/rest/v1/auth/github/redirect?redirect_url=${redirectUrl}`;
   };
 
-  const load = async() => {
+  const load = async () => {
     const storedSession = localStorage.getItem('session');
     if (storedSession) {
       let d = SignInDetail.with(JSON.parse(storedSession));
@@ -59,13 +59,13 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
   };
 
   useEffect(() => {
-    const restoreSession = async() => {
+    const restoreSession = async () => {
       const url = new URL(window.location.href);
       const encodedSignInDetail = url.searchParams.get("signInDetail");
       if (encodedSignInDetail) {
         const result = SignInDetail.with(JSON.parse(decodeURIComponent(encodedSignInDetail)));
         save(result);
-  
+
         url.searchParams.delete("signInDetail");
         window.history.replaceState({}, document.title, url.toString());
         return result;
@@ -76,19 +76,19 @@ export const SessionProvider: React.FC<{children: React.ReactNode}> = ({ childre
 
     restoreSession().then((signInDetail: SignInDetail) => {
       if (signInDetail.user.grantLevel === GrantLevel.Default) {
-        setRequestStarDialogProps({open: true, closeFunc: () => setRequestStarDialogProps(null)});
+        setRequestStarDialogProps({ open: true, closeFunc: () => setRequestStarDialogProps(null) });
       }
     });
   }, []);
 
-  const session = { state: {detail, redirect, load, save, clear, has }};
+  const session = { state: { detail, redirect, load, save, clear, has } };
   return (<>
-      <SessionContext.Provider value={session}>
-        {children}
-      </SessionContext.Provider>
+    <SessionContext.Provider value={session}>
+      {children}
+    </SessionContext.Provider>
 
-      <RequestStarDialog {...RequestStarDialogProps}/>
-    </>
+    <RequestStarDialog {...RequestStarDialogProps} />
+  </>
   );
 };
 

@@ -61,7 +61,7 @@ export async function listPathsWithPrefix(rootDir: string, prefix: string): Prom
 	const r: string[] = [];
 
 	for (const f of await fs.readdir(path.join(rootDir, prefix))) {
-		if (f === '.git') continue;
+		if (f === '.git' || f == 'vendor' || f == '.svn' || f === 'node_modules') continue;
 
 		const fullP = path.join(rootDir, f);
 		const relP = path.relative(rootDir, fullP);

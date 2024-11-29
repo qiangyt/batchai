@@ -23,7 +23,7 @@ export class RepoBasic extends AuditableDto {
   private _repoPath: string;
 
   command(commandName: string): CommandBasic {
-    switch(commandName) {
+    switch (commandName) {
       case 'check': return this.checkCommand;
       case 'test': return this.testCommand;
       default: throw new Error(`${commandName} is not supported`);
@@ -87,5 +87,5 @@ export class RepoCreateReq {
 }
 
 export class ListAvaiableTargetPathsParams {
-	path: string
+  path: string
 }

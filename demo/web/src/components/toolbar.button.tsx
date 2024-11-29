@@ -15,32 +15,32 @@ interface ToolbarIcon {
 export default function ToolbarIcon({ enabled, children, label, onClick }: ToolbarIcon) {
     const ui = useUIContext();
 
-    const asyncOnClick = async() => {
+    const asyncOnClick = async () => {
         ui.setLoading(true);
         try {
-           onClick();
-         } catch (error) {
-           ui.setError(error);
-         } finally {
-             ui.setLoading(false);
-         }
-     }
+            onClick();
+        } catch (error) {
+            ui.setError(error);
+        } finally {
+            ui.setLoading(false);
+        }
+    }
 
-     
+
     const onClick_ = (e) => {
-       // e.preventDefault();
+        // e.preventDefault();
         //e.stopPropagation();
         asyncOnClick();
     }
 
     return (
-    <Stack direction="column" alignItems="center" sx={{ mr: 5 }}>
-        <Tooltip title={label} placement="bottom">
-            <Button disabled={!enabled} onClick={onClick_}>
-                {children}
-            </Button>
-        </Tooltip>
-        <Typography variant="caption" color={enabled ? "white" : "gray"}>{label}</Typography>
-    </Stack>
+        <Stack direction="column" alignItems="center" sx={{ mr: 5 }}>
+            <Tooltip title={label} placement="bottom">
+                <Button disabled={!enabled} onClick={onClick_}>
+                    {children}
+                </Button>
+            </Tooltip>
+            <Typography variant="caption" color={enabled ? "white" : "gray"}>{label}</Typography>
+        </Stack>
     )
 }

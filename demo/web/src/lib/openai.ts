@@ -15,7 +15,7 @@ export class CompletionUsageCompletionTokensDetails {
 	// not appear in the completion. However, like reasoning tokens, these tokens are
 	// still counted in the total completion tokens for purposes of billing, output,
 	// and context window limits.
-	rejected_prediction_tokens: number;	
+	rejected_prediction_tokens: number;
 
 	static with(obj: any): CompletionUsageCompletionTokensDetails {
 		if (!obj) return obj;
@@ -29,7 +29,7 @@ export class CompletionUsagePromptTokensDetails {
 	// Audio input tokens present in the prompt.
 	audio_tokens: number;
 	// Cached tokens present in the prompt.
-	cached_tokens: number;	
+	cached_tokens: number;
 
 	static with(obj: any): CompletionUsagePromptTokensDetails {
 		if (!obj) return obj;
@@ -54,7 +54,7 @@ export class CompletionUsage {
 
 	// Breakdown of tokens used in the prompt.
 	prompt_tokens_details: CompletionUsagePromptTokensDetails;
-		
+
 
 	static with(obj: any): CompletionUsage {
 		if (!obj) return obj;
@@ -69,7 +69,7 @@ export class CompletionUsage {
 export class ModelUsageMetrics {
 	Duration: number;
 	EvaluatedPromptTokens: number;
-	OpenAiUsage: CompletionUsage;	
+	OpenAiUsage: CompletionUsage;
 
 	static with(obj: any): ModelUsageMetrics {
 		if (!obj) return obj;

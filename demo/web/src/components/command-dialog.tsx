@@ -37,14 +37,14 @@ interface CommandDialogProps {
   onSubmited: (command: CommandDetail) => void;
 }
 
-export default function CommandDialog({ data:_data, open, setOpen, onSubmited }: CommandDialogProps) {
+export default function CommandDialog({ data: _data, open, setOpen, onSubmited }: CommandDialogProps) {
   const s = useSession().state;
   const ui = useUIContext();
   const [data, setData] = useState(_data);
   const title = data.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
 
-  const onTargetPathsChange = (targetPaths:string[]) => {
-    setData(CommandEditData.with({...data, targetPaths}));
+  const onTargetPathsChange = (targetPaths: string[]) => {
+    setData(CommandEditData.with({ ...data, targetPaths }));
   };
 
   const onClose = (e: MouseEvent) => {
@@ -53,20 +53,20 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
   };
 
   const onChangeTestLibrary = (testLibrary: string) => {
-    setData(CommandEditData.with({...data, testLibrary}));
+    setData(CommandEditData.with({ ...data, testLibrary }));
   };
 
   const onChangeLang = (lang: string) => {
-    setData(CommandEditData.with({...data, lang}));
+    setData(CommandEditData.with({ ...data, lang }));
   };
 
-  const onChangeCheckFix = (e:ChangeEvent<HTMLInputElement>, checkFix: boolean) => {
-    setData(CommandEditData.with({...data, checkFix}));
+  const onChangeCheckFix = (e: ChangeEvent<HTMLInputElement>, checkFix: boolean) => {
+    setData(CommandEditData.with({ ...data, checkFix }));
   }
 
-  const onChangeExecuteItRightNow = (e:ChangeEvent<HTMLInputElement>, executeItRightNow: boolean) => {
+  const onChangeExecuteItRightNow = (e: ChangeEvent<HTMLInputElement>, executeItRightNow: boolean) => {
     otEvent(e);
-    setData(CommandEditData.with({...data, executeItRightNow}));
+    setData(CommandEditData.with({ ...data, executeItRightNow }));
   };
 
   const onChangeNum = (e: ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +79,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
     if (num < 0) {
       return;
     }
-  
+
     if (data.numQuota > 0) {
       if (num <= 0 || num > data.numQuota) {
         ui.requestStar();
@@ -87,42 +87,42 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
       }
     }
 
-    setData(CommandEditData.with({...data, num}));
+    setData(CommandEditData.with({ ...data, num }));
   };
 
-  const onSubmit = async (e: MouseEvent) => {    
+  const onSubmit = async (e: MouseEvent) => {
     otEvent(e);
 
-    let cmd:CommandDetail;
+    let cmd: CommandDetail;
     if (data.isUpdate()) {
       cmd = await commandApi.updateCommand(s, ui, data.id, CommandUpdateReq.create(data));
     } else {
       cmd = await commandApi.createCommand(s, ui, CommandCreateReq.create(data));
     }
-    onSubmited(cmd);    
+    onSubmited(cmd);
     setOpen(false);
   };
 
   return (<>
     <Dialog open={open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
       <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
-      <span style={{ fontSize: 15}}>{title}</span>
-        <p/><span style={{ fontSize: 12, marginRight: 8}}>for</span>
-      <Link href={data.repo.repoUrl} sx={{ color: 'white', fontSize: 24 }}>{data.repo.repoUrl}</Link></DialogTitle>
-      <DialogContent>          
-        <Box sx={{width: "64%", mt: 5}}><LangSelect value={data.lang} onChange={onChangeLang} /></Box>
-        <TextField size='small' sx={{width: "64%", mt: 3}} label="Number of file to process" type="number" placeholder="Type a number…" value={data.num} onChange={onChangeNum} 
+        <span style={{ fontSize: 15 }}>{title}</span>
+        <p /><span style={{ fontSize: 12, marginRight: 8 }}>for</span>
+        <Link href={data.repo.repoUrl} sx={{ color: 'white', fontSize: 24 }}>{data.repo.repoUrl}</Link></DialogTitle>
+      <DialogContent>
+        <Box sx={{ width: "64%", mt: 5 }}><LangSelect value={data.lang} onChange={onChangeLang} /></Box>
+        <TextField size='small' sx={{ width: "64%", mt: 3 }} label="Number of file to process" type="number" placeholder="Type a number…" value={data.num} onChange={onChangeNum}
           slotProps={{
             inputLabel: {
               shrink: true,
             },
           }} />
-        {data.isTest() && <Box sx={{width: "64%", mt: 3}}><TestLibrarySelect value={data.testLibrary} onChange={onChangeTestLibrary}/></Box>}
-        {data.isCheck() && <Box sx={{width: "64%", mt: 3}}><FormControlLabel sx={{mt: 1}} control={<Checkbox size='small' checked={data.checkFix} onChange={onChangeCheckFix}/>} label="Fix detected issues"/></Box>}
-        
-        <FormControlLabel sx={{mt: 1}} control={<Checkbox size='small' checked={data.executeItRightNow} onChange={onChangeExecuteItRightNow}/>} label="Executes it right now"/>
-        
-        <TargetPathInput commandId={data.id} repoId={data.repo.id} targetPaths={data.targetPaths} onChange={onTargetPathsChange}/>
+        {data.isTest() && <Box sx={{ width: "64%", mt: 3 }}><TestLibrarySelect value={data.testLibrary} onChange={onChangeTestLibrary} /></Box>}
+        {data.isCheck() && <Box sx={{ width: "64%", mt: 3 }}><FormControlLabel sx={{ mt: 1 }} control={<Checkbox size='small' checked={data.checkFix} onChange={onChangeCheckFix} />} label="Fix detected issues" /></Box>}
+
+        <FormControlLabel sx={{ mt: 1 }} control={<Checkbox size='small' checked={data.executeItRightNow} onChange={onChangeExecuteItRightNow} />} label="Executes it right now" />
+
+        <TargetPathInput commandId={data.id} repoId={data.repo.id} targetPaths={data.targetPaths} onChange={onTargetPathsChange} />
 
       </DialogContent>
       <DialogActions>
@@ -130,7 +130,7 @@ export default function CommandDialog({ data:_data, open, setOpen, onSubmited }:
         <Button type="submit" onClick={onSubmit}>Submit</Button>
       </DialogActions>
     </Dialog>
-    </>
+  </>
   );
 }
 

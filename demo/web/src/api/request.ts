@@ -3,7 +3,7 @@ import { UIContextType } from '@/lib/ui.context';
 import axios from 'axios'
 
 
-const withAxios = (s:SessionState, ui: UIContextType) => {
+const withAxios = (s: SessionState, ui: UIContextType) => {
   const service = axios.create({
     //baseURL: `${process.env.NEXT_PUBLIC_API_SERVER}/rest/v1`,
     baseURL: `/rest/v1`,
@@ -57,7 +57,7 @@ const withAxios = (s:SessionState, ui: UIContextType) => {
           return Promise.reject(desc);
         }
       }
-      
+
       return Promise.reject(error);
     }
   )

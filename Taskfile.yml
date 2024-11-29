@@ -80,6 +80,7 @@ tasks:
       #    MOCK_PKG_SRC: hosts
       #    MOCK_PKG_DEST: ui
       #    MOCK_INTERFACE: Controller
+      - task: format
 
   clean:
     desc: clean target directory

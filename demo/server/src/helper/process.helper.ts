@@ -72,6 +72,18 @@ export function spawnAsync(
 			reject(error);
 		});
 
+		child.on('spawn', () => {
+			if (fnStdout) fnStdout('child process started');
+		});
+
+		child.on('exit', (code, signal) => {
+			if (signal) {
+				if (fnStderr) fnStderr(`child process killed by signal: ${signal}`);
+			} else {
+				if (fnStdout) fnStdout(`child process exited with code: ${code}`);
+			}
+		});
+
 		const timeoutId =
 			timeout <= 0
 				? undefined
