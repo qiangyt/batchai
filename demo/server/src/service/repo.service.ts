@@ -69,7 +69,7 @@ export class RepoService {
 
 		const { ownerName, repoName } = req.parsePath(this.i18n);
 		if (await this.dao.existsBy({ owner: { id: owner.id }, name: repoName })) {
-			throw new ConflictException(this.i18n.t('error.REPOSITORY_ALREADY_EXISTS', { args: { repository: req.path } }));
+			throw new ConflictException(this.i18n.t('error.REPOSITORY_ALREADY_EXISTS', { args: { repoUrl: req.path } }));
 		}
 
 		let r = new Repo();
