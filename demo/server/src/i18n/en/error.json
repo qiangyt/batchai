@@ -13,7 +13,7 @@
     "COMMAND_ALREADY_EXISTS": "command already exists: repository={repoUrl}, command={command}",
     "REPOSITORY_ALREADY_EXISTS": "repository already exists: repository={repoUrl}",
     "INVALID_GITHUB_REPOSITORY": "invalid github repository: {url}",
-    "BATCHAI_EXECUTION_FAILED": "batchai execution failed: command={cmdLine}",    
+    "BATCHAI_EXECUTION_FAILED": "batchai execution failed: command line={cmdLine}",    
     "REPOSITORY_NOT_FOUND": "repository not found: id={id}",
     "DONT_INPUT_CREDENTIAL_IN_REPO_PATH": "do not input credential in the repository path: {path}",
     "INVALID_REPOSITORY_PATH": "invalid repository path: {path}; example: qiangyt/batchai",

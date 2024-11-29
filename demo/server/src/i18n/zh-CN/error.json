@@ -1,0 +1,21 @@
+{
+    "ALREADY_LOCKED": "已经被锁定了: {id}",
+    "ALREADY_UNLOCKED": "已经被解锁了: {id}",
+    "CANNOT_UPDATE_LOCKED_COMMAND": "不能修改被锁定了的命令: {commandId}",
+    "CANNOT_UPDATE_LOCKED_REPOSITORY": "不能修改被锁定了的代码库: {id}",
+    "CANNOT_REMOVE_LOCKED_COMMAND": "不能删除被锁定了的命令: {commandId}",
+    "CANNOT_UPDATE_RUNNING_COMMAND": "不能删除尚在运行的命令: {commandId}",
+    "CANNOT_RESTART_RUNNING_COMMAND": "不能重启尚在运行的命令: {commandId}",
+    "CANNOT_RESUME_COMMAND": "不能恢复处于{status}状态的命令: {commandId}",
+    "CANNOT_STOP_COMMAND": "不能停止处于{status}状态的命令: {commandId}",
+    "CANNOT_REMOVE_COMMAND": "不能删除处于{status}状态的命令: {commandId}",
+    "PROCESSING_USAGE_REACHED": "超过了处理配额上限",
+    "COMMAND_ALREADY_EXISTS": "命令已经存在了: 代码库={repoUrl}, 命令={command}",
+    "REPOSITORY_ALREADY_EXISTS": "代码库已存在: 代码库={repoUrl}",
+    "INVALID_GITHUB_REPOSITORY": "无效的GITHUB代码库: {url}",
+    "BATCHAI_EXECUTION_FAILED": "batchai执行失败: 命令行={cmdLine}",    
+    "REPOSITORY_NOT_FOUND": "代码库数据不存在: id={id}",
+    "DONT_INPUT_CREDENTIAL_IN_REPO_PATH": "别在输入的代码库地址中带有密码: {path}",
+    "INVALID_REPOSITORY_PATH": "无效的GITHUB代码库: {path}; 例子：qiangyt/batchai",
+    "UNSUPPORTED_COMMAND": "不支持的命令: {command}"
+}
