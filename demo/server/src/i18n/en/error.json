@@ -1,0 +1,21 @@
+{
+    "ALREADY_LOCKED": "already locked: {id}",
+    "ALREADY_UNLOCKED": "already unlocked: {id}",
+    "CANNOT_UPDATE_LOCKED_COMMAND": "cannot update a locked command: {commandId}",
+    "CANNOT_UPDATE_LOCKED_REPOSITORY": "cannot update a locked repository: {id}",
+    "CANNOT_REMOVE_LOCKED_COMMAND": "cannot remove a locked command: {commandId}",
+    "CANNOT_UPDATE_RUNNING_COMMAND": "cannot update a running command: {commandId}",
+    "CANNOT_RESTART_RUNNING_COMMAND": "cannot restart a running command: {commandId}",
+    "CANNOT_RESUME_COMMAND": "cannot resume a {status} command: {commandId}",
+    "CANNOT_STOP_COMMAND": "cannot stop a {status} command: {commandId}",
+    "CANNOT_REMOVE_COMMAND": "cannot remove a {status} command: {commandId}",
+    "PROCESSING_USAGE_REACHED": "processing usage reached",
+    "COMMAND_ALREADY_EXISTS": "command already exists: repository={repoUrl}, command={command}",
+    "REPOSITORY_ALREADY_EXISTS": "repository already exists: repository={repoUrl}",
+    "INVALID_GITHUB_REPOSITORY": "invalid github repository: {url}",
+    "BATCHAI_EXECUTION_FAILED": "batchai execution failed: command={cmdLine}",    
+    "REPOSITORY_NOT_FOUND": "repository not found: id={id}",
+    "DONT_INPUT_CREDENTIAL_IN_REPO_PATH": "do not input credential in the repository path: {path}",
+    "INVALID_REPOSITORY_PATH": "invalid repository path: {path}; example: qiangyt/batchai",
+    "UNSUPPORTED_COMMAND": "unsupported command: {command}"
+}

@@ -135,7 +135,8 @@ export class CommandUpdateReq {
 	@IsOptional()
 	executeItRightNow: boolean;
 
-	normalize() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	normalize(i18n: I18nService) {
 		if (this.num <= 0) {
 			this.num = 0;
 		}
@@ -163,7 +164,7 @@ export class ParsedRepoPath {
 			p = p.substring('https://'.length);
 		}
 		if (p.indexOf('@') >= 0) {
-			throw new BadRequestException('do not input credential in the repository path');
+			throw new BadRequestException(i18n.t('error.DONT_INPUT_CREDENTIAL_IN_REPO_PATH', { args: { path } }));
 		}
 		if (p.toLowerCase().startsWith('github.com/')) {
 			p = p.substring('github.com/'.length);
@@ -177,12 +178,12 @@ export class ParsedRepoPath {
 
 		const elements = p.split('/', 2);
 		if (elements.length != 2) {
-			throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
+			throw new BadRequestException(i18n.t('INVALID_REPOSITORY_PATH', { args: { path } }));
 		}
 		const ownerName = elements[0];
 		const repoName = elements[1];
 		if (!ownerName || !repoName) {
-			throw new BadRequestException(`invalid repository path: ${p}; example: qiangyt/batchai`);
+			throw new BadRequestException(i18n.t('INVALID_REPOSITORY_PATH', { args: { path } }));
 		}
 
 		return new ParsedRepoPath(ownerName, repoName);
@@ -198,8 +199,8 @@ export class CommandCreateReq extends CommandUpdateReq {
 
 	normalize(i18n: I18nService) {
 		if (this.command !== 'check' && this.command !== 'test') {
-			throw new BadRequestException(`unsupported command: "${this.command}"`);
+			throw new BadRequestException(i18n.t('UNSUPPORTED_COMMAND', { args: { command: this.command } }));
 		}
-		super.normalize();
+		super.normalize(i18n);
 	}
 }

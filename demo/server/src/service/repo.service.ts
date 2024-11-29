@@ -8,6 +8,7 @@ import { Page, Kontext, User } from '../framework';
 import { ArtifactFiles } from './artifact.files';
 import path from 'path';
 import { mkdirp } from 'mkdirp';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class RepoService {
@@ -66,9 +67,9 @@ export class RepoService {
 	async create(x: Kontext, req: RepoCreateReq, owner: User): Promise<Repo> {
 		this.logger.log(`creating repository ${JSON.stringify(req)}, owner=${JSON.stringify(owner)}`);
 
-		const { ownerName, repoName } = req.parsePath();
+		const { ownerName, repoName } = req.parsePath(this.i18n);
 		if (await this.dao.existsBy({ owner: { id: owner.id }, name: repoName })) {
-			throw new ConflictException(`repository=${req.path}}`);
+			throw new ConflictException(this.i18n.t('error.REPOSITORY_ALREADY_EXISTS', { args: { repository: req.path } }));
 		}
 
 		let r = new Repo();
@@ -82,7 +83,7 @@ export class RepoService {
 
 		const repoObj = new GithubRepo((output) => this.logger.log(output), workDir, ownerName, repoName, false, null);
 		if (!(await repoObj.checkRemote())) {
-			throw new BadRequestException(`invalid github repository: ${repoObj.url()}`);
+			throw new BadRequestException(this.i18n.t('error.INVALID_GITHUB_REPOSITORY', { args: { url: repoObj.url() } }));
 		}
 		this.logger.log(`remote repository ${r.repoUrl()} is ok`);
 
@@ -127,7 +128,7 @@ export class RepoService {
 	async load(id: number): Promise<Repo> {
 		const r = await this.findById(id);
 		if (!r) {
-			throw new NotFoundException(`id=${id}`);
+			throw new NotFoundException(this.i18n.t('error.REPOSITORY_NOT_FOUND', { args: { id } }));
 		}
 		return r;
 	}
@@ -145,7 +146,7 @@ export class RepoService {
 		this.logger.log(`removing repository ${JSON.stringify(repo)}`);
 
 		if (repo.locked) {
-			throw new ConflictException(`cannot update a locked repoistory: ${repo.id}`);
+			throw new ConflictException(this.i18n.t('error.CANNOT_UPDATE_LOCKED_REPOSITORY', { args: { id: repo.id } }));
 		}
 
 		await this.artifactFiles.archiveRepo(repo);
@@ -175,7 +176,7 @@ export class RepoService {
 
 		let c = await this.load(id);
 		if (c.locked) {
-			throw new BadRequestException('already locked');
+			throw new ConflictException(this.i18n.t('error.ALREADY_LOCKED', { args: { id } }));
 		}
 		c.locked = true;
 
@@ -189,7 +190,7 @@ export class RepoService {
 
 		let c = await this.load(id);
 		if (!c.locked) {
-			throw new BadRequestException('already unlocked');
+			throw new ConflictException(this.i18n.t('error.ALREADY_UNLOCKED', { args: { id } }));
 		}
 		c.locked = false;
 

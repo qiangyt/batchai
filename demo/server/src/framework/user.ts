@@ -37,6 +37,7 @@ import { RequiredRoles, Role } from './role';
 import { Profile } from 'passport-github2';
 import { Octokit } from '@octokit/rest';
 import { extractNameFromEmail, GithubRepo } from 'src/helper';
+import { I18nService } from 'nestjs-i18n';
 
 export enum GrantLevel {
 	Default = 'Default',
@@ -295,7 +296,7 @@ export class UserService {
 
 	async create(x: Kontext, req: UserCreateReq, admin: boolean): Promise<User> {
 		if (await this.dao.existsBy({ name: req.name })) {
-			throw new ConflictException(`user.name=${req.name}`);
+			throw new ConflictException(this.i18n.t('framework.USER_ALREADY_EXISTS', { args: { name: req.name } }));
 		}
 
 		const u = new User();

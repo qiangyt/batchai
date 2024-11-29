@@ -22,6 +22,7 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Server, Socket } from 'socket.io';
 import { ArtifactFiles } from './artifact.files';
 import { CheckReport, TestReport } from 'src/dto';
+import { I18nService } from 'nestjs-i18n';
 
 class CommandExecutionContext {
 	constructor(
@@ -31,12 +32,16 @@ class CommandExecutionContext {
 		readonly i18n: I18nService,
 	) {}
 
-	static async build(command: Command, artifactFiles: ArtifactFiles): Promise<CommandExecutionContext> {
+	static async build(
+		command: Command,
+		artifactFiles: ArtifactFiles,
+		i18n: I18nService,
+	): Promise<CommandExecutionContext> {
 		const [auditLog, executionLog] = await Promise.all([
 			artifactFiles.commandAuditLog(command),
 			artifactFiles.commandExecutionLog(command),
 		]);
-		return new CommandExecutionContext(command, auditLog, executionLog);
+		return new CommandExecutionContext(command, auditLog, executionLog, i18n);
 	}
 }
 
@@ -54,6 +59,7 @@ export class CommandService {
 		private readonly scheduler: SchedulerRegistry,
 		@InjectRepository(Command) private readonly dao: Repository<Command>,
 		private readonly artifactFiles: ArtifactFiles,
+		readonly i18n: I18nService,
 	) {}
 
 	async initCheck() {
@@ -108,14 +114,14 @@ export class CommandService {
 	async update(x: Kontext, id: number, params: CommandUpdateReq): Promise<Command> {
 		this.logger.log(`updating command: id=${id}`);
 
-		params.normalize();
+		params.normalize(this.i18n);
 
 		let c = await this.load(id);
 		if (c.locked) {
-			throw new ConflictException(`cannot update a locked command: ${c.id}`);
+			throw new ConflictException(this.i18n.t('error.CANNOT_UPDATE_LOCKED_COMMAND', { args: { commandId: c.id } }));
 		}
 		if (c.status === CommandStatus.Running) {
-			throw new ConflictException(`cannot update a running command: ${c.id}`);
+			throw new ConflictException(this.i18n.t('error.CANNOT_UPDATE_RUNNING_COMMAND', { args: { commandId: c.id } }));
 		}
 
 		const u = x.user;
@@ -134,7 +140,7 @@ export class CommandService {
 				const numQuota = u.getNumQuote();
 				if (numQuota > 0) {
 					if (c.num <= 0 || c.num > numQuota) {
-						throw new BadRequestException('processing usage reached');
+						throw new BadRequestException(this.i18n.t('error.PROCESSING_USAGE_REACHED'));
 					}
 				}
 			}
@@ -165,10 +171,12 @@ export class CommandService {
 	async create(x: Kontext, params: CommandCreateReq, repo: Repo): Promise<Command> {
 		this.logger.log(`creating command: params=${JSON.stringify(params)}, repo=${JSON.stringify(repo)}`);
 
-		params.normalize();
+		params.normalize(this.i18n);
 
 		if (await this.dao.existsBy({ repo: { id: repo.id }, command: params.command })) {
-			throw new ConflictException(`repository=${repo.repoUrl()}, command=${params.command}`);
+			throw new ConflictException(
+				this.i18n.t('error.COMMAND_ALREADY_EXISTS', { args: { repoUrl: repo.repoUrl(), command: params.command } }),
+			);
 		}
 
 		const u = x.user;
@@ -196,7 +204,7 @@ export class CommandService {
 		}
 		if (numQuota > 0) {
 			if (c.num <= 0 || c.num > numQuota) {
-				throw new BadRequestException('processing usage reached');
+				throw new BadRequestException(this.i18n.t('error.PROCESSING_USAGE_REACHED'));
 			}
 		}
 
@@ -298,7 +306,7 @@ export class CommandService {
 		await this.artifactFiles.archiveCommand(c);
 		await this.artifactFiles.removeCommand(c);
 
-		const exeCtx = await CommandExecutionContext.build(c, this.artifactFiles);
+		const exeCtx = await CommandExecutionContext.build(c, this.artifactFiles, this.i18n);
 		try {
 			await this.auditLog(exeCtx, `begin to run command`);
 			await this.doRun(exeCtx);
@@ -407,7 +415,7 @@ export class CommandService {
 		this.logger.log(`restarting command: ${JSON.stringify(c)}`);
 
 		if (c.status === CommandStatus.Running) {
-			throw new ConflictException(`cannot restart a running command: ${c.id}`);
+			throw new ConflictException(this.i18n.t('error.CANNOT_RESTART_RUNNING_COMMAND', { args: { commandId: c.id } }));
 		}
 
 		c.hasChanges = false;
@@ -425,7 +433,9 @@ export class CommandService {
 		this.logger.log(`resuming command: ${JSON.stringify(c)}`);
 
 		if (c.status !== CommandStatus.Pending && c.status !== CommandStatus.Failed) {
-			throw new ConflictException(`cannot resume a ${c.status} command`);
+			throw new ConflictException(
+				this.i18n.t('error.CANNOT_RESUME_COMMAND', { args: { commandId: c.id, status: c.status } }),
+			);
 		}
 		c = await this.enqueue(x, c);
 		this.logger.log(`successfully resumed command: ${JSON.stringify(c)}`);
@@ -436,7 +446,7 @@ export class CommandService {
 		this.logger.log(`stopping command: ${JSON.stringify(c)}`);
 
 		if (c.status !== CommandStatus.Running) {
-			throw new ConflictException(`cannot stop a ${c.status} command`);
+			this.i18n.t('error.CANNOT_STOP_COMMAND', { args: { commandId: c.id, status: c.status } });
 		}
 		c = await this.updateStatus(x, c, CommandStatus.Pending);
 
@@ -448,10 +458,10 @@ export class CommandService {
 		this.logger.log(`removing command: ${JSON.stringify(c)}`);
 
 		if (c.locked) {
-			throw new ConflictException(`cannot update a locked command: ${c.id}`);
+			throw new ConflictException(this.i18n.t('error.CANNOT_REMOVE_LOCKED_COMMAND', { args: { commandId: c.id } }));
 		}
 		if (c.status === CommandStatus.Running) {
-			throw new ConflictException(`cannot remove a ${c.status} command`);
+			this.i18n.t('error.CANNOT_REMOVE_COMMAND', { args: { commandId: c.id, status: c.status } });
 		}
 
 		if (removeWorkingCopy) {
@@ -482,7 +492,7 @@ export class CommandService {
 		if (c.status !== CommandStatus.Running) return;
 		if (c.nextRunStatus() === CommandRunStatus.SyncRepo) {
 			if (!(await forked.checkRemote())) {
-				throw new BadRequestException(`invalid github repository: ${forked.url()}`);
+				throw new BadRequestException(this.i18n.t('error.INVALID_GITHUB_REPOSITORY', { args: { url: forked.url() } }));
 			}
 			this.auditLog(exeCtx, 'remote repository validation - succeeded');
 
@@ -541,7 +551,7 @@ export class CommandService {
 			this.auditLog(exeCtx, `exec end: exitCode=${code}, command=${cmdLine}`);
 
 			if (code !== 0) {
-				throw new Error(`batchai execution failed: command=${cmdLine}`);
+				throw new Error(this.i18n.t('error.BATCHAI_EXECUTION_FAILED', { args: { cmdLine } }));
 			}
 			this.auditLog(exeCtx, `exec succeeded: command=${cmdLine}`);
 			c = exeCtx.command = await this.updateRunStatus(c, CommandRunStatus.BatchAIExecuted);
@@ -627,7 +637,7 @@ export class CommandService {
 
 		let c = await this.load(id);
 		if (c.locked) {
-			throw new BadRequestException('already locked');
+			throw new ConflictException(this.i18n.t('error.ALREADY_LOCKED', { args: { id } }));
 		}
 		c.locked = true;
 
@@ -641,7 +651,7 @@ export class CommandService {
 
 		let c = await this.load(id);
 		if (!c.locked) {
-			throw new BadRequestException('already unlocked');
+			throw new ConflictException(this.i18n.t('error.ALREADY_UNLOCKED', { args: { id } }));
 		}
 		c.locked = false;
 

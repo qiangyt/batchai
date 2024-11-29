@@ -4,6 +4,7 @@ import { CommandBasic, ParsedRepoPath } from './command.dto';
 import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ArtifactFiles } from 'src/service/artifact.files';
+import { I18nService } from 'nestjs-i18n';
 
 export class RepoBasic extends AuditableDto {
 	owner: UserBasic;
@@ -103,9 +104,9 @@ export class RepoCreateReq {
 
 	private parsedRepoPath: ParsedRepoPath;
 
-	parsePath(): ParsedRepoPath {
+	parsePath(i18n: I18nService): ParsedRepoPath {
 		if (this.parsedRepoPath === null || this.parsedRepoPath === undefined) {
-			this.parsedRepoPath = ParsedRepoPath.parse(this.path);
+			this.parsedRepoPath = ParsedRepoPath.parse(this.path, i18n);
 		}
 
 		return this.parsedRepoPath;

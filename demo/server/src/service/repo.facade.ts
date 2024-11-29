@@ -6,6 +6,7 @@ import { CommandService } from './command.service';
 import { UserService, Page, Transactional, Kontext } from '../framework';
 import { RepoApi } from '../api';
 import { ArtifactFiles } from './artifact.files';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class RepoFacade implements RepoApi {
@@ -14,6 +15,7 @@ export class RepoFacade implements RepoApi {
 		private commandService: CommandService,
 		private userService: UserService,
 		private readonly artifactFiles: ArtifactFiles,
+		private readonly i18n: I18nService,
 		private readonly dataSource?: DataSource,
 	) {}
 
@@ -54,7 +56,7 @@ export class RepoFacade implements RepoApi {
 
 	@Transactional()
 	async createRepo(x: Kontext, params: RepoCreateReq): Promise<RepoDetail> {
-		const { ownerName } = params.parsePath();
+		const { ownerName } = params.parsePath(this.i18n);
 		const owner = await this.userService.resolve(x, ownerName);
 		const repo = await this.service.create(x, params, owner);
 		return RepoDetail.from(repo, this.artifactFiles);
