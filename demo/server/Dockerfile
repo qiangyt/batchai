@@ -14,7 +14,7 @@ RUN npm install -g swc
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY tsconfig.build.json tsconfig.json ./
+COPY tsconfig.build.json tsconfig.json nest-cli.json ./
 COPY src ./src
 RUN npm run build
 
