@@ -1,4 +1,4 @@
-excludes: ['.git','.svn']
+excludes: ['.git','.svn', 'vendor', 'node_modules']
 cache_dir: ${BATCHAI_CACHE_DIR}
 lang: ${LANG}
 test:
