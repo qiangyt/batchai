@@ -152,7 +152,7 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
-		this.logger.log(`Successfully updated command: ${c}`);
+		this.logger.log(`Successfully updated command: ${c.id}`);
 
 		if (params.executeItRightNow) {
 			c = await this.restart(x, c);
@@ -162,7 +162,7 @@ export class CommandService {
 	}
 
 	async create(x: Kontext, params: CommandCreateReq, repo: Repo): Promise<Command> {
-		this.logger.log(`creating command: paramss=${params}, repo=${repo}`);
+		this.logger.log(`creating command: params=${JSON.stringify(params)}, repo=${JSON.stringify(repo)}`);
 
 		params.normalize();
 
@@ -214,7 +214,7 @@ export class CommandService {
 		c.creater = u;
 
 		c = await this.dao.save(c);
-		this.logger.log(`successfully created command: paramss=${c}`);
+		this.logger.log(`successfully created command: params=${JSON.stringify(params)}, repo=${JSON.stringify(repo)}`);
 
 		if (params.executeItRightNow) {
 			c = await this.enqueue(x, c);
