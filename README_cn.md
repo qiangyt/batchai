@@ -2,6 +2,12 @@
 
 [English](./README.md)
 
+演示网站:
+
+<p align="center">
+  <img src="doc/example-site-cn.png" width="800">
+</p>
+
 `batchai`的目标很直接了当：执行一个命令行，遍历整个代码库，让AI为整个代码库批量地执行指定的任务，譬如自动扫描和修复常见错误，譬如生成单元测试代码，等等。实际上，在扫描检查常见错误这上面，`batchai`就类似于AI驱动的SonarQube。所以，`batchai`是对Copilot和Cursor们的补充：不需要在聊天窗口和打开的代码文件之间反复地复制粘贴，也不需要一个个打开文件将它们添加到AI的上下文中，有效地减少了手动操作的繁琐。
 
 拿[spring-petclinic（克隆自https://github.com/spring-projects/spring-petclinic）](https://github.com/qiangyt/spring-petclinic)这个Java项目来演示，我在clone下来的目录上执行了下面这个batchai命令:

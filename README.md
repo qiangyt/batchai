@@ -3,6 +3,12 @@
 
 [中文](./README_cn.md)
 
+Demostration:
+
+<p align="center">
+  <img src="doc/example-site-en.png" width="800">
+</p>
+
 `batchai` has a simple goal: run a command to scan and process an entire codebase, letting AI perform bulk tasks like automatically finding and fixing common bugs, or generating unit tests. It’s similar to AI-driven SonarQube for error checking. Essentially, batchai complements tools like Copilot and Cursor by eliminating the need to copy-paste between chat windows and open files, or manually adding files to the AI’s context, making the process more efficient.
 
 To demonstrate with the `spring-petclinic` project (cloned from https://github.com/spring-projects/spring-petclinic), I ran the following `batchai` command in the cloned directory:
