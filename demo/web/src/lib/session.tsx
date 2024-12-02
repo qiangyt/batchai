@@ -75,7 +75,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
 
     restoreSession().then((signInDetail: SignInDetail) => {
-      if (signInDetail.user.grantLevel === GrantLevel.Default) {
+      if (signInDetail && signInDetail.user.grantLevel === GrantLevel.Default) {
         setRequestStarDialogProps({ open: true, closeFunc: () => setRequestStarDialogProps(null) });
       }
     });
