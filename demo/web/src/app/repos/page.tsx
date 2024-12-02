@@ -24,6 +24,8 @@ import LockIcon from '@mui/icons-material/LockOutlined';
 import UnlockIcon from '@mui/icons-material/NoEncryptionOutlined';
 import { CircularProgressWithLabel } from '@/components/circular-progress-with-label';
 import Backdrop from '@mui/material/Backdrop';
+import {useTranslation} from '@/lib/i18n';
+
 
 async function searchRepo(s: SessionState, ui: UIContextType, setPage: React.Dispatch<React.SetStateAction<Page<RepoBasic>>>, params?: RepoSearchParams) {
   if (ui) ui.setLoading(true);
@@ -59,6 +61,7 @@ export default function RepoList() {
   const [addingRepo, setAddingRepo] = React.useState(false);
   const s = useSession().state;
   const ui = useUIContext();
+  const { t } = useTranslation('common');
 
   const addNewRepoRef = useRef(null);
 
@@ -199,7 +202,7 @@ export default function RepoList() {
   return (<>
     <Box display="flex" flexDirection="column" alignItems="center">
       <Image src={"logo.svg"} alt="batchai" width={348} height={120} />
-      <Typography sx={{ fontSize: 18, color: 'white' }} noWrap>SEARCH REPOSITORY</Typography>
+      <Typography sx={{ fontSize: 18, color: 'white' }} noWrap>{t('SEARCH REPOSITORY')}</Typography>
       <Box sx={{ width: '63.8%' }}><SearchBar onSearch={onSearch} /></Box>
       <Typography sx={{ fontSize: 14 }} color="gray">totally {page.total} repositories for batchai demostration</Typography>
     </Box>

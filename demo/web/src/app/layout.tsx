@@ -18,7 +18,7 @@ import ScrollTop from "@/components/scroll-top";
 import Paper from "@mui/material/Paper";
 import { UIContextProvider } from "@/lib/ui.context";
 import ErrorBoundary from "@/components/error";
-
+import { I18nProvider } from '@/lib/i18n';
 
 export default function RootLayout({
   children,
@@ -35,20 +35,22 @@ export default function RootLayout({
         "min-h-screen bg-background font-sans antialiased",
         /*fontSans.className*/
       )}>
-        <ErrorBoundary>
-          <SessionProvider>
-            <UIContextProvider>
-              <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
-                <CssBaseline />
-                <TopBar anchorId='scroll-to-top' />
-                <Paper variant="outlined" sx={{ mt: 0, mr: 24, ml: 24, background: "black" }} >
-                  {children}
-                </Paper>
-                <ScrollTop anchorId='scroll-to-top' />
-              </ThemeProvider>
-            </UIContextProvider>
-          </SessionProvider>
-        </ErrorBoundary>
+        <I18nProvider>
+          <ErrorBoundary>
+            <SessionProvider>
+              <UIContextProvider>
+                <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
+                  <CssBaseline />
+                  <TopBar anchorId='scroll-to-top' />
+                  <Paper variant="outlined" sx={{ mt: 0, mr: 24, ml: 24, background: "black" }} >
+                    {children}
+                  </Paper>
+                  <ScrollTop anchorId='scroll-to-top' />
+                </ThemeProvider>
+              </UIContextProvider>
+            </SessionProvider>
+          </ErrorBoundary>
+        </I18nProvider>
       </body>
     </html>
   );
