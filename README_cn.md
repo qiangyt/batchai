@@ -142,7 +142,7 @@
     batchai [global options] command [command options] <repository directory>  [target files/directories in the repository]
 
   VERSION:
-    0.1.2 (5eeb081)
+    0.2
 
   COMMANDS:
     check            将问题报告到控制台，也保存到 'build/batchai'

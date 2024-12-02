@@ -143,7 +143,7 @@ More detail:
     batchai [global options] command [command options] <repository directory>  [target files/directories in the repository]
 
   VERSION:
-    0.1.2 (5eeb081)
+    0.2
 
   COMMANDS:
     check            Scans project codes to check issues. Report is outputed to console and also saved to 'build/batchai'
