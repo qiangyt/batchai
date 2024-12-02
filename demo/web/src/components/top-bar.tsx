@@ -56,7 +56,7 @@ export default function TopBar({ anchorId }: Props) {
                         <GitHubIcon sx={{ mr: 2, color: 'white' }} />
                     </MuiLink>
                     <Typography variant="h6" component="a" href="/" sx={{ flexGrow: 1 }} noWrap>
-                        BatchAI Examples
+                        BatchAI {t("Demo")}
                         <Box>
                             <Typography sx={{ fontSize: 10, color: "lightgray" }} noWrap>
                                 Utilizes AI for batch processing of the entire codebase
