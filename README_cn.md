@@ -2,7 +2,7 @@
 
 [English](./README.md)
 
-`batchai`的目标很直接了当：执行一个命令行，遍历整个代码库，让AI为整个代码库批量地执行指定的任务，譬如扫描检查常见错误并修复，譬如生成单元测试代码，等等。实际上，在扫描检查常见错误这上面，`batchai`就类似于AI驱动的SonarQube。所以，`batchai`是对Copilot和Cursor们的补充：不需要在聊天窗口和打开的代码文件之间反复地复制粘贴，也不需要一个个打开文件将它们添加到AI的上下文中。
+`batchai`的目标很直接了当：执行一个命令行，遍历整个代码库，让AI为整个代码库批量地执行指定的任务，譬如自动扫描和修复常见错误，譬如生成单元测试代码，等等。实际上，在扫描检查常见错误这上面，`batchai`就类似于AI驱动的SonarQube。所以，`batchai`是对Copilot和Cursor们的补充：不需要在聊天窗口和打开的代码文件之间反复地复制粘贴，也不需要一个个打开文件将它们添加到AI的上下文中，有效地减少了手动操作的繁琐。
 
 拿[spring-petclinic（克隆自https://github.com/spring-projects/spring-petclinic）](https://github.com/qiangyt/spring-petclinic)这个Java项目来演示，我在clone下来的目录上执行了下面这个batchai命令:
 
@@ -32,11 +32,12 @@
 
 上面这次执行结果是把`batchai`设置成使用了Open AI的`gpt-4o-mini`模型来完成的。
 
-另外，我也刚上线了1个演示网站(https://example.batchai.kailash.cloud:8443)，在这个网站上大家可以提交自己的github代码库、交给batchai去为它们批量检查代码和批量生成单元测试代码。考虑到调用Open AI的成本比较高，这个演示网站使用的模型是开源的`qwen2.5-coder:7b-instruct-fp16`，跑在了我自己的Ollama上，并且只能排队依次执行。
+另外，我也刚上线了1个演示网站(https://example.batchai.kailash.cloud:8443)，在这个网站上大家可以提交自己的github代码库、交给batchai去为它们批量检查代码和批量生成单元测试代码。考虑到调用Open AI的成本比较高，这个演示网站使用的模型是开源的`qwen2.5-coder:7b-instruct-fp16`（性能没`gpt-4o-mini`好），跑在了我自己的Ollama上，并且只能排队依次执行。
 
 下面是过去几周里我在自己的一些项目测试使用`batchai`后的一些有趣的发现：
 
 - AI常常能发现那些传统工具（譬如SonarQube）会遗漏的问题，而且直接修复。
+
 - AI不会一次性报告所有问题，因此我需要多次运行它。
 
 而且，这里还有一个AI搞砸的例子：
@@ -65,6 +66,8 @@ LLM的幻觉问题无法避免，为了避免AI的错误导致覆盖我们自己
 
 目前，`batchai`还仅仅是支持批量代码检查和批量生成单元测试代码，但计划的功能包括代码解释和注释生成、重构等 —— 所有这些都将被批量处理。还有就是，尝试让`batchai`能对项目代码有整体的视角，譬如建立跨文件的代码符号索引表，这应该有助于AI工作得更好。
 
+当然，也非常欢迎到[Issues](https://github.com/qiangyt/batchai/issues)提出建议和功能要求，我们可以一起讨论起来。
+
 ## 开始使用
 
 1. 从[这里](https://github.com/qiangyt/batchai/releases/latest)下载最新的可执行二进制文件并将其添加到您的 $PATH 中。对于 Linux 和 Mac OSX，请记得运行`chmod +x ...`使下载的二进制文件可执行。
@@ -80,7 +83,6 @@ LLM的幻觉问题无法避免，为了避免AI的错误导致覆盖我们自己
    在此目录中，创建一个.env文件。在.env文件中设置OPENAI_API_KEY。以下是一个示例(默认使用Open AI的`gpt-4o-mini`模型)：
   
    ```shell
-   # OpenAI
    OPENAI_API_KEY=change-it
    #OPENAI_PROXY_URL= 对于国内用户，需要在这里设置代理的URL和用户名密码等等
    #OPENAI_PROXY_USER=
