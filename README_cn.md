@@ -2,21 +2,15 @@
 
 [English](./README.md)
 
-我已经依赖 ChatGPT 和 GitHub Copilot了，但老是得在Copilot的聊天窗口和打开的代码文件之间复制粘贴还是有点让人厌烦了。我也尝试了 Cursor，虽然解决了第一个问题，但还是要一个个打开文件将它们添加到 AI 的上下文中。
+`batchai`的目标很直接了当：执行一个命令行，遍历整个代码库，让AI为整个代码库批量地执行指定的任务，譬如扫描检查常见错误并修复，譬如生成单元测试代码，等等。实际上，在扫描检查常见错误这上面，`batchai`就类似于AI驱动的SonarQube。所以，`batchai`是对Copilot和Cursor们的补充：不需要在聊天窗口和打开的代码文件之间反复地复制粘贴，也不需要一个个打开文件将它们添加到AI的上下文中。
 
-于是就有了`batchai`这么个工具。出发点很简单: 无需再复制粘贴，因为它会遍历指定的目录和文件，而且只在 Git 仓库目录中运行，所以程序员自己需要核对所有 `batchai`做出的更改（因为 AI 也常常犯错）。
+拿[spring-petclinic（克隆自https://github.com/spring-projects/spring-petclinic）](https://github.com/qiangyt/spring-petclinic)这个Java项目来演示，我在clone下来的目录上执行了下面这个batchai命令:
 
-目前，`batchai`已经支持批量代码检查（可以看作是本地的 AI 驱动 的SonarQube）和批量生成单元测试代码。打算用在自己的几个个人项目上（包括这个`batchai`），因为一直以来它们就没什么单元测试。其它计划的功能包括代码解释和注释生成、重构等 —— 所有这些都将被批量处理。还有就是，尝试让`batchai`能对项目代码有整体的视角，譬如建立跨文件的代码符号索引，这应该有助于AI工作得更好。
+  ```shell
+  batchai check --fix
+  ```
 
-下面是过去几周里我在自己的一些项目测试使用`batchai`后的一些有趣的发现：
-
-- AI常常能发现那些传统工具（譬如SonarQube）会遗漏的问题。
-- AI不会一次性报告所有问题，因此我需要多次运行它。
-- 由于 LLM 训练数据的过时和幻觉问题，程序员自己核对更改的准确性必不可少- 这就是为什么我让`batchai`只在干净的 Git 仓库目录中工作。
-
-我找了[spring-petclinic（克隆自https://github.com/spring-projects/spring-petclinic）](https://github.com/qiangyt/spring-petclinic)这个Java项目来演示。
-
-下面是一些代码检查结果的例子：
+就可以得到下面这些结果：
 
 - [添加检查确保生日的值不在未来时间](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7ba90c8df45063ea6569e3ea29850f6dbd777bc14f76b1115f556ade61441207)
 
@@ -30,7 +24,22 @@
   <img src="doc/batchai-demo-2.png" width="800">
 </p>
 
-以及一个错误的例子：
+完整的结果在这里：
+
+- [代码检查报告](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
+
+- [依据检查报告生成的修复](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712)
+
+上面这次执行结果是把`batchai`设置成使用了Open AI的`gpt-4o-mini`模型来完成的。
+
+另外，我也刚上线了1个演示网站(https://example.batchai.kailash.cloud:8443)，在这个网站上大家可以提交自己的github代码库、交给batchai去为它们批量检查代码和批量生成单元测试代码。考虑到调用Open AI的成本比较高，这个演示网站使用的模型是开源的`qwen2.5-coder:7b-instruct-fp16`，跑在了我自己的Ollama上，并且只能排队依次执行。
+
+下面是过去几周里我在自己的一些项目测试使用`batchai`后的一些有趣的发现：
+
+- AI常常能发现那些传统工具（譬如SonarQube）会遗漏的问题，而且直接修复。
+- AI不会一次性报告所有问题，因此我需要多次运行它。
+
+而且，这里还有一个AI搞砸的例子：
 
 - [将 MySQL 版本从 9.0 降级回 8.0（看来gpt4o-mini所知道的 MySQL 最新版本是 8.0）](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7bc3b8001f97e9913dec25d48040a4a71b2ff4fcf915b49325602b4facad5979)
 
@@ -38,18 +47,14 @@
   <img src="doc/batchai-demo-3.png" width="800">
 </p>
 
-更多细节：
-
-- [代码检查报告](https://github.com/qiangyt/spring-petclinic/commit/5f2770f2fc0ce4e5d59e2ae348ce0b14c8767e75)
-
-- [依据检查报告生成的修复](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712)
+LLM的幻觉问题无法避免，为了避免AI的错误导致覆盖我们自己原有的修改，我把`batchai`设计成只允许在干净的 Git 仓库目录中工作：如果发现有还没stage的文件，`batchai`会直接拒绝执行，于是我们就能通过git diff来确认AI做出的修改的准确性，如果发现错误，就revert，这一步还是必不可少的。
 
 ## 功能
 
-- [x] 批量检查代码 : 在控制台输出检查报告并保存下来，然后直接修复代码。
+- [x] 批量检查代码: 在控制台输出检查报告并保存下来，然后直接修复代码（可选）。
 - [x] 批量生成单元测试代码。
 - [x] 自定义提示词。
-- [x] 文件忽略 : 指定忽略的文件，支持`.gitignore`和额外的`.batchai_ignore`文件。
+- [x] 忽略指定的文件，支持`.gitignore`和额外的`.batchai_ignore`文件。
 - [x] 指定额外的目标路径: 允许指定 Git 仓库中的部分目录和文件。
 - [x] 使用 Go 实现: 生成一个可在 Mac OSX、Linux 和 Windows 上运行的单一可执行文件。
 - [x] diff显示 : 在控制台中显示彩色差异。
@@ -58,10 +63,7 @@
 
 ## 计划的功能
 
-- 解释、注释生成、测试生成、重构。
-- 拒绝更改跟踪 : 跟踪被拒绝的更改以避免重复修改。
-- 语言特定提示词 : 针对不同编程语言的不同提示词。
-- LLM 使用指标 : 实现 LLM 使用跟踪的指标。
+目前，`batchai`还仅仅是支持批量代码检查和批量生成单元测试代码，但计划的功能包括代码解释和注释生成、重构等 —— 所有这些都将被批量处理。还有就是，尝试让`batchai`能对项目代码有整体的视角，譬如建立跨文件的代码符号索引表，这应该有助于AI工作得更好。
 
 ## 开始使用
 
@@ -75,7 +77,7 @@
    cd spring-petclinic
    ```
 
-   在此目录中，创建一个.env文件。在.env文件中设置OPENAI_API_KEY。以下是一个示例：
+   在此目录中，创建一个.env文件。在.env文件中设置OPENAI_API_KEY。以下是一个示例(默认使用Open AI的`gpt-4o-mini`模型)：
   
    ```shell
    # OpenAI
@@ -83,15 +85,7 @@
    #OPENAI_PROXY_URL= 对于国内用户，需要在这里设置代理的URL和用户名密码等等
    #OPENAI_PROXY_USER=
    #OPENAI_PROXY_PASS=
-   #BATCHAI_CHECK_MODEL=openai/gpt-4o-mini
 
-   # Ali TONGYI qwen
-   #QWEN_API_KEY=change-it
-   #BATCHAI_CHECK_MODEL=tongyi/qwen2.5-coder-7b-instruct
-
-   # local Ollama
-   #OLLAMA_BASE_URL=http://localhost:11434/v1/
-   #BATCHAI_CHECK_MODEL=ollama/qwen2.5-coder:7b-instruct-fp16
    ```
 
    对于 Ollama，您可以参考我的示例[docker-compose.yml](./docker-compose.yml)
@@ -126,57 +120,12 @@
    batchai check .
    ```
 
-## CLI 使用
+   - 为整个代码库生成单元测试代码:
 
-- 查看全局帮助菜单和可用命令，请运行:
-
-  ```shell
-  batchai -h
-  ```
-
-  ```shell
-  NAME:
-  batchai - 用 AI 批量处理项目代码
-
-  USAGE:
-    batchai [global options] command [command options] <repository directory>  [target files/directories in the repository]
-
-  VERSION:
-    0.2
-
-  COMMANDS:
-    check            将问题报告到控制台，也保存到 'build/batchai'
-    list             列出要处理的文件
-    explain (TODO)   解释代码，输出结果到控制台或作为注释
-    comment (TODO)   对代码进行注释
-    refactor (TODO)  重构代码
-    help, h          显示命令列表或某个命令的帮助
-
-  GLOBAL OPTIONS:
-    --enable-symbol-reference  启用符号收集以检查整个项目中的代码引用（默认：false）
-    --force                    忽略缓存（默认：false）
-    --lang value, -l value     生成文本的语言（默认：en_US.UTF-8）[$LANG]
-    --help, -h                 print the version
-    --version, -v              打印版本
-  ```
-
-- 要查看`check`命令的详细帮助，请运行：
-
-  ```shell
-  batchai check -h
-  ```
-
-  ```shell
-  NAME:
-    batchai check - 将问题报告到控制台，也保存到 'build/batchai'
-
-  USAGE:
-    batchai check [command options]
-
-  OPTIONS:
-    --fix, -f   替换目标文件（默认：false）
-    --help, -h  show help
-  ```
+   ```shell
+   cd /data/spring-petclinic
+   batchai test .
+   ```
 
 ## 支持的 LLMs
 
@@ -190,9 +139,11 @@
 
   其他OpenAI模型也应该可以正常工作。
 
-- 阿里通义千问系列:
+- 阿里通义千问系列 (也可通过 Ollama 使用):
   
-  - `qwen2.5-coder-7b-instruct` (也可通过 Ollama 使用)
+  - `qwen2.5-coder-7b-instruct`
+
+  - `qwen2.5-coder:7b-instruct-fp16`
 
   其他通义千问模型也应该可以正常工作。
   
@@ -220,6 +171,5 @@ MIT
 
 ## NA
 
-[![GitHub release](https://img.shields.io/github/v/release/qiangyt/batchai.svg)](https://github.com/qiangyt/batchai/releases/latest)
 [![GitHub Releases Download](https://img.shields.io/github/downloads/qiangyt/batchai/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=qiangyt&repository=batchai)
 
