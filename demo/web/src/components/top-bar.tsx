@@ -15,6 +15,8 @@ import NextLink from "next/link";
 import HomeIcon from '@mui/icons-material/HomeOutlined';
 // import { usePathname } from "next/navigation";
 // import { useEffect, useState } from "react";
+import {useTranslation} from '@/lib/i18n';
+import ToggleLanguage from "./ToggleLanguage";
 
 interface Props {
     anchorId: string;
@@ -43,6 +45,8 @@ export default function TopBar({ anchorId }: Props) {
     //             return <NextLink key={path} href={{ pathname: `/commands/10` }}>{segment}</NextLink>;
     //         })}
     //     </Breadcrumbs>);
+    
+  const { t } = useTranslation();
 
     return <Box sx={{ flexGrow: 1 }}>
         <AppBar position="fixed" sx={{ backgroundColor: "black" }}>
@@ -61,6 +65,8 @@ export default function TopBar({ anchorId }: Props) {
                     </Typography>
 
                     <NextLink href={{ pathname: `/` }}><HomeIcon sx={{ mr: 6 }} /></NextLink>
+                    <ToggleLanguage />
+                    &nbsp;
                     <GitHubLoginButton />
                 </Toolbar>
             </Container>

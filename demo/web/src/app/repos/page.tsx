@@ -61,7 +61,7 @@ export default function RepoList() {
   const [addingRepo, setAddingRepo] = React.useState(false);
   const s = useSession().state;
   const ui = useUIContext();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation();
 
   const addNewRepoRef = useRef(null);
 
