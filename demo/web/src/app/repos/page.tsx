@@ -87,7 +87,7 @@ export default function RepoList() {
     otEvent(e);
     if (newRepoPath) {
       if (!s.detail || !s.detail.accessToken) {
-        ui.signIn({ action: 'create repository' });
+        ui.signIn({ action: t('add repository') });
         return;
       }
 
@@ -139,12 +139,12 @@ export default function RepoList() {
     otEvent(e);
 
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({ action: 'lock/unlock repository' });
+      ui.signIn({ action: t('lock/unlock repository') });
       return;
     }
 
     if (!s.detail.user.admin) {
-      ui.setError('admin privilege is required');
+      ui.setError(t('admin privilege is required'));
       return;
     }
 
@@ -169,12 +169,12 @@ export default function RepoList() {
     otEvent(e);
 
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({ action: 'delete repository' });
+      ui.signIn({ action: t('delete repository') });
       return;
     }
 
     if (repo.locked) {
-      ui.setError('this repository is locked');
+      ui.setError(t('this repository is locked'));
       return;
     }
 
@@ -204,7 +204,7 @@ export default function RepoList() {
       <Image src={"logo.svg"} alt="batchai" width={348} height={120} />
       <Typography sx={{ fontSize: 18, color: 'white' }} noWrap>{t('SEARCH REPOSITORY')}</Typography>
       <Box sx={{ width: '63.8%' }}><SearchBar onSearch={onSearch} /></Box>
-      <Typography sx={{ fontSize: 14 }} color="gray">totally {page.total} repositories for batchai demostration</Typography>
+      <Typography sx={{ fontSize: 14 }} color="gray">{t('totally repositories for batchai demostration', {total: page.total})}</Typography>
     </Box>
 
     <Masonry columns={3} spacing={2} sx={{ mt: 6 }}>

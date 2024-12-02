@@ -1,0 +1,9 @@
+{
+    "SEARCH REPOSITORY": "SEARCH GITHUB REPOSITORY",
+    "add repository": "add github repository",
+    "delete repository": "delete this github repository",
+    "repository is locked": "this repository is locked by administrator",
+    "lock/unlock repository": "lock/unlock this repository",
+    "admin privilege is required": "administrator privilege is required",
+    "totally repositories for batchai demostration": "totally {total} repositories for batchai demostration"
+}

@@ -6,7 +6,7 @@ interface Translations {
 }
 
 interface I18nContextProps {
-  t: (key: string) => string;
+  t: (key: string, params?: {}) => string;
   locale: string;
   setLocale: (locale: string) => void;
 }
@@ -15,15 +15,21 @@ const I18nContext = createContext<I18nContextProps | undefined>(undefined);
 
 
 const translations: Record<string, Translations> = {
-  en: require('@/locales/en/common.json'),
-  'zh-CN': require('@/locales/zh-CN/common.json'),
+  en: require('@/locales/en.json'),
+  'zh-CN': require('@/locales/zh-CN.json'),
 };
 
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const [locale, setLocale] = useState<string>('en'); 
 
-  const t = (key: string): string => translations[locale][key] || key;
+  const t = (key: string, params?: {}): string => {
+    const result = translations[locale][key] || key;
+    if (!params) return result;
+    return Object.keys(params).reduce((translated, paramKey) => {
+      return translated.replace(`{${paramKey}}`, params[paramKey]);
+    }, result);
+  }
 
   return (
     <I18nContext.Provider value={{ t, locale, setLocale }}>

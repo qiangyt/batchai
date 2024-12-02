@@ -1,0 +1,9 @@
+{
+    "SEARCH REPOSITORY": "查找GITHUB代码库",
+    "add repository": "添加GITHUB代码库",
+    "delete repository": "删除这个代码库",
+    "repository is locked": "这个代码库已被管理员锁定",
+    "lock/unlock repository": "锁定/解锁这个代码库",
+    "admin privilege is required": "您需要管理员权限才能执行这个操作",
+    "totally repositories for batchai demostration": "演示着用batchai处理了{total}个GITHUB代码库"
+}
