@@ -4,6 +4,7 @@ import Chip from '@mui/material/Chip';
 import { useState, MouseEvent } from "react";
 import { CommandDetail, otEvent, CommandEditData, useSession, useUIContext } from "@/lib";
 import CommandDialog from "@/components/command-dialog";
+import {useTranslation} from '@/lib/i18n';
 
 interface CommandChipProps {
   repo: RepoBasic;
@@ -15,6 +16,7 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
   const s = useSession().state;
   const ui = useUIContext();
   const [openDialog, setOpenDialog] = useState(false);
+  const { t } = useTranslation();
 
   const cmd = repo.command(commandName);
   if (cmd) {
@@ -29,7 +31,7 @@ export function CommandChip({ repo, commandName, onCommandCreated }: CommandChip
   const onClickCreate = (e: MouseEvent) => {
     otEvent(e);
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({ action: "create command" });
+      ui.signIn({ action: t("add command") });
       return;
     }
     setOpenDialog(true);

@@ -1,4 +1,5 @@
 import { otEvent } from "@/lib";
+import { useTranslation } from "@/lib/i18n";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { ChangeEvent } from "react";
@@ -55,6 +56,7 @@ interface TestLibrarySelectProps {
 
 export default function TestLibrarySelect({ value, onChange }: TestLibrarySelectProps) {
     const option = lookupOption(value);
+    const { t } = useTranslation();
 
     const onChangeLibrary = (e: ChangeEvent<any>, selected: any) => {
         otEvent(e);
@@ -68,6 +70,6 @@ export default function TestLibrarySelect({ value, onChange }: TestLibrarySelect
         getOptionKey={(option: any) => option.value}
         value={option}
         onChange={onChangeLibrary}
-        renderInput={(params) => <TextField {...params} label="Test Library" />}
+        renderInput={(params) => <TextField {...params} label={t("Test Library")} />}
     />
 }

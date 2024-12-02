@@ -6,8 +6,10 @@ import React from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
+import { useTranslation } from "@/lib/i18n";
 
 export default function GitHubLoginButton() {
+  const { t } = useTranslation();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -33,7 +35,7 @@ export default function GitHubLoginButton() {
             open={Boolean(anchorElUser)} onClose={handleCloseUserMenu}
           >
             <MenuItem key="signOut" onClick={s.clear}>
-              <Typography sx={{ textAlign: 'center' }}>Sign out</Typography>
+              <Typography sx={{ textAlign: 'center' }}>{t("Sign out")}</Typography>
             </MenuItem>
           </Menu>
         </>
@@ -42,7 +44,7 @@ export default function GitHubLoginButton() {
           variant="contained"
           onClick={s.redirect}
         >
-          Sign in with GitHub
+          {t("Sign in with GitHub")}
         </Button>
       )}
     </div>

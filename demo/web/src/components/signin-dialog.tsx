@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import { useSession } from '@/lib';
 import Link from '@mui/material/Link';
+import { useTranslation } from '@/lib/i18n';
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -39,6 +40,7 @@ export class SignInDialogProps extends SignInDialogMessage {
 }
 
 export function SignInDialog(props: SignInDialogProps) {
+    const { t } = useTranslation();
     const s = useSession().state;
 
     const onClose = (e) => {
@@ -56,21 +58,21 @@ export function SignInDialog(props: SignInDialogProps) {
     return (
         <Dialog open={props?.open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
             <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
-                Sign In with Github
+                {t("Sign in with GitHub")}
             </DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ m: 2 }}>
                     <Alert severity="info" sx={{ mt: 1 }}>
-                        To {props.action}, please sign in with GITHUB.COM first
+                        {t("To action, please sign in with GITHUB.COM first", {action: props.action})}
                     </Alert>
                     <Typography sx={{ mt: 2 }}>
-                        Clicks [GO AHEAD] button to redirect to <Link href="https://github.com">GITHUB.COM</Link> sign in page.
+                        {t("Clicks [GO AHEAD] button to redirect to")} <Link href="https://github.com">GITHUB.COM</Link> {t("sign in page.")}
                     </Typography>
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Abort</Button>
-                <Button onClick={onGoToGithub}>Go ahead</Button>
+                <Button onClick={onClose}>{t("Abort")}</Button>
+                <Button onClick={onGoToGithub}>{t("Go ahead")}</Button>
             </DialogActions>
         </Dialog>
     )

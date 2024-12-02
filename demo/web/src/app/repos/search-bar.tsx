@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { InputAdornment, OutlinedInput } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import _ from 'lodash';
+import {useTranslation} from '@/lib/i18n';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -9,6 +10,7 @@ interface SearchBarProps {
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
   const [query, setQuery] = useState('');
+  const { t } = useTranslation();
 
   // Debounced function to call the API with the search query
   const debouncedSearch = useCallback(
@@ -26,8 +28,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
   return (
     <OutlinedInput
-      placeholder="Type a github repository path"
-      value={query}
+      placeholder={t("Type a github repository path")}      value={query}
       onChange={handleChange}
       fullWidth
       startAdornment={

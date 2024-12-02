@@ -13,6 +13,7 @@ import Paper, { PaperProps } from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
+import {useTranslation} from '@/lib/i18n';
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -42,6 +43,8 @@ export class ConfirmDialogProps extends ConfirmDialogMessage {
 }
 
 export function ConfirmDialog(props: ConfirmDialogProps) {
+    const { t, locale } = useTranslation();
+
     const [confirmInput, setConfirmInput] = useState('');
     const onChangeConfirmInput = (e: ChangeEvent<HTMLInputElement>) => {
         otEvent(e);
@@ -66,7 +69,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
     return (
         <Dialog open={props?.open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
             <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
-                Confirm to {props?.action} {props?.subjectType}
+                {t("Confirm to action subjectType", {action: props?.action, subjectType: props?.subjectType})}
             </DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ m: 2 }}>
@@ -74,18 +77,24 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
                         {props?.subject}
                     </Typography>
                     <Alert severity="warning" sx={{ mt: 1 }}>
-                        Unexpected bad things will happen if you dont read this!
+                        {t("Unexpected bad things will happen if you dont read this!")}
                     </Alert>
                     <Typography sx={{ mt: 2 }}>
-                        This will permanently {props?.action} the {props?.subject} {props?.subjectType} and associated resources.
+                        {t("This will permanently action the subject subjectType and associated resources.", {action: props?.action, subject: props?.subject, subjectType: props?.subjectType})}
                     </Typography>
-                    <Typography sx={{ mt: 4 }}>To confirm, type <span style={{ color: '#0085BF', fontStyle: 'italic' }}>{props?.subject}</span> in the box below:</Typography>
+                    <Typography sx={{ mt: 4 }}>
+                        { locale === 'en' ?
+                        <>To confirm, type <span style={{ color: '#0085BF', fontStyle: 'italic' }}>{props?.subject}</span> in the box below:</>
+                        :
+                        <>请在下面输入<span style={{ color: '#0085BF', fontStyle: 'italic' }}>{props?.subject}</span>以确认确实要继续这么做：</>
+                    }
+                    </Typography>
                     <TextField autoFocus required margin="dense" label={props?.subjectType} fullWidth variant="standard" value={confirmInput} onChange={onChangeConfirmInput} />
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Abort</Button>
-                <Button onClick={onConfirm}>Confirm</Button>
+                <Button onClick={onClose}>{t("Abort")}</Button>
+                <Button onClick={onConfirm}>{t("Confirm")}</Button>
             </DialogActions>
         </Dialog>
     )

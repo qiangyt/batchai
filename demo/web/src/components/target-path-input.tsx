@@ -11,6 +11,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
 import * as repoApi from '@/api/repo.api';
 import _ from 'lodash';
+import { useTranslation } from "@/lib/i18n";
 
 
 interface TargetPathInputProps {
@@ -31,6 +32,7 @@ async function refreshAvailableTargetPaths(s: SessionState, ui: UIContextType, r
 export default function TargetPathInput({ repoId, commandId, targetPaths, onChange }: TargetPathInputProps) {
   const s = useSession().state;
   const ui = useUIContext();
+  const { t } = useTranslation();
 
   const [targetPath, setTargetPath] = useState('');
   const [availableTargetPaths, setAvailableTargetPaths] = useState([]);
@@ -83,7 +85,7 @@ export default function TargetPathInput({ repoId, commandId, targetPaths, onChan
       renderInput={(params) => <TextField {...params} label="Target Path" />}
     />
     <Button variant="contained" color="inherit" onClick={onAddTargetPath} sx={{ mt: 1, mb: 1 }}>
-      Add Target Path
+      {t("Add Target Path")}
     </Button>
 
     {targetPaths && targetPaths.length > 0 &&

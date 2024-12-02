@@ -209,8 +209,8 @@ export default function RepoList() {
 
     <Masonry columns={3} spacing={2} sx={{ mt: 6 }}>
       <Paper key='add' style={{ minWidth: 420, padding: 30, backgroundColor: 'transparent', color: 'white' }}>
-        <Fab variant="extended" color="primary" aria-label="add" onClick={onAddRepo}><AddIcon />Your Github</Fab>
-        <TextField inputRef={addNewRepoRef} required sx={{ mt: 2.3 }} size="small" id="newRepoPath" label="Repository Path:" fullWidth variant='outlined'
+        <Fab variant="extended" color="primary" aria-label="add" onClick={onAddRepo}><AddIcon />{t("Your Github")}</Fab>
+        <TextField inputRef={addNewRepoRef} required sx={{ mt: 2.3 }} size="small" id="newRepoPath" label={t("Repository Path")} fullWidth variant='outlined'
           onKeyDown={onKeyDownNewRepo} value={newRepoPath} onChange={onChangeNewRepoPath}
           slotProps={{
             input: { sx: { color: 'white', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'gray' } } },

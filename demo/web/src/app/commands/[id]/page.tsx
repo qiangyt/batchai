@@ -34,6 +34,7 @@ import ReactDiffViewer from 'react-diff-viewer-continued';
 import { AuditLogViewer, ExecutionLogViewer } from './log-viewer';
 import { FileDiff } from '@/lib/diff';
 import LinearProgress from '@mui/material/LinearProgress';
+import { useTranslation } from '@/lib/i18n';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -127,6 +128,7 @@ export default function CommandHome({ params }) {
   const [auditLogs, setAuditLogs] = useState<CommandLog[]>([]);
   const [executionLogs, setExecutionLogs] = useState<CommandLog[]>([]);
   const [diffs, setDiffs] = useState<FileDiff[]>([]);
+  const { t } = useTranslation();
 
   let enableRestart = false;
   let enableDelete = false;
@@ -149,7 +151,7 @@ export default function CommandHome({ params }) {
     enableDelete = (command.status !== CommandStatus.Running);
     enableEdit = (command.status !== CommandStatus.Running);
     enableDownload = (command.status === CommandStatus.Succeeded);
-    title = command.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
+    title = command.isTest() ? t('Generates Unit Tests') : t('Scans General Issues');
     status = command.status;
     hasChanges = command.hasChanges;
     commitUrl = command.commitId ? command.commitUrl : '';
@@ -181,7 +183,7 @@ export default function CommandHome({ params }) {
 
   const handleCopy = () => {
     if (!navigator.clipboard) {
-      alert('Cannot access clipboard');
+      alert(t('Cannot access clipboard'));
       return;
     }
 
@@ -292,7 +294,7 @@ export default function CommandHome({ params }) {
 
   const onRestart = async () => {
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({ action: 'restart command' });
+      ui.signIn({ action: t('restart command') });
       return;
     }
 
@@ -304,20 +306,20 @@ export default function CommandHome({ params }) {
 
   const onDelete = async () => {
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({ action: 'delete command' });
+      ui.signIn({ action: t('delete command') });
       return;
     }
 
     if (command.locked) {
-      ui.setError('this command is locked');
+      ui.setError(t('this command is locked'));
       return;
     }
 
     ui.confirm(
       {
-        action: 'delete',
+        action: t('delete'),
         subject: `${ownerName}/${repoName} ${commandName}`,
-        subjectType: 'command'
+        subjectType: t('command'),
       },
       async () => {
         await commandApi.removeCommand(s, ui, id);
@@ -328,12 +330,12 @@ export default function CommandHome({ params }) {
 
   const onLockOrUnlock = async () => {
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({ action: 'lock/unlock command' });
+      ui.signIn({ action: t('lock/unlock command') });
       return;
     }
 
     if (!s.detail.user.admin) {
-      ui.setError('admin privilege is required');
+      ui.setError(t('admin privilege is required'));
       return;
     }
 
@@ -349,11 +351,15 @@ export default function CommandHome({ params }) {
 
   const onClickEditIcon = () => {
     if (!s.detail || !s.detail.accessToken) {
-      ui.signIn({ action: `${id ? 'update' : 'create'} command` });
+      if (id) {
+        ui.signIn({ action: t('update command') });
+      } else {
+        ui.signIn({ action: t('create command') });
+      }
       return;
     }
     if (command.locked) {
-      ui.setError('this command is locked');
+      ui.setError(t('this command is locked'));
       return;
     }
     setOpenCommandDialog(true);
@@ -375,26 +381,26 @@ export default function CommandHome({ params }) {
                 <DownloadIcon sx={{ ml: 2, color: enableDownload ? '#4A90E2' : 'gray' }} />
               </Link>
             </Typography>
-            <Button color='info' onClick={toggleProgress(true)}>Detailed progress</Button>
+            <Button color='info' onClick={toggleProgress(true)}>{t("Detailed progress")}</Button>
           </Box>
         </Box>
 
         <Box>
           <Toolbar>
-            <ToolbarIcon key='(Re)Start' label='(Re)start' enabled={enableRestart} onClick={onRestart}>
+            <ToolbarIcon key='(Re)Start' label={t('(Re)start')} enabled={enableRestart} onClick={onRestart}>
               <RestartIcon sx={{ color: enableRestart ? '#B8E986' : 'gray' }} />
             </ToolbarIcon>
-            <ToolbarIcon key='Edit' label='Edit' enabled={enableEdit} onClick={onClickEditIcon}>
+            <ToolbarIcon key='Edit' label={t('Edit')} enabled={enableEdit} onClick={onClickEditIcon}>
               <EditIcon sx={{ color: enableEdit ? '#B8E986' : 'gray' }} />
             </ToolbarIcon>
-            <ToolbarIcon key='LockOrUnlock' label={command?.locked ? 'Unlock' : 'Lock'} enabled onClick={onLockOrUnlock}>
+            <ToolbarIcon key='LockOrUnlock' label={command?.locked ? t('Unlock') : t('Lock')} enabled onClick={onLockOrUnlock}>
               {command?.locked ?
                 <UnlockIcon sx={{ color: '#B8E986' }} />
                 :
                 <LockIcon sx={{ color: '#B8E986' }} />
               }
             </ToolbarIcon>
-            <ToolbarIcon key='Delete' label='Delete' enabled={enableDelete} onClick={onDelete}>
+            <ToolbarIcon key='Delete' label={t('Delete')} enabled={enableDelete} onClick={onDelete}>
               <DeleteIcon sx={{ color: enableDelete ? 'red' : 'gray' }} />
             </ToolbarIcon>
           </Toolbar>
@@ -427,9 +433,9 @@ export default function CommandHome({ params }) {
           </Box>)
         }
         <Tabs sx={{ mt: 1 }} value={logTabIndex} onChange={onChangeLogTab} aria-label="basic tabs example">
-          <Tab label="Changes" sx={{ color: 'lightgray' }} {...a11yProps(0)} />
-          <Tab label="Execution Log" sx={{ color: 'lightgray' }} {...a11yProps(1)} />
-          <Tab label="Audit Log" sx={{ color: 'lightgray' }} {...a11yProps(2)} />
+          <Tab label={t("Changes")} sx={{ color: 'lightgray' }} {...a11yProps(0)} />
+          <Tab label={t("Execution Log")} sx={{ color: 'lightgray' }} {...a11yProps(1)} />
+          <Tab label={t("Audit Log")} sx={{ color: 'lightgray' }} {...a11yProps(2)} />
         </Tabs>
         <CustomTabPanel value={logTabIndex} index={0}>
           <Box width={'100%'} sx={{ ml: 1, mb: 1, display: 'flex', flexDirection: 'row' }}>

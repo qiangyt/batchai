@@ -13,25 +13,7 @@ import Paper, { PaperProps } from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
-import Container from '@mui/material/Container';
-
-/*
-标题：文件处理数量限制 🎉
-正文：
-
-感谢您使用batchai！普通用户只允许为每个代码库指定处理5个文件。
-
-如果您喜欢这个项目，欢迎为我们在 GitHub 上点赞 ⭐️！
-点赞后，您将享受不限数量的使用权限，帮助我们更好地改进项目并支持更多开发者！
-
-👉 愿意为我们点赞支持吗？
-
-按钮：
-
-    立即去Github点赞
-    以后再说
-
-*/
+import { useTranslation } from '@/lib/i18n';
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -52,6 +34,8 @@ export class RequestStarDialogProps {
 }
 
 export function RequestStarDialog(props: RequestStarDialogProps) {
+    const { t } = useTranslation();
+    
     const onClose = (e) => {
         otEvent(e);
         props.closeFunc();
@@ -66,33 +50,33 @@ export function RequestStarDialog(props: RequestStarDialogProps) {
     return (
         <Dialog open={props?.open} onClose={onClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
             <DialogTitle sx={{ backgroundColor: '#21232b', color: 'white', cursor: 'move' }} id="draggable-dialog-title">
-                Processing Usage Reached
+                {t("Processing Usage Reached")}
             </DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ m: 2 }}>
                     <Typography sx={{ textAlign: 'center', fontSize: 28 }}>
-                        Thank you for using batchai!
+                        {t("Thank you for using batchai!")}
                     </Typography>
                     <Alert severity="info" sx={{ mt: 1 }}>
-                        If you like this project, I’d greatly appreciate it if you could give me a star ⭐️ on GitHub!
+                        {t("If you like this project, I’d greatly appreciate it if you could give me a star ⭐️ on GitHub!")}
                         <Box sx={{ mt: 2 }} />
-                        By starring me, you’ll unlock unlimited usage.
+                        {t("By starring me, you’ll unlock unlimited usage.")}
                     </Alert>
                     <Typography sx={{ mt: 2, ml: 3 }}>
-                        👉 Would you like to support me by giving a star?
+                        {t("👉 Would you like to support me by giving a star?")}
                     </Typography>
                     <Alert severity="warning" sx={{ mt: 1, }}>
-                        NOTE: <span style={{ color: 'red' }}>RE-LOGIN</span> after starred!
+                        {t("NOTE")}: <span style={{ color: 'red' }}>{t("RE-LOGIN after starred!")}</span>
                     </Alert>
                     <Typography sx={{ mt: 2, ml: 6 }}>
-                        Still have issue? {" -> "}
+                        {t("Still have issue?")} {" -> "}
                         <Link href="https://github.com/qiangyt/batchai/issues">https://github.com/qiangyt/batchai/issues</Link>
                     </Typography>
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Maybe Later</Button>
-                <Button onClick={onConfirm}>Star on GitHub now</Button>
+                <Button onClick={onClose}>{t("Maybe Later")}</Button>
+                <Button onClick={onConfirm}>{t("Star on GitHub now")}</Button>
             </DialogActions>
         </Dialog>
     )

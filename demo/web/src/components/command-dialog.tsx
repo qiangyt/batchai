@@ -18,6 +18,7 @@ import Paper, { PaperProps } from '@mui/material/Paper';
 import TargetPathInput from './target-path-input';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import {useTranslation} from '@/lib/i18n';
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -41,7 +42,8 @@ export default function CommandDialog({ data: _data, open, setOpen, onSubmited }
   const s = useSession().state;
   const ui = useUIContext();
   const [data, setData] = useState(_data);
-  const title = data.isTest() ? 'Generates Unit Tests' : 'Scans General Issues';
+  const { t } = useTranslation();
+  const title = data.isTest() ? t('Generates Unit Tests') : t('Scans General Issues');
 
   const onTargetPathsChange = (targetPaths: string[]) => {
     setData(CommandEditData.with({ ...data, targetPaths }));
@@ -111,14 +113,14 @@ export default function CommandDialog({ data: _data, open, setOpen, onSubmited }
         <Link href={data.repo.repoUrl} sx={{ color: 'white', fontSize: 24 }}>{data.repo.repoUrl}</Link></DialogTitle>
       <DialogContent>
         <Box sx={{ width: "64%", mt: 5 }}><LangSelect value={data.lang} onChange={onChangeLang} /></Box>
-        <TextField size='small' sx={{ width: "64%", mt: 3 }} label="Number of file to process" type="number" placeholder="Type a number…" value={data.num} onChange={onChangeNum}
+        <TextField size='small' sx={{ width: "64%", mt: 3 }} label={t("Number of file to process")} type="number" placeholder={t("Type a number…")} value={data.num} onChange={onChangeNum}
           slotProps={{
             inputLabel: {
               shrink: true,
             },
           }} />
         {data.isTest() && <Box sx={{ width: "64%", mt: 3 }}><TestLibrarySelect value={data.testLibrary} onChange={onChangeTestLibrary} /></Box>}
-        {data.isCheck() && <Box sx={{ width: "64%", mt: 3 }}><FormControlLabel sx={{ mt: 1 }} control={<Checkbox size='small' checked={data.checkFix} onChange={onChangeCheckFix} />} label="Fix detected issues" /></Box>}
+        {data.isCheck() && <Box sx={{ width: "64%", mt: 3 }}><FormControlLabel sx={{ mt: 1 }} control={<Checkbox size='small' checked={data.checkFix} onChange={onChangeCheckFix} />} label={t("Fix detected issues")} /></Box>}
 
         <FormControlLabel sx={{ mt: 1 }} control={<Checkbox size='small' checked={data.executeItRightNow} onChange={onChangeExecuteItRightNow} />} label="Executes it right now" />
 
@@ -126,8 +128,8 @@ export default function CommandDialog({ data: _data, open, setOpen, onSubmited }
 
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button type="submit" onClick={onSubmit}>Submit</Button>
+        <Button onClick={onClose}>{t("Cancel")}</Button>
+        <Button type="submit" onClick={onSubmit}>{t("Submit")}</Button>
       </DialogActions>
     </Dialog>
   </>
