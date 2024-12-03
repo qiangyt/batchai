@@ -3,11 +3,11 @@
 
 [中文](./README_cn.md)
 
-Demostration:
+Demostration: https://example.batchai.kailash.cloud:8443
 
-<p align="center">
-  <img src="doc/example-site-en.png" width="800">
-</p>
+<div align="center" width="100%">
+  <img src="doc/example-site-en.png" width="100%">
+</div>
 
 `batchai` has a simple goal: run a command to scan and process an entire codebase, letting AI perform bulk tasks like automatically finding and fixing common bugs, or generating unit tests. It’s similar to AI-driven SonarQube for error checking. Essentially, batchai complements tools like Copilot and Cursor by eliminating the need to copy-paste between chat windows and open files, or manually adding files to the AI’s context, making the process more efficient.
 
@@ -18,23 +18,6 @@ To demonstrate with the `spring-petclinic` project (cloned from https://github.c
   ```
 
 And here are the results I got:
-
-
-
-
-That's why I created `batchai`. The idea is simple: less copy-pasting, fewer clicks on 'Add to Chat' or 'Apply.' `batchai` traverses files and processing each of them. Since AI isn’t always perfect, I’ve designed it to run only on a Git directory, so we can easily diff the changes and choose to either commit or revert them.
-
-Currently, `batchai` only supports code check and fixing common issues (think of it as a local AI-driven SonarQube). The next feature in progress is generating unit test code in batches, which I plan to use in a few of my personal projects (including this `batchai`), as they have very few unit tests. Other planned features include code explanation, comment generation, and refactoring — all of which will be handled in batches. Additionally, I’m working on enabling `batchai` to have an overall insight of the project’s code, such as building cross-file code symbol indexing, which should help the AI perform better.
-
-Here are some interesting findings from testing batchai on my personal projects over the past two weeks:
-
-- It can identify issues that traditional tools, such as SonarQube, tend to miss.
-- It may not report all issues in one go, so I need to run it multiple times.
-- Due to outdated LLM training data and hallucinations, it's crucial to confirm the changes for accuracy by myself - That's why I make `batchai` work only on clean Git repository directories.
-
-I used the [spring-petclinic (cloned from https://github.com/spring-projects/spring-petclinic)](https://github.com/qiangyt/spring-petclinic) for demonstration.
-
-Here are some examples of correct check:
 
 - [Adds a check to ensure birthday not be in the future](https://github.com/qiangyt/spring-petclinic/commit/6f42f16a249b3fffa8b95ac625c824210bbb2712#diff-7ba90c8df45063ea6569e3ea29850f6dbd777bc14f76b1115f556ade61441207)
 
