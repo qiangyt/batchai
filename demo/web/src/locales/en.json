@@ -42,7 +42,7 @@
     "Add Target Path": "Add Target Path",
     "Test Library": "Test Library",
     "Cannot access clipboard": "Cannot access clipboard due to clipboard is disabled in this browser",
-    "restart command": "restart command",
+    "restart command": "(re)start command",
     "delete command": "delete command",
     "update command": "update command",
     "create command": "create command",
