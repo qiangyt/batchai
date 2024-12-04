@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import helmet from 'helmet';
+import { HttpExceptionFilter } from './framework/http.exception.filter';
 //import * as cookieParser from 'cookie-parser';
 //import cookieParser from 'cookie-parser';
 
@@ -12,6 +13,7 @@ async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 
 	const cookieParser = (await import('cookie-parser')).default;
+	app.useGlobalFilters(new HttpExceptionFilter());
 	app.use(cookieParser());
 	app.use(
 		helmet({
