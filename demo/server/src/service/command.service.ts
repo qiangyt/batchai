@@ -126,9 +126,11 @@ export class CommandService {
 
 		const u = x.user;
 
-		if (c.enableSymbolReference !== params.enableSymbolReference) {
+		if (c.enableSymbolReference) {
 			u.ensureHasAdminRole();
 			c.enableSymbolReference = params.enableSymbolReference;
+		} else {
+			c.enableSymbolReference = false;
 		}
 
 		c.force = params.force;
