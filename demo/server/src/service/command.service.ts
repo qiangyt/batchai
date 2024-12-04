@@ -149,7 +149,6 @@ export class CommandService {
 		c.lang = params.lang;
 
 		if (c.checkFix !== params.checkFix) {
-			u.ensureHasAdminRole();
 			c.checkFix = params.checkFix;
 		}
 
