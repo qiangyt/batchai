@@ -50,12 +50,19 @@ const withAxios = (s: SessionState, ui: UIContextType) => {
           s.redirect();
           return Promise.resolve(null);
         }
+
         const errData = errResp.data;
-        if (errData.message && errData.error) {
-          const desc = `${errData.error}: ${errData.message}`;
-          alert(desc);//ui.setError(desc);
-          return Promise.reject(desc);
+        const desc = [];
+        if (errData.error) {
+          desc.push(errData.error);
         }
+        if (errData.message) {
+          desc.push(errData.message);
+        }
+        const msg = desc.join(' ');        
+
+        ui.setError(msg);
+        return Promise.reject(msg);
       }
 
       return Promise.reject(error);
