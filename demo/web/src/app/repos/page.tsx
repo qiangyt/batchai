@@ -173,6 +173,11 @@ export default function RepoList() {
       return;
     }
 
+    if (!s.detail.user.admin) {
+      ui.setError(t('admin privilege is required'));
+      return;
+    }
+
     if (repo.locked) {
       ui.setError(t('this repository is locked'));
       return;

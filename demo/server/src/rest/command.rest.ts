@@ -91,7 +91,7 @@ export class CommandRest implements CommandApi {
 		return this.facade.updateCommand(x, id, params);
 	}
 
-	@RequiredRoles(Role.User)
+	@RequiredRoles(Role.Admin)
 	@Delete('id/:id')
 	async removeCommand(@RequestKontext() x: Kontext, @Param('id') id: number): Promise<void> {
 		return this.facade.removeCommand(x, id);

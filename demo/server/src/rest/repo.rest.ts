@@ -37,7 +37,7 @@ export class RepoRest implements RepoApi {
 		return this.facade.loadRepo(x, id);
 	}
 
-	@RequiredRoles(Role.User)
+	@RequiredRoles(Role.Admin)
 	@Delete('id/:id')
 	async removeRepo(
 		@RequestKontext() x: Kontext,

@@ -308,6 +308,11 @@ export default function CommandHome({ params }) {
     if (!s.detail || !s.detail.accessToken) {
       ui.signIn({ action: t('delete command') });
       return;
+    }    
+
+    if (!s.detail.user.admin) {
+      ui.setError(t('admin privilege is required'));
+      return;
     }
 
     if (command.locked) {
