@@ -11,6 +11,7 @@ require (
 	github.com/divideandconquer/go-merge v0.0.0-20160829212531-bc6b3a394b4e
 	github.com/emirpasic/gods v1.18.1
 	github.com/go-playground/validator/v10 v10.19.0
+	github.com/iancoleman/orderedmap v0.3.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/openai/openai-go v0.1.0-alpha.37
@@ -23,7 +24,6 @@ require (
 	github.com/tiktoken-go/tokenizer v0.2.0
 	github.com/urfave/cli/v2 v2.27.4
 	gopkg.in/yaml.v3 v3.0.1
-	github.com/iancoleman/orderedmap v0.3.0
 )
 
 require (
@@ -42,7 +42,7 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.8.0 // indirect
+	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/tidwall/gjson v1.17.3 // indirect
