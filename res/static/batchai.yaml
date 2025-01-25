@@ -283,3 +283,16 @@ models:
     proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
     proxy_user: ''
     proxy_pass: ''
+
+  - id: ollama/deepseek-coder-v2:16b-lite-instruct-q4_0
+    name: deepseek-coder-v2:16b-lite-instruct-q4_0
+    temperature: ${BATCHAI_CHAT_TEMERATURE}
+    context_window: 163840
+    max_completion_tokens: 1638400
+    api_key: ${OLLAMA_API_KEY}
+    base_url: ${OLLAMA_BASE_URL}
+    timeout: ${BATCHAI_API_TIMEOUT}
+    proxy_url: ''
+    proxy_insecure_skip_verify: ${BATCHAI_PROXY_INSECURE_SKIP_VERIFY}
+    proxy_user: ''
+    proxy_pass: ''
